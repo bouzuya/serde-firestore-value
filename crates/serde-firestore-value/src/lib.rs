@@ -118,7 +118,7 @@ mod tests {
         }
 
         fn serialize_unit(self) -> Result<Self::Ok, Self::Error> {
-            todo!()
+            self.serialize_none()
         }
 
         fn serialize_unit_struct(self, name: &'static str) -> Result<Self::Ok, Self::Error> {
@@ -613,6 +613,17 @@ mod tests {
             to_value(&Some(1_i64))?,
             Value {
                 value_type: Some(ValueType::IntegerValue(1_i64))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_unit() -> anyhow::Result<()> {
+        assert_eq!(
+            to_value(&())?,
+            Value {
+                value_type: Some(ValueType::NullValue(0_i32))
             }
         );
         Ok(())

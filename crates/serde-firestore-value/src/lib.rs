@@ -45,7 +45,8 @@ mod tests {
         type SerializeStructVariant = Self;
 
         fn serialize_bool(self, v: bool) -> Result<Self::Ok, Self::Error> {
-            todo!()
+            self.output.value_type = Some(ValueType::BooleanValue(v));
+            Ok(())
         }
 
         fn serialize_i8(self, v: i8) -> Result<Self::Ok, Self::Error> {
@@ -346,6 +347,23 @@ mod tests {
         };
         value.serialize(&mut serializer)?;
         Ok(serializer.output)
+    }
+
+    #[test]
+    fn test_bool() -> anyhow::Result<()> {
+        assert_eq!(
+            to_value(&false)?,
+            Value {
+                value_type: Some(ValueType::BooleanValue(false))
+            }
+        );
+        assert_eq!(
+            to_value(&true)?,
+            Value {
+                value_type: Some(ValueType::BooleanValue(true))
+            }
+        );
+        Ok(())
     }
 
     #[test]

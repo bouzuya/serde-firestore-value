@@ -82,11 +82,12 @@ mod tests {
         }
 
         fn serialize_f32(self, v: f32) -> Result<Self::Ok, Self::Error> {
-            todo!()
+            self.serialize_f64(f64::from(v))
         }
 
         fn serialize_f64(self, v: f64) -> Result<Self::Ok, Self::Error> {
-            todo!()
+            self.output.value_type = Some(ValueType::DoubleValue(v));
+            Ok(())
         }
 
         fn serialize_char(self, v: char) -> Result<Self::Ok, Self::Error> {
@@ -410,6 +411,40 @@ mod tests {
             to_value(&i64::MIN)?,
             Value {
                 value_type: Some(ValueType::IntegerValue(i64::MIN))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_f32() -> anyhow::Result<()> {
+        assert_eq!(
+            to_value(&f32::MAX)?,
+            Value {
+                value_type: Some(ValueType::DoubleValue(f64::from(f32::MAX)))
+            }
+        );
+        assert_eq!(
+            to_value(&f32::MIN)?,
+            Value {
+                value_type: Some(ValueType::DoubleValue(f64::from(f32::MIN)))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_f64() -> anyhow::Result<()> {
+        assert_eq!(
+            to_value(&f64::MAX)?,
+            Value {
+                value_type: Some(ValueType::DoubleValue(f64::MAX))
+            }
+        );
+        assert_eq!(
+            to_value(&f64::MIN)?,
+            Value {
+                value_type: Some(ValueType::DoubleValue(f64::MIN))
             }
         );
         Ok(())

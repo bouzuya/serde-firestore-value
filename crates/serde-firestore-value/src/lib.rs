@@ -127,11 +127,11 @@ mod tests {
 
         fn serialize_unit_variant(
             self,
-            name: &'static str,
-            variant_index: u32,
+            _name: &'static str,
+            _variant_index: u32,
             variant: &'static str,
         ) -> Result<Self::Ok, Self::Error> {
-            todo!()
+            self.serialize_str(variant)
         }
 
         fn serialize_newtype_struct<T: ?Sized>(
@@ -637,6 +637,28 @@ mod tests {
             to_value(&Unit)?,
             Value {
                 value_type: Some(ValueType::NullValue(0_i32))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_unit_variant() -> anyhow::Result<()> {
+        #[derive(serde::Serialize)]
+        enum E {
+            A,
+            B,
+        }
+        assert_eq!(
+            to_value(&E::A)?,
+            Value {
+                value_type: Some(ValueType::StringValue("A".to_string()))
+            }
+        );
+        assert_eq!(
+            to_value(&E::B)?,
+            Value {
+                value_type: Some(ValueType::StringValue("B".to_string()))
             }
         );
         Ok(())

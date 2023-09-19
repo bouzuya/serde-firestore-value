@@ -136,13 +136,13 @@ mod tests {
 
         fn serialize_newtype_struct<T: ?Sized>(
             self,
-            name: &'static str,
+            _name: &'static str,
             value: &T,
         ) -> Result<Self::Ok, Self::Error>
         where
             T: Serialize,
         {
-            todo!()
+            value.serialize(self)
         }
 
         fn serialize_newtype_variant<T: ?Sized>(
@@ -659,6 +659,19 @@ mod tests {
             to_value(&E::B)?,
             Value {
                 value_type: Some(ValueType::StringValue("B".to_string()))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_newtype_struct() -> anyhow::Result<()> {
+        #[derive(serde::Serialize)]
+        struct Millimeters(u8);
+        assert_eq!(
+            to_value(&Millimeters(u8::MAX))?,
+            Value {
+                value_type: Some(ValueType::IntegerValue(i64::from(u8::MAX)))
             }
         );
         Ok(())

@@ -106,14 +106,15 @@ mod tests {
         }
 
         fn serialize_none(self) -> Result<Self::Ok, Self::Error> {
-            todo!()
+            self.output.value_type = Some(ValueType::NullValue(0));
+            Ok(())
         }
 
         fn serialize_some<T: ?Sized>(self, value: &T) -> Result<Self::Ok, Self::Error>
         where
             T: Serialize,
         {
-            todo!()
+            value.serialize(self)
         }
 
         fn serialize_unit(self) -> Result<Self::Ok, Self::Error> {
@@ -477,6 +478,35 @@ mod tests {
             to_value(&"abc")?,
             Value {
                 value_type: Some(ValueType::StringValue("abc".to_string()))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_none() -> anyhow::Result<()> {
+        assert_eq!(
+            to_value(&None::<Option<i64>>)?,
+            Value {
+                value_type: Some(ValueType::NullValue(0_i32))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_some() -> anyhow::Result<()> {
+        // TODO: all types
+        assert_eq!(
+            to_value(&Some(true))?,
+            Value {
+                value_type: Some(ValueType::BooleanValue(true))
+            }
+        );
+        assert_eq!(
+            to_value(&Some(1_i64))?,
+            Value {
+                value_type: Some(ValueType::IntegerValue(1_i64))
             }
         );
         Ok(())

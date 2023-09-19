@@ -121,8 +121,8 @@ mod tests {
             self.serialize_none()
         }
 
-        fn serialize_unit_struct(self, name: &'static str) -> Result<Self::Ok, Self::Error> {
-            todo!()
+        fn serialize_unit_struct(self, _name: &'static str) -> Result<Self::Ok, Self::Error> {
+            self.serialize_none()
         }
 
         fn serialize_unit_variant(
@@ -622,6 +622,19 @@ mod tests {
     fn test_unit() -> anyhow::Result<()> {
         assert_eq!(
             to_value(&())?,
+            Value {
+                value_type: Some(ValueType::NullValue(0_i32))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_unit_struct() -> anyhow::Result<()> {
+        #[derive(serde::Serialize)]
+        struct Unit;
+        assert_eq!(
+            to_value(&Unit)?,
             Value {
                 value_type: Some(ValueType::NullValue(0_i32))
             }

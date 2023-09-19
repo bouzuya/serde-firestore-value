@@ -1,0 +1,12 @@
+[package]
+name = "serde-firestore-value"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+google = { path = "../google" }
+serde = "1.0.188"
+
+[dev-dependencies]
+anyhow = "1.0.75"
+thiserror = "1.0.48"

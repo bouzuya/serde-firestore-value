@@ -1,0 +1,14 @@
+[package]
+name = "google"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+prost = "0.12.1"
+prost-types = "0.12.1"
+tonic = "0.10.0"
+
+[build-dependencies]
+anyhow = "1.0.75"
+prost-build = "0.12.1"
+tonic-build = "0.10.0"

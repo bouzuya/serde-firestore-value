@@ -40,7 +40,7 @@ mod tests {
 
         type SerializeMap = FirestoreMapValueSerializer<'a>;
 
-        type SerializeStruct = Self;
+        type SerializeStruct = FirestoreMapValueSerializer<'a>;
 
         type SerializeStructVariant = Self;
 
@@ -157,7 +157,7 @@ mod tests {
         {
             let mut map = self.serialize_map(Some(1))?;
             map.serialize_entry(variant, value)?;
-            map.end()
+            SerializeMap::end(map)
         }
 
         fn serialize_seq(self, len: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
@@ -209,10 +209,10 @@ mod tests {
 
         fn serialize_struct(
             self,
-            name: &'static str,
+            _name: &'static str,
             len: usize,
         ) -> Result<Self::SerializeStruct, Self::Error> {
-            todo!()
+            self.serialize_map(Some(len))
         }
 
         fn serialize_struct_variant(
@@ -372,7 +372,7 @@ mod tests {
         }
     }
 
-    impl<'a> SerializeStruct for &'a mut FirestoreValueSerializer {
+    impl<'a> SerializeStruct for FirestoreMapValueSerializer<'a> {
         type Ok = &'a mut FirestoreValueSerializer;
 
         type Error = Error;
@@ -385,11 +385,11 @@ mod tests {
         where
             T: Serialize,
         {
-            todo!()
+            self.serialize_entry(key, value)
         }
 
         fn end(self) -> Result<Self::Ok, Self::Error> {
-            todo!()
+            SerializeMap::end(self)
         }
     }
 
@@ -875,6 +875,46 @@ mod tests {
                             "k2".to_string(),
                             Value {
                                 value_type: Some(ValueType::IntegerValue(2_i64)),
+                            },
+                        );
+                        map
+                    }
+                }))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_struct() -> anyhow::Result<()> {
+        #[derive(serde::Serialize)]
+        struct S {
+            r: u8,
+            g: u8,
+            b: u8,
+        }
+        assert_eq!(
+            to_value(&S { r: 1, g: 2, b: 3 })?,
+            Value {
+                value_type: Some(ValueType::MapValue(MapValue {
+                    fields: {
+                        let mut map = HashMap::new();
+                        map.insert(
+                            "r".to_string(),
+                            Value {
+                                value_type: Some(ValueType::IntegerValue(1_i64)),
+                            },
+                        );
+                        map.insert(
+                            "g".to_string(),
+                            Value {
+                                value_type: Some(ValueType::IntegerValue(2_i64)),
+                            },
+                        );
+                        map.insert(
+                            "b".to_string(),
+                            Value {
+                                value_type: Some(ValueType::IntegerValue(3_i64)),
                             },
                         );
                         map

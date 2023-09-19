@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use std::fmt::Display;
+    use std::{collections::HashMap, fmt::Display};
 
-    use google::firestore::v1::{value::ValueType, ArrayValue, Value};
+    use google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
     use serde::{
         ser::{
             SerializeMap, SerializeSeq, SerializeStruct, SerializeStructVariant, SerializeTuple,
@@ -38,7 +38,7 @@ mod tests {
 
         type SerializeTupleVariant = Self;
 
-        type SerializeMap = Self;
+        type SerializeMap = FirestoreMapValueSerializer<'a>;
 
         type SerializeStruct = Self;
 
@@ -190,7 +190,13 @@ mod tests {
         }
 
         fn serialize_map(self, len: Option<usize>) -> Result<Self::SerializeMap, Self::Error> {
-            todo!()
+            Ok(FirestoreMapValueSerializer {
+                key: None,
+                output: MapValue {
+                    fields: HashMap::with_capacity(len.unwrap_or(0)),
+                },
+                parent: self,
+            })
         }
 
         fn serialize_struct(
@@ -289,7 +295,13 @@ mod tests {
         }
     }
 
-    impl<'a> SerializeMap for &'a mut FirestoreValueSerializer {
+    struct FirestoreMapValueSerializer<'a> {
+        key: Option<String>,
+        output: MapValue,
+        parent: &'a mut FirestoreValueSerializer,
+    }
+
+    impl<'a> SerializeMap for FirestoreMapValueSerializer<'a> {
         type Ok = &'a mut FirestoreValueSerializer;
 
         type Error = Error;
@@ -298,18 +310,36 @@ mod tests {
         where
             T: Serialize,
         {
-            todo!()
+            if let (
+                Value {
+                    value_type: Some(ValueType::StringValue(k)),
+                },
+                None,
+            ) = (to_value(&key)?, self.key.as_ref())
+            {
+                self.key = Some(k);
+                Ok(())
+            } else {
+                todo!()
+            }
         }
 
         fn serialize_value<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
         where
             T: Serialize,
         {
-            todo!()
+            if let Some(k) = self.key.take() {
+                let v = to_value(&value)?;
+                self.output.fields.insert(k, v);
+                Ok(())
+            } else {
+                todo!()
+            }
         }
 
         fn end(self) -> Result<Self::Ok, Self::Error> {
-            todo!()
+            self.parent.output.value_type = Some(ValueType::MapValue(self.output));
+            Ok(self.parent)
         }
     }
 
@@ -580,6 +610,39 @@ mod tests {
                             value_type: Some(ValueType::StringValue("abc".to_string()))
                         }
                     ]
+                }))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_map() -> anyhow::Result<()> {
+        assert_eq!(
+            to_value(&{
+                let mut map = HashMap::new();
+                map.insert("k1", 1_i64);
+                map.insert("k2", 2_i64);
+                map
+            })?,
+            Value {
+                value_type: Some(ValueType::MapValue(MapValue {
+                    fields: {
+                        let mut map = HashMap::new();
+                        map.insert(
+                            "k1".to_string(),
+                            Value {
+                                value_type: Some(ValueType::IntegerValue(1_i64)),
+                            },
+                        );
+                        map.insert(
+                            "k2".to_string(),
+                            Value {
+                                value_type: Some(ValueType::IntegerValue(2_i64)),
+                            },
+                        );
+                        map
+                    }
                 }))
             }
         );

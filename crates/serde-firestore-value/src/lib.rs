@@ -2,7 +2,7 @@
 mod tests {
     use std::fmt::Display;
 
-    use google::firestore::v1::{value::ValueType, Value};
+    use google::firestore::v1::{value::ValueType, ArrayValue, Value};
     use serde::{
         ser::{
             SerializeMap, SerializeSeq, SerializeStruct, SerializeStructVariant, SerializeTuple,
@@ -26,11 +26,11 @@ mod tests {
     }
 
     impl<'a> Serializer for &'a mut FirestoreValueSerializer {
-        type Ok = ();
+        type Ok = &'a mut FirestoreValueSerializer;
 
         type Error = Error;
 
-        type SerializeSeq = Self;
+        type SerializeSeq = FirestoreArrayValueSerializer<'a>;
 
         type SerializeTuple = Self;
 
@@ -46,7 +46,7 @@ mod tests {
 
         fn serialize_bool(self, v: bool) -> Result<Self::Ok, Self::Error> {
             self.output.value_type = Some(ValueType::BooleanValue(v));
-            Ok(())
+            Ok(self)
         }
 
         fn serialize_i8(self, v: i8) -> Result<Self::Ok, Self::Error> {
@@ -63,7 +63,7 @@ mod tests {
 
         fn serialize_i64(self, v: i64) -> Result<Self::Ok, Self::Error> {
             self.output.value_type = Some(ValueType::IntegerValue(v));
-            Ok(())
+            Ok(self)
         }
 
         fn serialize_u8(self, v: u8) -> Result<Self::Ok, Self::Error> {
@@ -88,7 +88,7 @@ mod tests {
 
         fn serialize_f64(self, v: f64) -> Result<Self::Ok, Self::Error> {
             self.output.value_type = Some(ValueType::DoubleValue(v));
-            Ok(())
+            Ok(self)
         }
 
         fn serialize_char(self, v: char) -> Result<Self::Ok, Self::Error> {
@@ -98,7 +98,7 @@ mod tests {
         fn serialize_str(self, v: &str) -> Result<Self::Ok, Self::Error> {
             // TODO: length check
             self.output.value_type = Some(ValueType::StringValue(v.to_string()));
-            Ok(())
+            Ok(self)
         }
 
         fn serialize_bytes(self, v: &[u8]) -> Result<Self::Ok, Self::Error> {
@@ -107,7 +107,7 @@ mod tests {
 
         fn serialize_none(self) -> Result<Self::Ok, Self::Error> {
             self.output.value_type = Some(ValueType::NullValue(0));
-            Ok(())
+            Ok(self)
         }
 
         fn serialize_some<T: ?Sized>(self, value: &T) -> Result<Self::Ok, Self::Error>
@@ -159,7 +159,12 @@ mod tests {
         }
 
         fn serialize_seq(self, len: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
-            todo!()
+            Ok(FirestoreArrayValueSerializer {
+                parent: self,
+                output: ArrayValue {
+                    values: Vec::with_capacity(len.unwrap_or(0)),
+                },
+            })
         }
 
         fn serialize_tuple(self, len: usize) -> Result<Self::SerializeTuple, Self::Error> {
@@ -207,8 +212,13 @@ mod tests {
         }
     }
 
-    impl<'a> SerializeSeq for &'a mut FirestoreValueSerializer {
-        type Ok = ();
+    struct FirestoreArrayValueSerializer<'a> {
+        output: ArrayValue,
+        parent: &'a mut FirestoreValueSerializer,
+    }
+
+    impl<'a> SerializeSeq for FirestoreArrayValueSerializer<'a> {
+        type Ok = &'a mut FirestoreValueSerializer;
 
         type Error = Error;
 
@@ -216,16 +226,18 @@ mod tests {
         where
             T: Serialize,
         {
-            todo!()
+            self.output.values.push(to_value(&value)?);
+            Ok(())
         }
 
         fn end(self) -> Result<Self::Ok, Self::Error> {
-            todo!()
+            self.parent.output.value_type = Some(ValueType::ArrayValue(self.output));
+            Ok(self.parent)
         }
     }
 
     impl<'a> SerializeTuple for &'a mut FirestoreValueSerializer {
-        type Ok = ();
+        type Ok = &'a mut FirestoreValueSerializer;
 
         type Error = Error;
 
@@ -242,7 +254,7 @@ mod tests {
     }
 
     impl<'a> SerializeTupleStruct for &'a mut FirestoreValueSerializer {
-        type Ok = ();
+        type Ok = &'a mut FirestoreValueSerializer;
 
         type Error = Error;
 
@@ -259,7 +271,7 @@ mod tests {
     }
 
     impl<'a> SerializeTupleVariant for &'a mut FirestoreValueSerializer {
-        type Ok = ();
+        type Ok = &'a mut FirestoreValueSerializer;
 
         type Error = Error;
 
@@ -276,7 +288,7 @@ mod tests {
     }
 
     impl<'a> SerializeMap for &'a mut FirestoreValueSerializer {
-        type Ok = ();
+        type Ok = &'a mut FirestoreValueSerializer;
 
         type Error = Error;
 
@@ -300,7 +312,7 @@ mod tests {
     }
 
     impl<'a> SerializeStruct for &'a mut FirestoreValueSerializer {
-        type Ok = ();
+        type Ok = &'a mut FirestoreValueSerializer;
 
         type Error = Error;
 
@@ -321,7 +333,7 @@ mod tests {
     }
 
     impl<'a> SerializeStructVariant for &'a mut FirestoreValueSerializer {
-        type Ok = ();
+        type Ok = &'a mut FirestoreValueSerializer;
 
         type Error = Error;
 
@@ -507,6 +519,43 @@ mod tests {
             to_value(&Some(1_i64))?,
             Value {
                 value_type: Some(ValueType::IntegerValue(1_i64))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_seq() -> anyhow::Result<()> {
+        assert_eq!(
+            to_value(&vec![1, 2, 3])?,
+            Value {
+                value_type: Some(ValueType::ArrayValue(ArrayValue {
+                    values: vec![
+                        Value {
+                            value_type: Some(ValueType::IntegerValue(1))
+                        },
+                        Value {
+                            value_type: Some(ValueType::IntegerValue(2))
+                        },
+                        Value {
+                            value_type: Some(ValueType::IntegerValue(3))
+                        }
+                    ]
+                }))
+            }
+        );
+        assert_eq!(
+            to_value(&vec![vec![1]])?,
+            Value {
+                value_type: Some(ValueType::ArrayValue(ArrayValue {
+                    values: vec![Value {
+                        value_type: Some(ValueType::ArrayValue(ArrayValue {
+                            values: vec![Value {
+                                value_type: Some(ValueType::IntegerValue(1))
+                            }]
+                        }))
+                    }]
+                }))
             }
         );
         Ok(())

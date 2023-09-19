@@ -1,3 +1,5 @@
+mod serde_json;
+
 #[cfg(test)]
 mod tests {
     use std::{collections::HashMap, fmt::Display};

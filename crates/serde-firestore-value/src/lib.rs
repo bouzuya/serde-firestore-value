@@ -32,7 +32,7 @@ mod tests {
 
         type SerializeSeq = FirestoreArrayValueSerializer<'a>;
 
-        type SerializeTuple = Self;
+        type SerializeTuple = FirestoreArrayValueSerializer<'a>;
 
         type SerializeTupleStruct = Self;
 
@@ -168,7 +168,7 @@ mod tests {
         }
 
         fn serialize_tuple(self, len: usize) -> Result<Self::SerializeTuple, Self::Error> {
-            todo!()
+            self.serialize_seq(Some(len))
         }
 
         fn serialize_tuple_struct(
@@ -236,7 +236,7 @@ mod tests {
         }
     }
 
-    impl<'a> SerializeTuple for &'a mut FirestoreValueSerializer {
+    impl<'a> SerializeTuple for FirestoreArrayValueSerializer<'a> {
         type Ok = &'a mut FirestoreValueSerializer;
 
         type Error = Error;
@@ -245,11 +245,13 @@ mod tests {
         where
             T: Serialize,
         {
-            todo!()
+            self.output.values.push(to_value(&value)?);
+            Ok(())
         }
 
         fn end(self) -> Result<Self::Ok, Self::Error> {
-            todo!()
+            self.parent.output.value_type = Some(ValueType::ArrayValue(self.output));
+            Ok(self.parent)
         }
     }
 
@@ -555,6 +557,29 @@ mod tests {
                             }]
                         }))
                     }]
+                }))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_tuple() -> anyhow::Result<()> {
+        assert_eq!(
+            to_value(&(true, 1, "abc"))?,
+            Value {
+                value_type: Some(ValueType::ArrayValue(ArrayValue {
+                    values: vec![
+                        Value {
+                            value_type: Some(ValueType::BooleanValue(true))
+                        },
+                        Value {
+                            value_type: Some(ValueType::IntegerValue(1))
+                        },
+                        Value {
+                            value_type: Some(ValueType::StringValue("abc".to_string()))
+                        }
+                    ]
                 }))
             }
         );

@@ -1,5 +1,7 @@
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
     #[test]
     fn test_serde_json_bool() -> anyhow::Result<()> {
         assert_eq!(serde_json::to_string(&true)?, "true");
@@ -134,6 +136,17 @@ mod tests {
         assert_eq!(
             serde_json::to_string(&E::S { r: 1, g: 2, b: 3 })?,
             r#"{"S":{"r":1,"g":2,"b":3}}"#
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_serde_json_error() -> anyhow::Result<()> {
+        let mut map = HashMap::new();
+        map.insert((), 1_u8);
+        assert_eq!(
+            serde_json::to_string(&map).unwrap_err().to_string(),
+            "key must be a string"
         );
         Ok(())
     }

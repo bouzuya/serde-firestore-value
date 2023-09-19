@@ -14,8 +14,16 @@ mod tests {
     };
 
     #[derive(Debug, thiserror::Error)]
-    #[error("error")]
-    struct Error;
+    #[error(transparent)]
+    struct Error {
+        code: ErrorCode,
+    }
+
+    #[derive(Debug, thiserror::Error)]
+    enum ErrorCode {
+        #[error("integer out of range")]
+        IntegerOutOfRange,
+    }
 
     impl serde::ser::Error for Error {
         fn custom<T: Display>(_msg: T) -> Self {
@@ -81,7 +89,9 @@ mod tests {
         }
 
         fn serialize_u64(self, v: u64) -> Result<Self::Ok, Self::Error> {
-            todo!()
+            self.serialize_i64(i64::try_from(v).map_err(|_| Error {
+                code: ErrorCode::IntegerOutOfRange,
+            })?)
         }
 
         fn serialize_f32(self, v: f32) -> Result<Self::Ok, Self::Error> {
@@ -585,6 +595,28 @@ mod tests {
             to_value(&u32::MIN)?,
             Value {
                 value_type: Some(ValueType::IntegerValue(i64::from(u32::MIN)))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_u64() -> anyhow::Result<()> {
+        assert_eq!(
+            to_value(&u64::MAX).unwrap_err().to_string(),
+            "integer out of range"
+        );
+        let i64_max_as_u64 = u64::try_from(i64::MAX)?;
+        assert_eq!(
+            to_value(&i64_max_as_u64)?,
+            Value {
+                value_type: Some(ValueType::IntegerValue(i64::try_from(i64_max_as_u64)?))
+            }
+        );
+        assert_eq!(
+            to_value(&u64::MIN)?,
+            Value {
+                value_type: Some(ValueType::IntegerValue(i64::try_from(u64::MIN)?))
             }
         );
         Ok(())

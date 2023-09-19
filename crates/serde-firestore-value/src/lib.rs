@@ -36,7 +36,7 @@ mod tests {
 
         type SerializeTupleStruct = FirestoreArrayValueSerializer<'a>;
 
-        type SerializeTupleVariant = Self;
+        type SerializeTupleVariant = FirestoreNamedArrayValueSerializer<'a>;
 
         type SerializeMap = FirestoreMapValueSerializer<'a>;
 
@@ -183,12 +183,18 @@ mod tests {
 
         fn serialize_tuple_variant(
             self,
-            name: &'static str,
-            variant_index: u32,
+            _name: &'static str,
+            _variant_index: u32,
             variant: &'static str,
             len: usize,
         ) -> Result<Self::SerializeTupleVariant, Self::Error> {
-            todo!()
+            Ok(FirestoreNamedArrayValueSerializer {
+                name: variant,
+                parent: self,
+                output: ArrayValue {
+                    values: Vec::with_capacity(len),
+                },
+            })
         }
 
         fn serialize_map(self, len: Option<usize>) -> Result<Self::SerializeMap, Self::Error> {
@@ -282,7 +288,13 @@ mod tests {
         }
     }
 
-    impl<'a> SerializeTupleVariant for &'a mut FirestoreValueSerializer {
+    struct FirestoreNamedArrayValueSerializer<'a> {
+        name: &'static str,
+        output: ArrayValue,
+        parent: &'a mut FirestoreValueSerializer,
+    }
+
+    impl<'a> SerializeTupleVariant for FirestoreNamedArrayValueSerializer<'a> {
         type Ok = &'a mut FirestoreValueSerializer;
 
         type Error = Error;
@@ -291,11 +303,24 @@ mod tests {
         where
             T: Serialize,
         {
-            todo!()
+            self.output.values.push(to_value(&value)?);
+            Ok(())
         }
 
         fn end(self) -> Result<Self::Ok, Self::Error> {
-            todo!()
+            self.parent.output.value_type = Some(ValueType::MapValue(MapValue {
+                fields: {
+                    let mut map = HashMap::new();
+                    map.insert(
+                        self.name.to_string(),
+                        Value {
+                            value_type: Some(ValueType::ArrayValue(self.output)),
+                        },
+                    );
+                    map
+                },
+            }));
+            Ok(self.parent)
         }
     }
 
@@ -786,6 +811,41 @@ mod tests {
                             value_type: Some(ValueType::IntegerValue(3_i64))
                         }
                     ]
+                }))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_tuple_variant() -> anyhow::Result<()> {
+        #[derive(serde::Serialize)]
+        enum E {
+            T(u8, u8),
+        }
+        assert_eq!(
+            to_value(&E::T(1, 2))?,
+            Value {
+                value_type: Some(ValueType::MapValue(MapValue {
+                    fields: {
+                        let mut map = HashMap::new();
+                        map.insert(
+                            "T".to_string(),
+                            Value {
+                                value_type: Some(ValueType::ArrayValue(ArrayValue {
+                                    values: vec![
+                                        Value {
+                                            value_type: Some(ValueType::IntegerValue(1_i64)),
+                                        },
+                                        Value {
+                                            value_type: Some(ValueType::IntegerValue(2_i64)),
+                                        },
+                                    ],
+                                })),
+                            },
+                        );
+                        map
+                    }
                 }))
             }
         );

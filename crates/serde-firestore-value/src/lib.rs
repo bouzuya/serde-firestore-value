@@ -34,7 +34,7 @@ mod tests {
 
         type SerializeTuple = FirestoreArrayValueSerializer<'a>;
 
-        type SerializeTupleStruct = Self;
+        type SerializeTupleStruct = FirestoreArrayValueSerializer<'a>;
 
         type SerializeTupleVariant = Self;
 
@@ -175,10 +175,10 @@ mod tests {
 
         fn serialize_tuple_struct(
             self,
-            name: &'static str,
+            _name: &'static str,
             len: usize,
         ) -> Result<Self::SerializeTupleStruct, Self::Error> {
-            todo!()
+            self.serialize_tuple(len)
         }
 
         fn serialize_tuple_variant(
@@ -263,7 +263,7 @@ mod tests {
         }
     }
 
-    impl<'a> SerializeTupleStruct for &'a mut FirestoreValueSerializer {
+    impl<'a> SerializeTupleStruct for FirestoreArrayValueSerializer<'a> {
         type Ok = &'a mut FirestoreValueSerializer;
 
         type Error = Error;
@@ -272,11 +272,13 @@ mod tests {
         where
             T: Serialize,
         {
-            todo!()
+            self.output.values.push(to_value(&value)?);
+            Ok(())
         }
 
         fn end(self) -> Result<Self::Ok, Self::Error> {
-            todo!()
+            self.parent.output.value_type = Some(ValueType::ArrayValue(self.output));
+            Ok(self.parent)
         }
     }
 
@@ -757,6 +759,31 @@ mod tests {
                         },
                         Value {
                             value_type: Some(ValueType::StringValue("abc".to_string()))
+                        }
+                    ]
+                }))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_tuple_struct() -> anyhow::Result<()> {
+        #[derive(serde::Serialize)]
+        struct Rgb(u8, u8, u8);
+        assert_eq!(
+            to_value(&Rgb(1, 2, 3))?,
+            Value {
+                value_type: Some(ValueType::ArrayValue(ArrayValue {
+                    values: vec![
+                        Value {
+                            value_type: Some(ValueType::IntegerValue(1_i64))
+                        },
+                        Value {
+                            value_type: Some(ValueType::IntegerValue(2_i64))
+                        },
+                        Value {
+                            value_type: Some(ValueType::IntegerValue(3_i64))
                         }
                     ]
                 }))

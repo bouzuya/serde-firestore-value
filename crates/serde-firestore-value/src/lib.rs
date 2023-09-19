@@ -42,7 +42,7 @@ mod tests {
 
         type SerializeStruct = FirestoreMapValueSerializer<'a>;
 
-        type SerializeStructVariant = Self;
+        type SerializeStructVariant = FirestoreNamedMapValueSerializer<'a>;
 
         fn serialize_bool(self, v: bool) -> Result<Self::Ok, Self::Error> {
             self.output.value_type = Some(ValueType::BooleanValue(v));
@@ -217,12 +217,18 @@ mod tests {
 
         fn serialize_struct_variant(
             self,
-            name: &'static str,
-            variant_index: u32,
+            _name: &'static str,
+            _variant_index: u32,
             variant: &'static str,
             len: usize,
         ) -> Result<Self::SerializeStructVariant, Self::Error> {
-            todo!()
+            Ok(FirestoreNamedMapValueSerializer {
+                name: variant,
+                parent: self,
+                output: MapValue {
+                    fields: HashMap::with_capacity(len),
+                },
+            })
         }
     }
 
@@ -393,7 +399,13 @@ mod tests {
         }
     }
 
-    impl<'a> SerializeStructVariant for &'a mut FirestoreValueSerializer {
+    struct FirestoreNamedMapValueSerializer<'a> {
+        name: &'static str,
+        output: MapValue,
+        parent: &'a mut FirestoreValueSerializer,
+    }
+
+    impl<'a> SerializeStructVariant for FirestoreNamedMapValueSerializer<'a> {
         type Ok = &'a mut FirestoreValueSerializer;
 
         type Error = Error;
@@ -406,11 +418,26 @@ mod tests {
         where
             T: Serialize,
         {
-            todo!()
+            self.output
+                .fields
+                .insert(key.to_string(), to_value(&value)?);
+            Ok(())
         }
 
         fn end(self) -> Result<Self::Ok, Self::Error> {
-            todo!()
+            self.parent.output.value_type = Some(ValueType::MapValue(MapValue {
+                fields: {
+                    let mut map = HashMap::new();
+                    map.insert(
+                        self.name.to_string(),
+                        Value {
+                            value_type: Some(ValueType::MapValue(self.output)),
+                        },
+                    );
+                    map
+                },
+            }));
+            Ok(self.parent)
         }
     }
 
@@ -915,6 +942,55 @@ mod tests {
                             "b".to_string(),
                             Value {
                                 value_type: Some(ValueType::IntegerValue(3_i64)),
+                            },
+                        );
+                        map
+                    }
+                }))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_struct_variant() -> anyhow::Result<()> {
+        #[derive(serde::Serialize)]
+        enum E {
+            S { r: u8, g: u8, b: u8 },
+        }
+        assert_eq!(
+            to_value(&E::S { r: 1, g: 2, b: 3 })?,
+            Value {
+                value_type: Some(ValueType::MapValue(MapValue {
+                    fields: {
+                        let mut map = HashMap::new();
+                        map.insert(
+                            "S".to_string(),
+                            Value {
+                                value_type: Some(ValueType::MapValue(MapValue {
+                                    fields: {
+                                        let mut map = HashMap::new();
+                                        map.insert(
+                                            "r".to_string(),
+                                            Value {
+                                                value_type: Some(ValueType::IntegerValue(1_i64)),
+                                            },
+                                        );
+                                        map.insert(
+                                            "g".to_string(),
+                                            Value {
+                                                value_type: Some(ValueType::IntegerValue(2_i64)),
+                                            },
+                                        );
+                                        map.insert(
+                                            "b".to_string(),
+                                            Value {
+                                                value_type: Some(ValueType::IntegerValue(3_i64)),
+                                            },
+                                        );
+                                        map
+                                    },
+                                })),
                             },
                         );
                         map

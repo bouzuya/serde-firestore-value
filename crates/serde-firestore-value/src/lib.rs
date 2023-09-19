@@ -96,7 +96,9 @@ mod tests {
         }
 
         fn serialize_str(self, v: &str) -> Result<Self::Ok, Self::Error> {
-            todo!()
+            // TODO: length check
+            self.output.value_type = Some(ValueType::StringValue(v.to_string()));
+            Ok(())
         }
 
         fn serialize_bytes(self, v: &[u8]) -> Result<Self::Ok, Self::Error> {
@@ -463,6 +465,18 @@ mod tests {
             to_value(&f64::MIN)?,
             Value {
                 value_type: Some(ValueType::DoubleValue(f64::MIN))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_str() -> anyhow::Result<()> {
+        // TODO: length check
+        assert_eq!(
+            to_value(&"abc")?,
+            Value {
+                value_type: Some(ValueType::StringValue("abc".to_string()))
             }
         );
         Ok(())

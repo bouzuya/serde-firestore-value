@@ -147,15 +147,17 @@ mod tests {
 
         fn serialize_newtype_variant<T: ?Sized>(
             self,
-            name: &'static str,
-            variant_index: u32,
+            _name: &'static str,
+            _variant_index: u32,
             variant: &'static str,
             value: &T,
         ) -> Result<Self::Ok, Self::Error>
         where
             T: Serialize,
         {
-            todo!()
+            let mut map = self.serialize_map(Some(1))?;
+            map.serialize_entry(variant, value)?;
+            map.end()
         }
 
         fn serialize_seq(self, len: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
@@ -672,6 +674,32 @@ mod tests {
             to_value(&Millimeters(u8::MAX))?,
             Value {
                 value_type: Some(ValueType::IntegerValue(i64::from(u8::MAX)))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_newtype_variant() -> anyhow::Result<()> {
+        #[derive(serde::Serialize)]
+        enum E {
+            N(u8),
+        }
+        assert_eq!(
+            to_value(&E::N(u8::MAX))?,
+            Value {
+                value_type: Some(ValueType::MapValue(MapValue {
+                    fields: {
+                        let mut map = HashMap::new();
+                        map.insert(
+                            "N".to_string(),
+                            Value {
+                                value_type: Some(ValueType::IntegerValue(i64::from(u8::MAX))),
+                            },
+                        );
+                        map
+                    }
+                }))
             }
         );
         Ok(())

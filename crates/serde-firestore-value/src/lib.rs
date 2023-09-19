@@ -67,15 +67,15 @@ mod tests {
         }
 
         fn serialize_u8(self, v: u8) -> Result<Self::Ok, Self::Error> {
-            todo!()
+            self.serialize_i64(i64::from(v))
         }
 
         fn serialize_u16(self, v: u16) -> Result<Self::Ok, Self::Error> {
-            todo!()
+            self.serialize_i64(i64::from(v))
         }
 
         fn serialize_u32(self, v: u32) -> Result<Self::Ok, Self::Error> {
-            todo!()
+            self.serialize_i64(i64::from(v))
         }
 
         fn serialize_u64(self, v: u64) -> Result<Self::Ok, Self::Error> {
@@ -476,6 +476,57 @@ mod tests {
             to_value(&i64::MIN)?,
             Value {
                 value_type: Some(ValueType::IntegerValue(i64::MIN))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_u8() -> anyhow::Result<()> {
+        assert_eq!(
+            to_value(&u8::MAX)?,
+            Value {
+                value_type: Some(ValueType::IntegerValue(i64::from(u8::MAX)))
+            }
+        );
+        assert_eq!(
+            to_value(&u8::MIN)?,
+            Value {
+                value_type: Some(ValueType::IntegerValue(i64::from(u8::MIN)))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_u16() -> anyhow::Result<()> {
+        assert_eq!(
+            to_value(&u16::MAX)?,
+            Value {
+                value_type: Some(ValueType::IntegerValue(i64::from(u16::MAX)))
+            }
+        );
+        assert_eq!(
+            to_value(&u16::MIN)?,
+            Value {
+                value_type: Some(ValueType::IntegerValue(i64::from(u16::MIN)))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_u32() -> anyhow::Result<()> {
+        assert_eq!(
+            to_value(&u32::MAX)?,
+            Value {
+                value_type: Some(ValueType::IntegerValue(i64::from(u32::MAX)))
+            }
+        );
+        assert_eq!(
+            to_value(&u32::MIN)?,
+            Value {
+                value_type: Some(ValueType::IntegerValue(i64::from(u32::MIN)))
             }
         );
         Ok(())

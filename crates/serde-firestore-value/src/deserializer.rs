@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
 use serde::de::{value::StringDeserializer, MapAccess, SeqAccess};
 
@@ -331,14 +333,25 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
 
     fn deserialize_struct<V>(
         self,
-        name: &'static str,
+        _name: &'static str,
         fields: &'static [&'static str],
         visitor: V,
     ) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        match self.input.value_type.as_ref() {
+            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
+            Some(ValueType::MapValue(MapValue { fields: values })) => {
+                visitor.visit_map(FirestoreStructMapValueDeserializer {
+                    fields,
+                    index: 0,
+                    value: None,
+                    values,
+                })
+            }
+            Some(_) => todo!(),
+        }
     }
 
     fn deserialize_enum<V>(
@@ -420,6 +433,47 @@ impl<'de> MapAccess<'de> for FirestoreMapValueDeserializer<'de> {
                 }
             }
             None => Ok(None),
+        }
+    }
+
+    fn next_value_seed<V>(&mut self, seed: V) -> Result<V::Value, Self::Error>
+    where
+        V: serde::de::DeserializeSeed<'de>,
+    {
+        if let Some(value) = self.value.take() {
+            seed.deserialize(FirestoreValueDeserializer { input: value })
+        } else {
+            unreachable!()
+        }
+    }
+}
+
+struct FirestoreStructMapValueDeserializer<'de> {
+    fields: &'static [&'static str],
+    index: usize,
+    value: Option<&'de Value>,
+    values: &'de HashMap<String, Value>,
+}
+
+impl<'de> MapAccess<'de> for FirestoreStructMapValueDeserializer<'de> {
+    type Error = Error;
+
+    fn next_key_seed<K>(&mut self, seed: K) -> Result<Option<K::Value>, Self::Error>
+    where
+        K: serde::de::DeserializeSeed<'de>,
+    {
+        if self.index >= self.fields.len() {
+            Ok(None)
+        } else {
+            let field = self.fields[self.index];
+            self.index += 1;
+            if self.value.is_none() {
+                self.value = self.values.get(field);
+                seed.deserialize(StringDeserializer::new(field.to_string()))
+                    .map(Some)
+            } else {
+                unreachable!()
+            }
         }
     }
 
@@ -811,6 +865,50 @@ mod tests {
                 map.insert("k1".to_string(), 1_i64);
                 map.insert("k2".to_string(), 2_i64);
                 map
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_deserialize_struct() -> anyhow::Result<()> {
+        #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
+        struct S {
+            r: u8,
+            g: u8,
+            b: u8,
+        }
+        assert_eq!(
+            from_value::<'_, S>(&Value {
+                value_type: Some(ValueType::MapValue(MapValue {
+                    fields: {
+                        let mut map = HashMap::new();
+                        map.insert(
+                            "r".to_string(),
+                            Value {
+                                value_type: Some(ValueType::IntegerValue(1_i64)),
+                            },
+                        );
+                        map.insert(
+                            "g".to_string(),
+                            Value {
+                                value_type: Some(ValueType::IntegerValue(2_i64)),
+                            },
+                        );
+                        map.insert(
+                            "b".to_string(),
+                            Value {
+                                value_type: Some(ValueType::IntegerValue(3_i64)),
+                            },
+                        );
+                        map
+                    }
+                }))
+            })?,
+            S {
+                r: 1_u8,
+                g: 2_u8,
+                b: 3_u8
             }
         );
         Ok(())

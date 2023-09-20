@@ -19,18 +19,22 @@ mod tests {
         code: ErrorCode,
     }
 
+    impl serde::ser::Error for Error {
+        fn custom<T: Display>(msg: T) -> Self {
+            Error {
+                code: ErrorCode::Custom(msg.to_string()),
+            }
+        }
+    }
+
     #[derive(Debug, thiserror::Error)]
     enum ErrorCode {
+        #[error("{0}")]
+        Custom(String),
         #[error("integer out of range")]
         IntegerOutOfRange,
         #[error("key must be a string")]
         KeyMustBeAString,
-    }
-
-    impl serde::ser::Error for Error {
-        fn custom<T: Display>(_msg: T) -> Self {
-            todo!()
-        }
     }
 
     struct FirestoreValueSerializer {
@@ -1100,5 +1104,15 @@ mod tests {
             }
         );
         Ok(())
+    }
+
+    #[test]
+    fn test_impl_serde_ser_error() {
+        fn assert_impl<T: serde::ser::Error>() {}
+        assert_impl::<Error>();
+        assert_eq!(
+            <Error as serde::ser::Error>::custom("custom error").to_string(),
+            "custom error"
+        );
     }
 }

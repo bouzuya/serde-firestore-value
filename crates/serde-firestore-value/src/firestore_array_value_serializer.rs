@@ -1,19 +1,21 @@
 use google::firestore::v1::ArrayValue;
 
-use crate::{to_value, Error};
+use crate::{firestore_value_serializer::FirestoreValueSerializer, to_value, Error};
 
-pub(crate) trait SetArrayValue {
-    fn set_array_value(&mut self, value: ArrayValue);
-}
-
-pub(crate) struct FirestoreArrayValueSerializer<'a, S: SetArrayValue> {
+pub(crate) struct FirestoreArrayValueSerializer<'a> {
+    name: Option<&'static str>,
     output: ArrayValue,
-    parent: &'a mut S,
+    parent: &'a mut FirestoreValueSerializer,
 }
 
-impl<'a, S: SetArrayValue> FirestoreArrayValueSerializer<'a, S> {
-    pub(crate) fn new(parent: &'a mut S, len: Option<usize>) -> Self {
+impl<'a> FirestoreArrayValueSerializer<'a> {
+    pub(crate) fn new(
+        parent: &'a mut FirestoreValueSerializer,
+        name: Option<&'static str>,
+        len: Option<usize>,
+    ) -> Self {
         Self {
+            name,
             output: ArrayValue {
                 values: Vec::with_capacity(len.unwrap_or(0)),
             },
@@ -22,8 +24,8 @@ impl<'a, S: SetArrayValue> FirestoreArrayValueSerializer<'a, S> {
     }
 }
 
-impl<'a, S: SetArrayValue> serde::ser::SerializeSeq for FirestoreArrayValueSerializer<'a, S> {
-    type Ok = &'a mut S;
+impl<'a> serde::ser::SerializeSeq for FirestoreArrayValueSerializer<'a> {
+    type Ok = &'a mut FirestoreValueSerializer;
 
     type Error = Error;
 
@@ -36,13 +38,13 @@ impl<'a, S: SetArrayValue> serde::ser::SerializeSeq for FirestoreArrayValueSeria
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        self.parent.set_array_value(self.output);
+        self.parent.set_array_value(self.name, self.output);
         Ok(self.parent)
     }
 }
 
-impl<'a, S: SetArrayValue> serde::ser::SerializeTuple for FirestoreArrayValueSerializer<'a, S> {
-    type Ok = &'a mut S;
+impl<'a> serde::ser::SerializeTuple for FirestoreArrayValueSerializer<'a> {
+    type Ok = &'a mut FirestoreValueSerializer;
 
     type Error = Error;
 
@@ -55,15 +57,13 @@ impl<'a, S: SetArrayValue> serde::ser::SerializeTuple for FirestoreArrayValueSer
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        self.parent.set_array_value(self.output);
+        self.parent.set_array_value(self.name, self.output);
         Ok(self.parent)
     }
 }
 
-impl<'a, S: SetArrayValue> serde::ser::SerializeTupleStruct
-    for FirestoreArrayValueSerializer<'a, S>
-{
-    type Ok = &'a mut S;
+impl<'a> serde::ser::SerializeTupleStruct for FirestoreArrayValueSerializer<'a> {
+    type Ok = &'a mut FirestoreValueSerializer;
 
     type Error = Error;
 
@@ -76,7 +76,25 @@ impl<'a, S: SetArrayValue> serde::ser::SerializeTupleStruct
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        self.parent.set_array_value(self.output);
+        self.parent.set_array_value(self.name, self.output);
+        Ok(self.parent)
+    }
+}
+impl<'a> serde::ser::SerializeTupleVariant for FirestoreArrayValueSerializer<'a> {
+    type Ok = &'a mut FirestoreValueSerializer;
+
+    type Error = Error;
+
+    fn serialize_field<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
+    where
+        T: serde::Serialize,
+    {
+        self.output.values.push(to_value(&value)?);
+        Ok(())
+    }
+
+    fn end(self) -> Result<Self::Ok, Self::Error> {
+        self.parent.set_array_value(self.name, self.output);
         Ok(self.parent)
     }
 }

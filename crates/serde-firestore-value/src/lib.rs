@@ -1,3 +1,4 @@
+mod deserializer;
 mod error;
 mod serde_json;
 mod serializer;

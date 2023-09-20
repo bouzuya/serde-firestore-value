@@ -201,7 +201,11 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        match self.input.value_type.as_ref() {
+            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
+            Some(ValueType::StringValue(value)) => visitor.visit_str(value),
+            Some(_) => todo!(),
+        }
     }
 
     fn deserialize_string<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -545,11 +549,24 @@ mod tests {
     }
 
     #[test]
+    fn test_deserialize_str() -> anyhow::Result<()> {
+        assert_eq!(
+            from_value::<'_, String>(&Value {
+                value_type: Some(ValueType::StringValue("abc".to_string())),
+            })?,
+            // "abc".to_string()
+            "abc"
+        );
+        Ok(())
+    }
+
+    #[test]
     fn test_deserialize_string() -> anyhow::Result<()> {
         assert_eq!(
             from_value::<'_, String>(&Value {
                 value_type: Some(ValueType::StringValue("abc".to_string())),
             })?,
+            // "abc"
             "abc".to_string()
         );
         Ok(())

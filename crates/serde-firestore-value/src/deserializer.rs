@@ -58,13 +58,8 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     {
         match self.input.value_type.as_ref() {
             None => todo!(),
-            Some(value_type) => {
-                if let ValueType::IntegerValue(value) = value_type {
-                    visitor.visit_i64(*value)
-                } else {
-                    todo!()
-                }
-            }
+            Some(ValueType::IntegerValue(value)) => visitor.visit_i64(*value),
+            Some(_) => todo!(),
         }
     }
 
@@ -107,7 +102,11 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        match self.input.value_type.as_ref() {
+            None => todo!(),
+            Some(ValueType::DoubleValue(value)) => visitor.visit_f64(*value),
+            Some(_) => todo!(),
+        }
     }
 
     fn deserialize_char<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -281,6 +280,23 @@ mod tests {
                 value_type: Some(ValueType::IntegerValue(i64::MIN)),
             })?,
             i64::MIN
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_deserialize_f64() -> anyhow::Result<()> {
+        assert_eq!(
+            from_value::<'_, f64>(&Value {
+                value_type: Some(ValueType::DoubleValue(f64::MAX)),
+            })?,
+            f64::MAX
+        );
+        assert_eq!(
+            from_value::<'_, f64>(&Value {
+                value_type: Some(ValueType::DoubleValue(f64::MIN)),
+            })?,
+            f64::MIN
         );
         Ok(())
     }

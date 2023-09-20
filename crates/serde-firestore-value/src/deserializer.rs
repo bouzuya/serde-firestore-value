@@ -127,7 +127,11 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        match self.input.value_type.as_ref() {
+            None => todo!(),
+            Some(ValueType::StringValue(value)) => visitor.visit_string(value.clone()),
+            Some(_) => todo!(),
+        }
     }
 
     fn deserialize_bytes<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -297,6 +301,17 @@ mod tests {
                 value_type: Some(ValueType::DoubleValue(f64::MIN)),
             })?,
             f64::MIN
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_deserialize_string() -> anyhow::Result<()> {
+        assert_eq!(
+            from_value::<'_, String>(&Value {
+                value_type: Some(ValueType::StringValue("abc".to_string())),
+            })?,
+            "abc".to_string()
         );
         Ok(())
     }

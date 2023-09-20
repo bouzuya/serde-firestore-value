@@ -1,5 +1,5 @@
-use google::firestore::v1::{value::ValueType, ArrayValue, Value};
-use serde::de::SeqAccess;
+use google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
+use serde::de::{value::StringDeserializer, MapAccess, SeqAccess};
 
 #[derive(Debug, thiserror::Error)]
 #[error(transparent)]
@@ -317,7 +317,16 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        match self.input.value_type.as_ref() {
+            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
+            Some(ValueType::MapValue(MapValue { fields })) => {
+                visitor.visit_map(FirestoreMapValueDeserializer {
+                    iter: fields.iter(),
+                    value: None,
+                })
+            }
+            Some(_) => todo!(),
+        }
     }
 
     fn deserialize_struct<V>(
@@ -388,8 +397,48 @@ impl<'de> SeqAccess<'de> for FirestoreArrayValueDeserializer<'de> {
     }
 }
 
+struct FirestoreMapValueDeserializer<'de> {
+    iter: std::collections::hash_map::Iter<'de, String, Value>,
+    value: Option<&'de Value>,
+}
+
+impl<'de> MapAccess<'de> for FirestoreMapValueDeserializer<'de> {
+    type Error = Error;
+
+    fn next_key_seed<K>(&mut self, seed: K) -> Result<Option<K::Value>, Self::Error>
+    where
+        K: serde::de::DeserializeSeed<'de>,
+    {
+        match self.iter.next() {
+            Some((key, value)) => {
+                if self.value.is_none() {
+                    self.value = Some(value);
+                    seed.deserialize(StringDeserializer::new(key.clone()))
+                        .map(Some)
+                } else {
+                    unreachable!()
+                }
+            }
+            None => Ok(None),
+        }
+    }
+
+    fn next_value_seed<V>(&mut self, seed: V) -> Result<V::Value, Self::Error>
+    where
+        V: serde::de::DeserializeSeed<'de>,
+    {
+        if let Some(value) = self.value.take() {
+            seed.deserialize(FirestoreValueDeserializer { input: value })
+        } else {
+            unreachable!()
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    use std::collections::{BTreeMap, HashMap};
+
     use google::firestore::v1::{value::ValueType, Value};
 
     use super::*;
@@ -730,6 +779,39 @@ mod tests {
                 }))
             })?,
             Rgb(1_u8, 2_u8, 3_u8)
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_deserialize_map() -> anyhow::Result<()> {
+        assert_eq!(
+            from_value::<'_, BTreeMap<String, i64>>(&Value {
+                value_type: Some(ValueType::MapValue(MapValue {
+                    fields: {
+                        let mut map = HashMap::new();
+                        map.insert(
+                            "k1".to_string(),
+                            Value {
+                                value_type: Some(ValueType::IntegerValue(1_i64)),
+                            },
+                        );
+                        map.insert(
+                            "k2".to_string(),
+                            Value {
+                                value_type: Some(ValueType::IntegerValue(2_i64)),
+                            },
+                        );
+                        map
+                    }
+                }))
+            })?,
+            {
+                let mut map = BTreeMap::new();
+                map.insert("k1".to_string(), 1_i64);
+                map.insert("k2".to_string(), 2_i64);
+                map
+            }
         );
         Ok(())
     }

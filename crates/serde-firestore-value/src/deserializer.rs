@@ -288,11 +288,14 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
         })
     }
 
-    fn deserialize_tuple<V>(self, len: usize, visitor: V) -> Result<V::Value, Self::Error>
+    fn deserialize_tuple<V>(self, _len: usize, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        visitor.visit_seq(FirestoreArrayValueDeserializer {
+            index: 0,
+            parent: self.input,
+        })
     }
 
     fn deserialize_tuple_struct<V>(
@@ -679,6 +682,26 @@ mod tests {
                 }))
             })?,
             vec![1_i64, 2_i64, 3_i64]
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_deserialize_tuple() -> anyhow::Result<()> {
+        assert_eq!(
+            from_value::<'_, (bool, i64)>(&Value {
+                value_type: Some(ValueType::ArrayValue(ArrayValue {
+                    values: vec![
+                        Value {
+                            value_type: Some(ValueType::BooleanValue(true))
+                        },
+                        Value {
+                            value_type: Some(ValueType::IntegerValue(1_i64))
+                        },
+                    ]
+                }))
+            })?,
+            (true, 1_i64)
         );
         Ok(())
     }

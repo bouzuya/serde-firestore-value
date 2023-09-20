@@ -2,14 +2,11 @@ use std::collections::HashMap;
 
 use google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
 use serde::{
-    ser::{
-        SerializeMap, SerializeSeq, SerializeStruct, SerializeStructVariant, SerializeTuple,
-        SerializeTupleStruct, SerializeTupleVariant,
-    },
+    ser::{SerializeMap, SerializeStruct, SerializeStructVariant, SerializeTupleVariant},
     Serialize, Serializer,
 };
 
-use crate::{Error, ErrorCode};
+use crate::{firestore_array_value_serializer::FirestoreArrayValueSerializer, Error, ErrorCode};
 
 pub fn to_value<T>(value: &T) -> Result<Value, Error>
 where
@@ -23,7 +20,13 @@ where
 }
 
 struct FirestoreValueSerializer {
-    output: Value,
+    pub(crate) output: Value,
+}
+
+impl crate::firestore_array_value_serializer::SetArrayValue for FirestoreValueSerializer {
+    fn set_array_value(&mut self, value: ArrayValue) {
+        self.output.value_type = Some(ValueType::ArrayValue(value));
+    }
 }
 
 // 1,048,487 bytes = 1MiB - 89 bytes
@@ -34,11 +37,11 @@ impl<'a> Serializer for &'a mut FirestoreValueSerializer {
 
     type Error = Error;
 
-    type SerializeSeq = FirestoreArrayValueSerializer<'a>;
+    type SerializeSeq = FirestoreArrayValueSerializer<'a, FirestoreValueSerializer>;
 
-    type SerializeTuple = FirestoreArrayValueSerializer<'a>;
+    type SerializeTuple = FirestoreArrayValueSerializer<'a, FirestoreValueSerializer>;
 
-    type SerializeTupleStruct = FirestoreArrayValueSerializer<'a>;
+    type SerializeTupleStruct = FirestoreArrayValueSerializer<'a, FirestoreValueSerializer>;
 
     type SerializeTupleVariant = FirestoreNamedArrayValueSerializer<'a>;
 
@@ -172,12 +175,7 @@ impl<'a> Serializer for &'a mut FirestoreValueSerializer {
     }
 
     fn serialize_seq(self, len: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
-        Ok(FirestoreArrayValueSerializer {
-            parent: self,
-            output: ArrayValue {
-                values: Vec::with_capacity(len.unwrap_or(0)),
-            },
-        })
+        Ok(FirestoreArrayValueSerializer::new(self, len))
     }
 
     fn serialize_tuple(self, len: usize) -> Result<Self::SerializeTuple, Self::Error> {
@@ -240,68 +238,6 @@ impl<'a> Serializer for &'a mut FirestoreValueSerializer {
                 fields: HashMap::with_capacity(len),
             },
         })
-    }
-}
-
-struct FirestoreArrayValueSerializer<'a> {
-    output: ArrayValue,
-    parent: &'a mut FirestoreValueSerializer,
-}
-
-impl<'a> SerializeSeq for FirestoreArrayValueSerializer<'a> {
-    type Ok = &'a mut FirestoreValueSerializer;
-
-    type Error = Error;
-
-    fn serialize_element<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
-    where
-        T: Serialize,
-    {
-        self.output.values.push(to_value(&value)?);
-        Ok(())
-    }
-
-    fn end(self) -> Result<Self::Ok, Self::Error> {
-        self.parent.output.value_type = Some(ValueType::ArrayValue(self.output));
-        Ok(self.parent)
-    }
-}
-
-impl<'a> SerializeTuple for FirestoreArrayValueSerializer<'a> {
-    type Ok = &'a mut FirestoreValueSerializer;
-
-    type Error = Error;
-
-    fn serialize_element<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
-    where
-        T: Serialize,
-    {
-        self.output.values.push(to_value(&value)?);
-        Ok(())
-    }
-
-    fn end(self) -> Result<Self::Ok, Self::Error> {
-        self.parent.output.value_type = Some(ValueType::ArrayValue(self.output));
-        Ok(self.parent)
-    }
-}
-
-impl<'a> SerializeTupleStruct for FirestoreArrayValueSerializer<'a> {
-    type Ok = &'a mut FirestoreValueSerializer;
-
-    type Error = Error;
-
-    fn serialize_field<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
-    where
-        T: Serialize,
-    {
-        self.output.values.push(to_value(&value)?);
-        Ok(())
-    }
-
-    fn end(self) -> Result<Self::Ok, Self::Error> {
-        self.parent.output.value_type = Some(ValueType::ArrayValue(self.output));
-        Ok(self.parent)
     }
 }
 

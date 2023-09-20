@@ -1,8 +1,17 @@
 use google::firestore::v1::{value::ValueType, Value};
 
 #[derive(Debug, thiserror::Error)]
-#[error("error")]
-struct Error;
+#[error(transparent)]
+struct Error {
+    #[from]
+    code: ErrorCode,
+}
+
+#[derive(Debug, thiserror::Error)]
+enum ErrorCode {
+    #[error("i8 out of range")]
+    I8OutOfRange,
+}
 
 impl serde::de::Error for Error {
     fn custom<T: std::fmt::Display>(_msg: T) -> Self {
@@ -39,7 +48,12 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        match self.input.value_type.as_ref() {
+            None => todo!(),
+            Some(ValueType::IntegerValue(value)) => visitor
+                .visit_i8(i8::try_from(*value).map_err(|_| Error::from(ErrorCode::I8OutOfRange))?),
+            Some(_) => todo!(),
+        }
     }
 
     fn deserialize_i16<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -287,6 +301,23 @@ mod tests {
         assert!(!from_value::<'_, bool>(&Value {
             value_type: Some(ValueType::BooleanValue(false)),
         })?);
+        Ok(())
+    }
+
+    #[test]
+    fn test_deserialize_i8() -> anyhow::Result<()> {
+        assert_eq!(
+            from_value::<'_, i8>(&Value {
+                value_type: Some(ValueType::IntegerValue(i64::from(i8::MAX))),
+            })?,
+            i8::MAX
+        );
+        assert_eq!(
+            from_value::<'_, i8>(&Value {
+                value_type: Some(ValueType::IntegerValue(i64::from(i8::MIN))),
+            })?,
+            i8::MIN
+        );
         Ok(())
     }
 

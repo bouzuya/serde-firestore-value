@@ -17,6 +17,8 @@ enum ErrorCode {
     I8OutOfRange,
     #[error("u16 out of range")]
     U16OutOfRange,
+    #[error("u32 out of range")]
+    U32OutOfRange,
     #[error("u8 out of range")]
     U8OutOfRange,
     #[error("value type must be some")]
@@ -132,7 +134,13 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        match self.input.value_type.as_ref() {
+            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
+            Some(ValueType::IntegerValue(value)) => visitor.visit_u32(
+                u32::try_from(*value).map_err(|_| Error::from(ErrorCode::U32OutOfRange))?,
+            ),
+            Some(_) => todo!(),
+        }
     }
 
     fn deserialize_u64<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -435,6 +443,23 @@ mod tests {
                 value_type: Some(ValueType::IntegerValue(i64::from(u16::MIN))),
             })?,
             u16::MIN
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_deserialize_u32() -> anyhow::Result<()> {
+        assert_eq!(
+            from_value::<'_, u32>(&Value {
+                value_type: Some(ValueType::IntegerValue(i64::from(u32::MAX))),
+            })?,
+            u32::MAX
+        );
+        assert_eq!(
+            from_value::<'_, u32>(&Value {
+                value_type: Some(ValueType::IntegerValue(i64::from(u32::MIN))),
+            })?,
+            u32::MIN
         );
         Ok(())
     }

@@ -1,4 +1,5 @@
-use google::firestore::v1::{value::ValueType, Value};
+use google::firestore::v1::{value::ValueType, ArrayValue, Value};
+use serde::de::SeqAccess;
 
 #[derive(Debug, thiserror::Error)]
 #[error(transparent)]
@@ -281,7 +282,10 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        visitor.visit_seq(FirestoreArrayValueDeserializer {
+            index: 0,
+            parent: self.input,
+        })
     }
 
     fn deserialize_tuple<V>(self, len: usize, visitor: V) -> Result<V::Value, Self::Error>
@@ -346,6 +350,35 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
         V: serde::de::Visitor<'a>,
     {
         todo!()
+    }
+}
+
+struct FirestoreArrayValueDeserializer<'de> {
+    index: usize,
+    parent: &'de Value,
+}
+
+impl<'de> SeqAccess<'de> for FirestoreArrayValueDeserializer<'de> {
+    type Error = Error;
+
+    fn next_element_seed<T>(&mut self, seed: T) -> Result<Option<T::Value>, Self::Error>
+    where
+        T: serde::de::DeserializeSeed<'de>,
+    {
+        match self.parent.value_type.as_ref() {
+            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
+            Some(ValueType::ArrayValue(ArrayValue { values })) => {
+                if self.index < values.len() {
+                    let value = &values[self.index];
+                    self.index += 1;
+                    seed.deserialize(FirestoreValueDeserializer { input: value })
+                        .map(Some)
+                } else {
+                    Ok(None)
+                }
+            }
+            Some(_) => todo!(),
+        }
     }
 }
 
@@ -623,6 +656,29 @@ mod tests {
                 value_type: Some(ValueType::IntegerValue(i64::from(u8::MAX))),
             })?,
             Millimeters(u8::MAX)
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_deserialize_seq() -> anyhow::Result<()> {
+        assert_eq!(
+            from_value::<'_, Vec<i64>>(&Value {
+                value_type: Some(ValueType::ArrayValue(ArrayValue {
+                    values: vec![
+                        Value {
+                            value_type: Some(ValueType::IntegerValue(1_i64))
+                        },
+                        Value {
+                            value_type: Some(ValueType::IntegerValue(2_i64))
+                        },
+                        Value {
+                            value_type: Some(ValueType::IntegerValue(3_i64))
+                        },
+                    ]
+                }))
+            })?,
+            vec![1_i64, 2_i64, 3_i64]
         );
         Ok(())
     }

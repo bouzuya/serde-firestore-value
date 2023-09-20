@@ -4,8 +4,11 @@ use google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
 use serde::{ser::SerializeMap, Serialize, Serializer};
 
 use crate::{
-    firestore_array_value_serializer::FirestoreArrayValueSerializer,
-    firestore_map_value_serializer::FirestoreMapValueSerializer, Error, ErrorCode,
+    serializer::{
+        firestore_array_value_serializer::FirestoreArrayValueSerializer,
+        firestore_map_value_serializer::FirestoreMapValueSerializer,
+    },
+    Error, ErrorCode,
 };
 
 #[derive(Debug, Default)]

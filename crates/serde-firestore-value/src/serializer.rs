@@ -1,7 +1,11 @@
+mod firestore_array_value_serializer;
+mod firestore_map_value_serializer;
+mod firestore_value_serializer;
+
 use google::firestore::v1::Value;
 use serde::Serialize;
 
-use crate::{firestore_value_serializer::FirestoreValueSerializer, Error};
+use crate::{serializer::firestore_value_serializer::FirestoreValueSerializer, Error};
 
 pub fn to_value<T>(value: &T) -> Result<Value, Error>
 where

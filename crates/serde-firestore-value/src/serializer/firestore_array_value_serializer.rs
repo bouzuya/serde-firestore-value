@@ -1,6 +1,6 @@
 use google::firestore::v1::ArrayValue;
 
-use crate::{firestore_value_serializer::FirestoreValueSerializer, to_value, Error};
+use crate::{serializer::firestore_value_serializer::FirestoreValueSerializer, to_value, Error};
 
 pub(crate) struct FirestoreArrayValueSerializer<'a> {
     name: Option<&'static str>,

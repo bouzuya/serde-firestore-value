@@ -145,7 +145,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
         }
     }
 
-    fn deserialize_u64<V>(self, visitor: V) -> Result<V::Value, Self::Error>
+    fn deserialize_u64<V>(self, _: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
@@ -156,7 +156,11 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        match self.input.value_type.as_ref() {
+            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
+            Some(ValueType::DoubleValue(value)) => visitor.visit_f32(*value as f32),
+            Some(_) => todo!(),
+        }
     }
 
     fn deserialize_f64<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -475,6 +479,23 @@ mod tests {
             .unwrap_err()
             .to_string(),
             "u64 is not supported"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_deserialize_f32() -> anyhow::Result<()> {
+        assert_eq!(
+            from_value::<'_, f32>(&Value {
+                value_type: Some(ValueType::DoubleValue(f64::from(f32::MAX))),
+            })?,
+            f32::MAX
+        );
+        assert_eq!(
+            from_value::<'_, f32>(&Value {
+                value_type: Some(ValueType::DoubleValue(f64::from(f32::MIN))),
+            })?,
+            f32::MIN
         );
         Ok(())
     }

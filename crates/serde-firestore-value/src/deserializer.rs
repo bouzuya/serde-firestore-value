@@ -19,6 +19,8 @@ enum ErrorCode {
     U16OutOfRange,
     #[error("u32 out of range")]
     U32OutOfRange,
+    #[error("u64 is not supported")]
+    U64IsNotSupported,
     #[error("u8 out of range")]
     U8OutOfRange,
     #[error("value type must be some")]
@@ -147,7 +149,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        Err(Error::from(ErrorCode::U64IsNotSupported))
     }
 
     fn deserialize_f32<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -460,6 +462,19 @@ mod tests {
                 value_type: Some(ValueType::IntegerValue(i64::from(u32::MIN))),
             })?,
             u32::MIN
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_deserialize_u64() -> anyhow::Result<()> {
+        assert_eq!(
+            from_value::<'_, u64>(&Value {
+                value_type: Some(ValueType::IntegerValue(i64::try_from(u64::MIN)?)),
+            })
+            .unwrap_err()
+            .to_string(),
+            "u64 is not supported"
         );
         Ok(())
     }

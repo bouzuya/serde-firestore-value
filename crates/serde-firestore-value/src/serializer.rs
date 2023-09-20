@@ -1,15 +1,11 @@
-use std::collections::HashMap;
-
 use google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
-use serde::{
-    ser::{SerializeMap, SerializeStructVariant},
-    Serialize, Serializer,
-};
+use serde::{ser::SerializeMap, Serialize, Serializer};
 
 use crate::{
     firestore_array_value_serializer::FirestoreArrayValueSerializer,
     firestore_map_value_serializer::FirestoreMapValueSerializer,
-    firestore_named_array_value_serializer::FirestoreNamedArrayValueSerializer, Error, ErrorCode,
+    firestore_named_array_value_serializer::FirestoreNamedArrayValueSerializer,
+    firestore_named_map_value_serializer::FirestoreNamedMapValueSerializer, Error, ErrorCode,
 };
 
 pub fn to_value<T>(value: &T) -> Result<Value, Error>
@@ -59,7 +55,7 @@ impl<'a> Serializer for &'a mut FirestoreValueSerializer {
 
     type SerializeStruct = FirestoreMapValueSerializer<'a, FirestoreValueSerializer>;
 
-    type SerializeStructVariant = FirestoreNamedMapValueSerializer<'a>;
+    type SerializeStructVariant = FirestoreNamedMapValueSerializer<'a, FirestoreValueSerializer>;
 
     fn serialize_bool(self, v: bool) -> Result<Self::Ok, Self::Error> {
         self.output.value_type = Some(ValueType::BooleanValue(v));
@@ -229,60 +225,14 @@ impl<'a> Serializer for &'a mut FirestoreValueSerializer {
         variant: &'static str,
         len: usize,
     ) -> Result<Self::SerializeStructVariant, Self::Error> {
-        Ok(FirestoreNamedMapValueSerializer {
-            name: variant,
-            parent: self,
-            output: MapValue {
-                fields: HashMap::with_capacity(len),
-            },
-        })
-    }
-}
-
-struct FirestoreNamedMapValueSerializer<'a> {
-    name: &'static str,
-    output: MapValue,
-    parent: &'a mut FirestoreValueSerializer,
-}
-
-impl<'a> SerializeStructVariant for FirestoreNamedMapValueSerializer<'a> {
-    type Ok = &'a mut FirestoreValueSerializer;
-
-    type Error = Error;
-
-    fn serialize_field<T: ?Sized>(
-        &mut self,
-        key: &'static str,
-        value: &T,
-    ) -> Result<(), Self::Error>
-    where
-        T: Serialize,
-    {
-        self.output
-            .fields
-            .insert(key.to_string(), to_value(&value)?);
-        Ok(())
-    }
-
-    fn end(self) -> Result<Self::Ok, Self::Error> {
-        self.parent.output.value_type = Some(ValueType::MapValue(MapValue {
-            fields: {
-                let mut map = HashMap::new();
-                map.insert(
-                    self.name.to_string(),
-                    Value {
-                        value_type: Some(ValueType::MapValue(self.output)),
-                    },
-                );
-                map
-            },
-        }));
-        Ok(self.parent)
+        Ok(FirestoreNamedMapValueSerializer::new(self, variant, len))
     }
 }
 
 #[cfg(test)]
 mod tests {
+    use std::collections::HashMap;
+
     use super::*;
 
     #[test]

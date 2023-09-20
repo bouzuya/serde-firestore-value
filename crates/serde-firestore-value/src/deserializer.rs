@@ -163,7 +163,11 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        match self.input.value_type.as_ref() {
+            None => todo!(),
+            Some(ValueType::NullValue(_)) => visitor.visit_unit(),
+            Some(_) => todo!(),
+        }
     }
 
     fn deserialize_unit_struct<V>(
@@ -328,6 +332,14 @@ mod tests {
             })?,
             "abc".to_string()
         );
+        Ok(())
+    }
+
+    #[test]
+    fn test_deserialize_unit() -> anyhow::Result<()> {
+        from_value::<'_, ()>(&Value {
+            value_type: Some(ValueType::NullValue(0_i32)),
+        })?;
         Ok(())
     }
 }

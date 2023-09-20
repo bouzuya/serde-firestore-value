@@ -9,8 +9,12 @@ struct Error {
 
 #[derive(Debug, thiserror::Error)]
 enum ErrorCode {
+    #[error("i16 out of range")]
+    I16OutOfRange,
     #[error("i8 out of range")]
     I8OutOfRange,
+    #[error("value type must be some")]
+    ValueTypeMustBeSome,
 }
 
 impl serde::de::Error for Error {
@@ -38,7 +42,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
         V: serde::de::Visitor<'a>,
     {
         match self.input.value_type.as_ref() {
-            None => todo!(),
+            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::BooleanValue(value)) => visitor.visit_bool(*value),
             Some(_) => todo!(),
         }
@@ -49,7 +53,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
         V: serde::de::Visitor<'a>,
     {
         match self.input.value_type.as_ref() {
-            None => todo!(),
+            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::IntegerValue(value)) => visitor
                 .visit_i8(i8::try_from(*value).map_err(|_| Error::from(ErrorCode::I8OutOfRange))?),
             Some(_) => todo!(),
@@ -60,7 +64,13 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        match self.input.value_type.as_ref() {
+            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
+            Some(ValueType::IntegerValue(value)) => visitor.visit_i16(
+                i16::try_from(*value).map_err(|_| Error::from(ErrorCode::I16OutOfRange))?,
+            ),
+            Some(_) => todo!(),
+        }
     }
 
     fn deserialize_i32<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -75,7 +85,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
         V: serde::de::Visitor<'a>,
     {
         match self.input.value_type.as_ref() {
-            None => todo!(),
+            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::IntegerValue(value)) => visitor.visit_i64(*value),
             Some(_) => todo!(),
         }
@@ -121,7 +131,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
         V: serde::de::Visitor<'a>,
     {
         match self.input.value_type.as_ref() {
-            None => todo!(),
+            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::DoubleValue(value)) => visitor.visit_f64(*value),
             Some(_) => todo!(),
         }
@@ -146,7 +156,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
         V: serde::de::Visitor<'a>,
     {
         match self.input.value_type.as_ref() {
-            None => todo!(),
+            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::StringValue(value)) => visitor.visit_string(value.clone()),
             Some(_) => todo!(),
         }
@@ -178,7 +188,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
         V: serde::de::Visitor<'a>,
     {
         match self.input.value_type.as_ref() {
-            None => todo!(),
+            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::NullValue(_)) => visitor.visit_unit(),
             Some(_) => todo!(),
         }
@@ -322,6 +332,23 @@ mod tests {
     }
 
     #[test]
+    fn test_deserialize_i16() -> anyhow::Result<()> {
+        assert_eq!(
+            from_value::<'_, i16>(&Value {
+                value_type: Some(ValueType::IntegerValue(i64::from(i16::MAX))),
+            })?,
+            i16::MAX
+        );
+        assert_eq!(
+            from_value::<'_, i16>(&Value {
+                value_type: Some(ValueType::IntegerValue(i64::from(i16::MIN))),
+            })?,
+            i16::MIN
+        );
+        Ok(())
+    }
+
+    #[test]
     fn test_deserialize_i64() -> anyhow::Result<()> {
         assert_eq!(
             from_value::<'_, i64>(&Value {
@@ -371,6 +398,17 @@ mod tests {
         from_value::<'_, ()>(&Value {
             value_type: Some(ValueType::NullValue(0_i32)),
         })?;
+        Ok(())
+    }
+
+    #[test]
+    fn test_error_value_type_must_be_some() -> anyhow::Result<()> {
+        assert_eq!(
+            from_value::<'_, bool>(&Value { value_type: None })
+                .unwrap_err()
+                .to_string(),
+            "value type must be some"
+        );
         Ok(())
     }
 }

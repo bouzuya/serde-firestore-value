@@ -300,14 +300,17 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
 
     fn deserialize_tuple_struct<V>(
         self,
-        name: &'static str,
-        len: usize,
+        _name: &'static str,
+        _len: usize,
         visitor: V,
     ) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        visitor.visit_seq(FirestoreArrayValueDeserializer {
+            index: 0,
+            parent: self.input,
+        })
     }
 
     fn deserialize_map<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -702,6 +705,31 @@ mod tests {
                 }))
             })?,
             (true, 1_i64)
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_deserialize_tuple_struct() -> anyhow::Result<()> {
+        #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
+        struct Rgb(u8, u8, u8);
+        assert_eq!(
+            from_value::<'_, Rgb>(&Value {
+                value_type: Some(ValueType::ArrayValue(ArrayValue {
+                    values: vec![
+                        Value {
+                            value_type: Some(ValueType::IntegerValue(1_i64))
+                        },
+                        Value {
+                            value_type: Some(ValueType::IntegerValue(2_i64))
+                        },
+                        Value {
+                            value_type: Some(ValueType::IntegerValue(3_i64))
+                        },
+                    ]
+                }))
+            })?,
+            Rgb(1_u8, 2_u8, 3_u8)
         );
         Ok(())
     }

@@ -23,6 +23,8 @@ mod tests {
     enum ErrorCode {
         #[error("integer out of range")]
         IntegerOutOfRange,
+        #[error("key must be a string")]
+        KeyMustBeAString,
     }
 
     impl serde::ser::Error for Error {
@@ -360,17 +362,20 @@ mod tests {
         where
             T: Serialize,
         {
-            if let (
-                Value {
-                    value_type: Some(ValueType::StringValue(k)),
-                },
-                None,
-            ) = (to_value(&key)?, self.key.as_ref())
+            if let Value {
+                value_type: Some(ValueType::StringValue(key_string)),
+            } = to_value(&key)?
             {
-                self.key = Some(k);
-                Ok(())
+                if self.key.is_none() {
+                    self.key = Some(key_string);
+                    Ok(())
+                } else {
+                    unreachable!()
+                }
             } else {
-                todo!()
+                Err(Error {
+                    code: ErrorCode::KeyMustBeAString,
+                })
             }
         }
 
@@ -383,7 +388,7 @@ mod tests {
                 self.output.fields.insert(k, v);
                 Ok(())
             } else {
-                todo!()
+                unreachable!()
             }
         }
 
@@ -1051,6 +1056,42 @@ mod tests {
                                         map
                                     },
                                 })),
+                            },
+                        );
+                        map
+                    }
+                }))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_error_key_must_be_a_string() -> anyhow::Result<()> {
+        assert_eq!(
+            to_value(&{
+                let mut map = HashMap::new();
+                map.insert((), 1_u8);
+                map
+            })
+            .unwrap_err()
+            .to_string(),
+            "key must be a string"
+        );
+        assert_eq!(
+            to_value(&{
+                let mut map = HashMap::new();
+                map.insert('a', 1_u8);
+                map
+            })?,
+            Value {
+                value_type: Some(ValueType::MapValue(MapValue {
+                    fields: {
+                        let mut map = HashMap::new();
+                        map.insert(
+                            "a".to_string(),
+                            Value {
+                                value_type: Some(ValueType::IntegerValue(1_i64)),
                             },
                         );
                         map

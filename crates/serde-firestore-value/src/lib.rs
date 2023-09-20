@@ -3,6 +3,7 @@ mod firestore_array_value_serializer;
 mod firestore_map_value_serializer;
 mod firestore_named_array_value_serializer;
 mod firestore_named_map_value_serializer;
+mod firestore_value_serializer;
 mod serde_json;
 mod serializer;
 

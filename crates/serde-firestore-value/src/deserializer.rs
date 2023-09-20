@@ -28,7 +28,11 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        match self.input.value_type.as_ref() {
+            None => todo!(),
+            Some(ValueType::BooleanValue(value)) => visitor.visit_bool(*value),
+            Some(_) => todo!(),
+        }
     }
 
     fn deserialize_i8<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -269,6 +273,17 @@ mod tests {
         let deserializer = FirestoreValueDeserializer { input: v };
         let t = T::deserialize(deserializer)?;
         Ok(t)
+    }
+
+    #[test]
+    fn test_deserialize_bool() -> anyhow::Result<()> {
+        assert!(from_value::<'_, bool>(&Value {
+            value_type: Some(ValueType::BooleanValue(true)),
+        })?);
+        assert!(!from_value::<'_, bool>(&Value {
+            value_type: Some(ValueType::BooleanValue(false)),
+        })?);
+        Ok(())
     }
 
     #[test]

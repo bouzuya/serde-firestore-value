@@ -15,6 +15,10 @@ enum ErrorCode {
     I32OutOfRange,
     #[error("i8 out of range")]
     I8OutOfRange,
+    #[error("string is empty")]
+    StringIsEmpty,
+    #[error("too many chars")]
+    TooManyChars,
     #[error("u16 out of range")]
     U16OutOfRange,
     #[error("u32 out of range")]
@@ -178,7 +182,19 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        match self.input.value_type.as_ref() {
+            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
+            Some(ValueType::StringValue(value)) => {
+                let mut chars = value.chars();
+                match (chars.next(), chars.next()) {
+                    (None, None) => Err(Error::from(ErrorCode::StringIsEmpty)),
+                    (None, Some(_)) => unreachable!(),
+                    (Some(c), None) => visitor.visit_char(c),
+                    (Some(_), Some(_)) => Err(Error::from(ErrorCode::TooManyChars)),
+                }
+            }
+            Some(_) => todo!(),
+        }
     }
 
     fn deserialize_str<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -513,6 +529,17 @@ mod tests {
                 value_type: Some(ValueType::DoubleValue(f64::MIN)),
             })?,
             f64::MIN
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_deserialize_char() -> anyhow::Result<()> {
+        assert_eq!(
+            from_value::<'_, char>(&Value {
+                value_type: Some(ValueType::StringValue("a".to_string())),
+            })?,
+            'a'
         );
         Ok(())
     }

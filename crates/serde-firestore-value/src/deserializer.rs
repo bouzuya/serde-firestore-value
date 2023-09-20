@@ -268,13 +268,13 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
 
     fn deserialize_newtype_struct<V>(
         self,
-        name: &'static str,
+        _name: &'static str,
         visitor: V,
     ) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        visitor.visit_newtype_struct(self)
     }
 
     fn deserialize_seq<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -610,6 +610,19 @@ mod tests {
                 value_type: Some(ValueType::NullValue(0_i32)),
             })?,
             Unit
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_deserialize_newtype_struct() -> anyhow::Result<()> {
+        #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
+        struct Millimeters(u8);
+        assert_eq!(
+            from_value::<'_, Millimeters>(&Value {
+                value_type: Some(ValueType::IntegerValue(i64::from(u8::MAX))),
+            })?,
+            Millimeters(u8::MAX)
         );
         Ok(())
     }

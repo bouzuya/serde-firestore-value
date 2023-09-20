@@ -106,14 +106,10 @@ impl<'a> serde::ser::SerializeStructVariant for FirestoreMapValueSerializer<'a> 
     where
         T: serde::Serialize,
     {
-        self.output
-            .fields
-            .insert(key.to_string(), to_value(&value)?);
-        Ok(())
+        serde::ser::SerializeMap::serialize_entry(self, key, value)
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        self.parent.set_map_value(self.name, self.output);
-        Ok(self.parent)
+        serde::ser::SerializeMap::end(self)
     }
 }

@@ -52,13 +52,11 @@ impl<'a> serde::ser::SerializeTuple for FirestoreArrayValueSerializer<'a> {
     where
         T: serde::Serialize,
     {
-        self.output.values.push(to_value(&value)?);
-        Ok(())
+        serde::ser::SerializeSeq::serialize_element(self, value)
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        self.parent.set_array_value(self.name, self.output);
-        Ok(self.parent)
+        serde::ser::SerializeSeq::end(self)
     }
 }
 
@@ -71,13 +69,11 @@ impl<'a> serde::ser::SerializeTupleStruct for FirestoreArrayValueSerializer<'a> 
     where
         T: serde::Serialize,
     {
-        self.output.values.push(to_value(&value)?);
-        Ok(())
+        serde::ser::SerializeSeq::serialize_element(self, value)
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        self.parent.set_array_value(self.name, self.output);
-        Ok(self.parent)
+        serde::ser::SerializeSeq::end(self)
     }
 }
 impl<'a> serde::ser::SerializeTupleVariant for FirestoreArrayValueSerializer<'a> {
@@ -89,12 +85,10 @@ impl<'a> serde::ser::SerializeTupleVariant for FirestoreArrayValueSerializer<'a>
     where
         T: serde::Serialize,
     {
-        self.output.values.push(to_value(&value)?);
-        Ok(())
+        serde::ser::SerializeSeq::serialize_element(self, value)
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        self.parent.set_array_value(self.name, self.output);
-        Ok(self.parent)
+        serde::ser::SerializeSeq::end(self)
     }
 }

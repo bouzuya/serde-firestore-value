@@ -35,11 +35,16 @@ mod tests {
         IntegerOutOfRange,
         #[error("key must be a string")]
         KeyMustBeAString,
+        #[error("maximum byte length (1,048,487 bytes = 1MiB - 89 bytes) exceeded")]
+        MaximumByteLengthExceeded,
     }
 
     struct FirestoreValueSerializer {
         output: Value,
     }
+
+    // 1,048,487 bytes = 1MiB - 89 bytes
+    const MAX_BYTE_LEN: usize = 1_048_487;
 
     impl<'a> Serializer for &'a mut FirestoreValueSerializer {
         type Ok = &'a mut FirestoreValueSerializer;
@@ -114,14 +119,22 @@ mod tests {
         }
 
         fn serialize_str(self, v: &str) -> Result<Self::Ok, Self::Error> {
-            // TODO: length check
+            if v.len() > MAX_BYTE_LEN {
+                return Err(Error {
+                    code: ErrorCode::MaximumByteLengthExceeded,
+                });
+            }
             self.output.value_type = Some(ValueType::StringValue(v.to_string()));
             Ok(self)
         }
 
         fn serialize_bytes(self, v: &[u8]) -> Result<Self::Ok, Self::Error> {
             // NOTE: unreachable. See: <https://serde.rs/impl-serialize.html#other-special-cases>
-            // TODO: length check
+            if v.len() > MAX_BYTE_LEN {
+                return Err(Error {
+                    code: ErrorCode::MaximumByteLengthExceeded,
+                });
+            }
             self.output.value_type = Some(ValueType::BytesValue(v.to_vec()));
             Ok(self)
         }
@@ -681,19 +694,30 @@ mod tests {
 
     #[test]
     fn test_str() -> anyhow::Result<()> {
-        // TODO: length check
         assert_eq!(
             to_value(&"abc")?,
             Value {
                 value_type: Some(ValueType::StringValue("abc".to_string()))
             }
         );
+        assert_eq!(
+            to_value(&"a".repeat(MAX_BYTE_LEN))?,
+            Value {
+                value_type: Some(ValueType::StringValue("a".repeat(MAX_BYTE_LEN)))
+            }
+        );
+        assert_eq!(
+            to_value(&"a".repeat(MAX_BYTE_LEN + 1))
+                .unwrap_err()
+                .to_string(),
+            "maximum byte length (1,048,487 bytes = 1MiB - 89 bytes) exceeded"
+        );
+
         Ok(())
     }
 
     #[test]
     fn test_bytes() -> anyhow::Result<()> {
-        // TODO: length check
         assert_eq!(
             to_value(&[0_u8, 1_u8])?,
             Value {
@@ -711,6 +735,14 @@ mod tests {
                 }))
             }
         );
+        // ArrayValue length is not checked.
+        // assert!(to_value(&vec![0_u8; MAX_BYTE_LEN]).is_ok());
+        // assert_eq!(
+        //     to_value(&vec![0_u8; MAX_BYTE_LEN + 1])
+        //         .unwrap_err()
+        //         .to_string(),
+        //     "maximum byte length (1,048,487 bytes = 1MiB - 89 bytes) exceeded"
+        // );
         Ok(())
     }
 
@@ -727,7 +759,6 @@ mod tests {
 
     #[test]
     fn test_some() -> anyhow::Result<()> {
-        // TODO: all types
         assert_eq!(
             to_value(&Some(true))?,
             Value {

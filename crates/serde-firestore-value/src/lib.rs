@@ -114,7 +114,10 @@ mod tests {
         }
 
         fn serialize_bytes(self, v: &[u8]) -> Result<Self::Ok, Self::Error> {
-            todo!()
+            // NOTE: unreachable. See: <https://serde.rs/impl-serialize.html#other-special-cases>
+            // TODO: length check
+            self.output.value_type = Some(ValueType::BytesValue(v.to_vec()));
+            Ok(self)
         }
 
         fn serialize_none(self) -> Result<Self::Ok, Self::Error> {
@@ -674,6 +677,29 @@ mod tests {
             to_value(&"abc")?,
             Value {
                 value_type: Some(ValueType::StringValue("abc".to_string()))
+            }
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn test_bytes() -> anyhow::Result<()> {
+        // TODO: length check
+        assert_eq!(
+            to_value(&[0_u8, 1_u8])?,
+            Value {
+                // ArrayValue is used instead of BytesArray.
+                // See: <https://serde.rs/impl-serialize.html#other-special-cases>
+                value_type: Some(ValueType::ArrayValue(ArrayValue {
+                    values: vec![
+                        Value {
+                            value_type: Some(ValueType::IntegerValue(0_i64))
+                        },
+                        Value {
+                            value_type: Some(ValueType::IntegerValue(1_i64))
+                        },
+                    ]
+                }))
             }
         );
         Ok(())

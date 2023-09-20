@@ -166,20 +166,11 @@ mod tests {
     fn test_u64() -> anyhow::Result<()> {
         assert_eq!(
             to_value(&u64::MAX).unwrap_err().to_string(),
-            "integer out of range"
-        );
-        let i64_max_as_u64 = u64::try_from(i64::MAX)?;
-        assert_eq!(
-            to_value(&i64_max_as_u64)?,
-            Value {
-                value_type: Some(ValueType::IntegerValue(i64::try_from(i64_max_as_u64)?))
-            }
+            "u64 is not supported"
         );
         assert_eq!(
-            to_value(&u64::MIN)?,
-            Value {
-                value_type: Some(ValueType::IntegerValue(i64::try_from(u64::MIN)?))
-            }
+            to_value(&u64::MIN).unwrap_err().to_string(),
+            "u64 is not supported"
         );
         Ok(())
     }

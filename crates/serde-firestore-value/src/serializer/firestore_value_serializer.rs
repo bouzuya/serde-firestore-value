@@ -114,8 +114,8 @@ impl<'a> Serializer for &'a mut FirestoreValueSerializer {
         self.serialize_i64(i64::from(v))
     }
 
-    fn serialize_u64(self, v: u64) -> Result<Self::Ok, Self::Error> {
-        self.serialize_i64(i64::try_from(v).map_err(|_| Error::from(ErrorCode::IntegerOutOfRange))?)
+    fn serialize_u64(self, _: u64) -> Result<Self::Ok, Self::Error> {
+        Err(Error::from(ErrorCode::U64IsNotSupported))
     }
 
     fn serialize_f32(self, v: f32) -> Result<Self::Ok, Self::Error> {

@@ -5,6 +5,7 @@ use serde::de::{value::StringDeserializer, MapAccess, SeqAccess};
 
 trait ValueExt {
     fn as_integer(&self) -> Result<i64, Error>;
+    fn as_map(&self) -> Result<&MapValue, Error>;
     fn value_type(&self) -> Result<&ValueType, Error>;
 }
 
@@ -16,6 +17,13 @@ impl ValueExt for Value {
                 value_type,
                 ValueTypeName::Integer,
             )),
+        }
+    }
+
+    fn as_map(&self) -> Result<&MapValue, Error> {
+        match self.value_type()? {
+            ValueType::MapValue(value) => Ok(value),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Map)),
         }
     }
 
@@ -374,15 +382,11 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type()? {
-            ValueType::MapValue(MapValue { fields }) => {
-                visitor.visit_map(FirestoreMapValueDeserializer {
-                    iter: fields.iter(),
-                    next_value: None,
-                })
-            }
-            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Map)),
-        }
+        let MapValue { fields } = self.value.as_map()?;
+        visitor.visit_map(FirestoreMapValueDeserializer {
+            iter: fields.iter(),
+            next_value: None,
+        })
     }
 
     fn deserialize_struct<V>(
@@ -394,17 +398,13 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type()? {
-            ValueType::MapValue(MapValue { fields: values }) => {
-                visitor.visit_map(FirestoreStructMapValueDeserializer {
-                    fields,
-                    index: 0,
-                    next_value: None,
-                    values,
-                })
-            }
-            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Map)),
-        }
+        let MapValue { fields: values } = self.value.as_map()?;
+        visitor.visit_map(FirestoreStructMapValueDeserializer {
+            fields,
+            index: 0,
+            next_value: None,
+            values,
+        })
     }
 
     fn deserialize_enum<V>(
@@ -582,41 +582,31 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
     where
         T: serde::de::DeserializeSeed<'de>,
     {
-        match self.value.value_type()? {
-            ValueType::MapValue(MapValue { fields }) => {
-                if fields.len() != 1 {
-                    todo!()
-                }
-                let (_, variant_value) = fields.iter().next().unwrap();
-                seed.deserialize(FirestoreValueDeserializer {
-                    value: variant_value,
-                })
-            }
-            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Map)),
+        let MapValue { fields } = self.value.as_map()?;
+        if fields.len() != 1 {
+            todo!()
         }
+        let (_, variant_value) = fields.iter().next().unwrap();
+        seed.deserialize(FirestoreValueDeserializer {
+            value: variant_value,
+        })
     }
 
     fn tuple_variant<V>(self, _len: usize, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'de>,
     {
-        match self.value.value_type()? {
-            ValueType::MapValue(MapValue { fields }) => {
-                if fields.len() != 1 {
-                    todo!()
-                }
-                let (_, variant_value) = fields.iter().next().unwrap();
-                match variant_value.value_type()? {
-                    ValueType::ArrayValue(_) => {
-                        visitor.visit_seq(FirestoreArrayValueDeserializer {
-                            index: 0,
-                            value: variant_value,
-                        })
-                    }
-                    value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Array)),
-                }
-            }
-            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Map)),
+        let MapValue { fields } = self.value.as_map()?;
+        if fields.len() != 1 {
+            todo!()
+        }
+        let (_, variant_value) = fields.iter().next().unwrap();
+        match variant_value.value_type()? {
+            ValueType::ArrayValue(_) => visitor.visit_seq(FirestoreArrayValueDeserializer {
+                index: 0,
+                value: variant_value,
+            }),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Array)),
         }
     }
 
@@ -628,24 +618,16 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
     where
         V: serde::de::Visitor<'de>,
     {
-        match self.value.value_type()? {
-            ValueType::MapValue(MapValue { fields }) => {
-                if fields.len() != 1 {
-                    todo!()
-                }
-                let (_, variant_value) = fields.iter().next().unwrap();
-                match variant_value.value_type()? {
-                    ValueType::MapValue(MapValue { fields }) => {
-                        visitor.visit_map(FirestoreMapValueDeserializer {
-                            iter: fields.iter(),
-                            next_value: None,
-                        })
-                    }
-                    value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Array)),
-                }
-            }
-            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Map)),
+        let MapValue { fields } = self.value.as_map()?;
+        if fields.len() != 1 {
+            todo!()
         }
+        let (_, variant_value) = fields.iter().next().unwrap();
+        let MapValue { fields } = variant_value.as_map()?;
+        visitor.visit_map(FirestoreMapValueDeserializer {
+            iter: fields.iter(),
+            next_value: None,
+        })
     }
 }
 

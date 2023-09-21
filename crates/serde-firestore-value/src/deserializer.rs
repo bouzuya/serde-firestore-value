@@ -14,6 +14,8 @@ struct Error {
 enum ErrorCode {
     #[error("{0}")]
     Custom(String),
+    #[error("deserialize_any is not supported")]
+    DeserializeAnyIsNotSupported,
     #[error("i16 out of range")]
     I16OutOfRange,
     #[error("i32 out of range")]
@@ -49,11 +51,11 @@ struct FirestoreValueDeserializer<'a> {
 impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     type Error = Error;
 
-    fn deserialize_any<V>(self, visitor: V) -> Result<V::Value, Self::Error>
+    fn deserialize_any<V>(self, _: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        Err(Error::from(ErrorCode::DeserializeAnyIsNotSupported))
     }
 
     fn deserialize_bool<V>(self, visitor: V) -> Result<V::Value, Self::Error>

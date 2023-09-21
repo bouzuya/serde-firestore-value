@@ -45,7 +45,7 @@ impl serde::de::Error for Error {
 }
 
 struct FirestoreValueDeserializer<'a> {
-    input: &'a Value,
+    value: &'a Value,
 }
 
 impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
@@ -62,7 +62,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.input.value_type.as_ref() {
+        match self.value.value_type.as_ref() {
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::BooleanValue(value)) => visitor.visit_bool(*value),
             Some(_) => todo!(),
@@ -73,7 +73,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.input.value_type.as_ref() {
+        match self.value.value_type.as_ref() {
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::IntegerValue(value)) => visitor
                 .visit_i8(i8::try_from(*value).map_err(|_| Error::from(ErrorCode::I8OutOfRange))?),
@@ -85,7 +85,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.input.value_type.as_ref() {
+        match self.value.value_type.as_ref() {
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::IntegerValue(value)) => visitor.visit_i16(
                 i16::try_from(*value).map_err(|_| Error::from(ErrorCode::I16OutOfRange))?,
@@ -98,7 +98,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.input.value_type.as_ref() {
+        match self.value.value_type.as_ref() {
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::IntegerValue(value)) => visitor.visit_i32(
                 i32::try_from(*value).map_err(|_| Error::from(ErrorCode::I32OutOfRange))?,
@@ -111,7 +111,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.input.value_type.as_ref() {
+        match self.value.value_type.as_ref() {
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::IntegerValue(value)) => visitor.visit_i64(*value),
             Some(_) => todo!(),
@@ -122,7 +122,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.input.value_type.as_ref() {
+        match self.value.value_type.as_ref() {
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::IntegerValue(value)) => visitor
                 .visit_u8(u8::try_from(*value).map_err(|_| Error::from(ErrorCode::U8OutOfRange))?),
@@ -134,7 +134,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.input.value_type.as_ref() {
+        match self.value.value_type.as_ref() {
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::IntegerValue(value)) => visitor.visit_u16(
                 u16::try_from(*value).map_err(|_| Error::from(ErrorCode::U16OutOfRange))?,
@@ -147,7 +147,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.input.value_type.as_ref() {
+        match self.value.value_type.as_ref() {
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::IntegerValue(value)) => visitor.visit_u32(
                 u32::try_from(*value).map_err(|_| Error::from(ErrorCode::U32OutOfRange))?,
@@ -167,7 +167,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.input.value_type.as_ref() {
+        match self.value.value_type.as_ref() {
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::DoubleValue(value)) => visitor.visit_f32(*value as f32),
             Some(_) => todo!(),
@@ -178,7 +178,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.input.value_type.as_ref() {
+        match self.value.value_type.as_ref() {
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::DoubleValue(value)) => visitor.visit_f64(*value),
             Some(_) => todo!(),
@@ -189,7 +189,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.input.value_type.as_ref() {
+        match self.value.value_type.as_ref() {
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::StringValue(value)) => {
                 let mut chars = value.chars();
@@ -208,7 +208,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.input.value_type.as_ref() {
+        match self.value.value_type.as_ref() {
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::StringValue(value)) => visitor.visit_str(value),
             Some(_) => todo!(),
@@ -219,7 +219,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.input.value_type.as_ref() {
+        match self.value.value_type.as_ref() {
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::StringValue(value)) => visitor.visit_string(value.clone()),
             Some(_) => todo!(),
@@ -244,7 +244,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.input.value_type.as_ref() {
+        match self.value.value_type.as_ref() {
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::NullValue(_)) => visitor.visit_none(),
             Some(_) => visitor.visit_some(self),
@@ -255,7 +255,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.input.value_type.as_ref() {
+        match self.value.value_type.as_ref() {
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::NullValue(_)) => visitor.visit_unit(),
             Some(_) => todo!(),
@@ -290,7 +290,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     {
         visitor.visit_seq(FirestoreArrayValueDeserializer {
             index: 0,
-            parent: self.input,
+            value: self.value,
         })
     }
 
@@ -300,7 +300,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     {
         visitor.visit_seq(FirestoreArrayValueDeserializer {
             index: 0,
-            parent: self.input,
+            value: self.value,
         })
     }
 
@@ -315,7 +315,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     {
         visitor.visit_seq(FirestoreArrayValueDeserializer {
             index: 0,
-            parent: self.input,
+            value: self.value,
         })
     }
 
@@ -323,12 +323,12 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.input.value_type.as_ref() {
+        match self.value.value_type.as_ref() {
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::MapValue(MapValue { fields })) => {
                 visitor.visit_map(FirestoreMapValueDeserializer {
                     iter: fields.iter(),
-                    value: None,
+                    next_value: None,
                 })
             }
             Some(_) => todo!(),
@@ -344,13 +344,13 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.input.value_type.as_ref() {
+        match self.value.value_type.as_ref() {
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::MapValue(MapValue { fields: values })) => {
                 visitor.visit_map(FirestoreStructMapValueDeserializer {
                     fields,
                     index: 0,
-                    value: None,
+                    next_value: None,
                     values,
                 })
             }
@@ -367,14 +367,14 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        visitor.visit_enum(FirestoreEnumDeserializer { value: self.input })
+        visitor.visit_enum(FirestoreEnumDeserializer { value: self.value })
     }
 
     fn deserialize_identifier<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.input.value_type.as_ref() {
+        match self.value.value_type.as_ref() {
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::StringValue(s)) => visitor.visit_str(s.as_str()),
             Some(ValueType::MapValue(MapValue { fields })) => {
@@ -398,7 +398,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
 
 struct FirestoreArrayValueDeserializer<'de> {
     index: usize,
-    parent: &'de Value,
+    value: &'de Value,
 }
 
 impl<'de> SeqAccess<'de> for FirestoreArrayValueDeserializer<'de> {
@@ -408,13 +408,13 @@ impl<'de> SeqAccess<'de> for FirestoreArrayValueDeserializer<'de> {
     where
         T: serde::de::DeserializeSeed<'de>,
     {
-        match self.parent.value_type.as_ref() {
+        match self.value.value_type.as_ref() {
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
             Some(ValueType::ArrayValue(ArrayValue { values })) => {
                 if self.index < values.len() {
                     let value = &values[self.index];
                     self.index += 1;
-                    seed.deserialize(FirestoreValueDeserializer { input: value })
+                    seed.deserialize(FirestoreValueDeserializer { value })
                         .map(Some)
                 } else {
                     Ok(None)
@@ -427,7 +427,7 @@ impl<'de> SeqAccess<'de> for FirestoreArrayValueDeserializer<'de> {
 
 struct FirestoreMapValueDeserializer<'de> {
     iter: std::collections::hash_map::Iter<'de, String, Value>,
-    value: Option<&'de Value>,
+    next_value: Option<&'de Value>,
 }
 
 impl<'de> MapAccess<'de> for FirestoreMapValueDeserializer<'de> {
@@ -439,8 +439,8 @@ impl<'de> MapAccess<'de> for FirestoreMapValueDeserializer<'de> {
     {
         match self.iter.next() {
             Some((key, value)) => {
-                if self.value.is_none() {
-                    self.value = Some(value);
+                if self.next_value.is_none() {
+                    self.next_value = Some(value);
                     seed.deserialize(StringDeserializer::new(key.clone()))
                         .map(Some)
                 } else {
@@ -455,8 +455,8 @@ impl<'de> MapAccess<'de> for FirestoreMapValueDeserializer<'de> {
     where
         V: serde::de::DeserializeSeed<'de>,
     {
-        if let Some(value) = self.value.take() {
-            seed.deserialize(FirestoreValueDeserializer { input: value })
+        if let Some(value) = self.next_value.take() {
+            seed.deserialize(FirestoreValueDeserializer { value })
         } else {
             unreachable!()
         }
@@ -466,7 +466,7 @@ impl<'de> MapAccess<'de> for FirestoreMapValueDeserializer<'de> {
 struct FirestoreStructMapValueDeserializer<'de> {
     fields: &'static [&'static str],
     index: usize,
-    value: Option<&'de Value>,
+    next_value: Option<&'de Value>,
     values: &'de HashMap<String, Value>,
 }
 
@@ -482,8 +482,8 @@ impl<'de> MapAccess<'de> for FirestoreStructMapValueDeserializer<'de> {
         } else {
             let field = self.fields[self.index];
             self.index += 1;
-            if self.value.is_none() {
-                self.value = self.values.get(field);
+            if self.next_value.is_none() {
+                self.next_value = self.values.get(field);
                 seed.deserialize(StringDeserializer::new(field.to_string()))
                     .map(Some)
             } else {
@@ -496,8 +496,8 @@ impl<'de> MapAccess<'de> for FirestoreStructMapValueDeserializer<'de> {
     where
         V: serde::de::DeserializeSeed<'de>,
     {
-        if let Some(value) = self.value.take() {
-            seed.deserialize(FirestoreValueDeserializer { input: value })
+        if let Some(value) = self.next_value.take() {
+            seed.deserialize(FirestoreValueDeserializer { value })
         } else {
             unreachable!()
         }
@@ -516,7 +516,7 @@ impl<'de> serde::de::EnumAccess<'de> for FirestoreEnumDeserializer<'de> {
     where
         V: serde::de::DeserializeSeed<'de>,
     {
-        seed.deserialize(FirestoreValueDeserializer { input: self.value })
+        seed.deserialize(FirestoreValueDeserializer { value: self.value })
             .map(|v| (v, self))
     }
 }
@@ -544,7 +544,7 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
                 }
                 let (_, variant_value) = fields.iter().next().unwrap();
                 seed.deserialize(FirestoreValueDeserializer {
-                    input: variant_value,
+                    value: variant_value,
                 })
             }
             Some(_) => todo!(),
@@ -567,7 +567,7 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
                     Some(ValueType::ArrayValue(_)) => {
                         visitor.visit_seq(FirestoreArrayValueDeserializer {
                             index: 0,
-                            parent: variant_value,
+                            value: variant_value,
                         })
                     }
                     Some(_) => todo!(),
@@ -597,7 +597,7 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
                     Some(ValueType::MapValue(MapValue { fields })) => {
                         visitor.visit_map(FirestoreMapValueDeserializer {
                             iter: fields.iter(),
-                            value: None,
+                            next_value: None,
                         })
                     }
                     Some(_) => todo!(),
@@ -620,7 +620,7 @@ mod tests {
     where
         T: serde::Deserialize<'a>,
     {
-        let deserializer = FirestoreValueDeserializer { input: v };
+        let deserializer = FirestoreValueDeserializer { value: v };
         let t = T::deserialize(deserializer)?;
         Ok(t)
     }

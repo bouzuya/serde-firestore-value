@@ -356,21 +356,32 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
 
     fn deserialize_enum<V>(
         self,
-        name: &'static str,
-        variants: &'static [&'static str],
+        _name: &'static str,
+        _variants: &'static [&'static str],
         visitor: V,
     ) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        visitor.visit_enum(FirestoreEnumDeserializer { value: self.input })
     }
 
     fn deserialize_identifier<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        match self.input.value_type.as_ref() {
+            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
+            Some(ValueType::StringValue(s)) => visitor.visit_str(s.as_str()),
+            Some(ValueType::MapValue(MapValue { fields })) => {
+                if fields.len() != 1 {
+                    todo!()
+                }
+                let (variant_name, _) = fields.iter().next().unwrap();
+                visitor.visit_str(variant_name.as_str())
+            }
+            Some(_) => todo!(),
+        }
     }
 
     fn deserialize_ignored_any<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -485,6 +496,110 @@ impl<'de> MapAccess<'de> for FirestoreStructMapValueDeserializer<'de> {
             seed.deserialize(FirestoreValueDeserializer { input: value })
         } else {
             unreachable!()
+        }
+    }
+}
+
+struct FirestoreEnumDeserializer<'de> {
+    value: &'de Value,
+}
+
+impl<'de> serde::de::EnumAccess<'de> for FirestoreEnumDeserializer<'de> {
+    type Error = Error;
+    type Variant = FirestoreEnumDeserializer<'de>;
+
+    fn variant_seed<V>(self, seed: V) -> Result<(V::Value, Self::Variant), Self::Error>
+    where
+        V: serde::de::DeserializeSeed<'de>,
+    {
+        seed.deserialize(FirestoreValueDeserializer { input: self.value })
+            .map(|v| (v, self))
+    }
+}
+
+impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
+    type Error = Error;
+
+    fn unit_variant(self) -> Result<(), Self::Error> {
+        match self.value.value_type.as_ref() {
+            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
+            Some(ValueType::StringValue(_)) => Ok(()),
+            Some(_) => todo!(),
+        }
+    }
+
+    fn newtype_variant_seed<T>(self, seed: T) -> Result<T::Value, Self::Error>
+    where
+        T: serde::de::DeserializeSeed<'de>,
+    {
+        match self.value.value_type.as_ref() {
+            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
+            Some(ValueType::MapValue(MapValue { fields })) => {
+                if fields.len() != 1 {
+                    todo!()
+                }
+                let (_, variant_value) = fields.iter().next().unwrap();
+                seed.deserialize(FirestoreValueDeserializer {
+                    input: variant_value,
+                })
+            }
+            Some(_) => todo!(),
+        }
+    }
+
+    fn tuple_variant<V>(self, _len: usize, visitor: V) -> Result<V::Value, Self::Error>
+    where
+        V: serde::de::Visitor<'de>,
+    {
+        match self.value.value_type.as_ref() {
+            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
+            Some(ValueType::MapValue(MapValue { fields })) => {
+                if fields.len() != 1 {
+                    todo!()
+                }
+                let (_, variant_value) = fields.iter().next().unwrap();
+                match variant_value.value_type.as_ref() {
+                    None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
+                    Some(ValueType::ArrayValue(_)) => {
+                        visitor.visit_seq(FirestoreArrayValueDeserializer {
+                            index: 0,
+                            parent: variant_value,
+                        })
+                    }
+                    Some(_) => todo!(),
+                }
+            }
+            Some(_) => todo!(),
+        }
+    }
+
+    fn struct_variant<V>(
+        self,
+        _fields: &'static [&'static str],
+        visitor: V,
+    ) -> Result<V::Value, Self::Error>
+    where
+        V: serde::de::Visitor<'de>,
+    {
+        match self.value.value_type.as_ref() {
+            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
+            Some(ValueType::MapValue(MapValue { fields })) => {
+                if fields.len() != 1 {
+                    todo!()
+                }
+                let (_, variant_value) = fields.iter().next().unwrap();
+                match variant_value.value_type.as_ref() {
+                    None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
+                    Some(ValueType::MapValue(MapValue { fields })) => {
+                        visitor.visit_map(FirestoreMapValueDeserializer {
+                            iter: fields.iter(),
+                            value: None,
+                        })
+                    }
+                    Some(_) => todo!(),
+                }
+            }
+            Some(_) => todo!(),
         }
     }
 }
@@ -911,6 +1026,164 @@ mod tests {
                 b: 3_u8
             }
         );
+        Ok(())
+    }
+
+    #[test]
+    fn test_deserialize_enum() -> anyhow::Result<()> {
+        {
+            // unit_variant
+            #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
+            enum E {
+                A,
+                B,
+            }
+            assert_eq!(
+                from_value::<'_, E>(&Value {
+                    value_type: Some(ValueType::StringValue("A".to_string()))
+                })?,
+                E::A
+            );
+            assert_eq!(
+                from_value::<'_, E>(&Value {
+                    value_type: Some(ValueType::StringValue("B".to_string()))
+                })?,
+                E::B
+            );
+        }
+
+        {
+            // newtype_variant
+            #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
+            enum E {
+                A(u8),
+                B(u8),
+            }
+            assert_eq!(
+                from_value::<'_, E>(&Value {
+                    value_type: Some(ValueType::MapValue(MapValue {
+                        fields: {
+                            let mut map = HashMap::new();
+                            map.insert(
+                                "A".to_string(),
+                                Value {
+                                    value_type: Some(ValueType::IntegerValue(1_i64)),
+                                },
+                            );
+                            map
+                        }
+                    }))
+                })?,
+                E::A(1_u8)
+            );
+            assert_eq!(
+                from_value::<'_, E>(&Value {
+                    value_type: Some(ValueType::MapValue(MapValue {
+                        fields: {
+                            let mut map = HashMap::new();
+                            map.insert(
+                                "B".to_string(),
+                                Value {
+                                    value_type: Some(ValueType::IntegerValue(2_i64)),
+                                },
+                            );
+                            map
+                        }
+                    }))
+                })?,
+                E::B(2_u8)
+            );
+        }
+
+        {
+            // tuple_variant
+            #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
+            enum E {
+                T(u8, u8),
+                U(u8, u8),
+            }
+            assert_eq!(
+                from_value::<'_, E>(&Value {
+                    value_type: Some(ValueType::MapValue(MapValue {
+                        fields: {
+                            let mut map = HashMap::new();
+                            map.insert(
+                                "T".to_string(),
+                                Value {
+                                    value_type: Some(ValueType::ArrayValue(ArrayValue {
+                                        values: vec![
+                                            Value {
+                                                value_type: Some(ValueType::IntegerValue(1_i64)),
+                                            },
+                                            Value {
+                                                value_type: Some(ValueType::IntegerValue(2_i64)),
+                                            },
+                                        ],
+                                    })),
+                                },
+                            );
+                            map
+                        }
+                    }))
+                })?,
+                E::T(1_u8, 2_u8)
+            );
+        }
+
+        {
+            // struct_variant
+            #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
+            enum E {
+                S { r: u8, g: u8, b: u8 },
+            }
+            assert_eq!(
+                from_value::<'_, E>(&Value {
+                    value_type: Some(ValueType::MapValue(MapValue {
+                        fields: {
+                            let mut map = HashMap::new();
+                            map.insert(
+                                "S".to_string(),
+                                Value {
+                                    value_type: Some(ValueType::MapValue(MapValue {
+                                        fields: {
+                                            let mut map = HashMap::new();
+                                            map.insert(
+                                                "r".to_string(),
+                                                Value {
+                                                    value_type: Some(ValueType::IntegerValue(
+                                                        1_i64,
+                                                    )),
+                                                },
+                                            );
+                                            map.insert(
+                                                "g".to_string(),
+                                                Value {
+                                                    value_type: Some(ValueType::IntegerValue(
+                                                        2_i64,
+                                                    )),
+                                                },
+                                            );
+                                            map.insert(
+                                                "b".to_string(),
+                                                Value {
+                                                    value_type: Some(ValueType::IntegerValue(
+                                                        3_i64,
+                                                    )),
+                                                },
+                                            );
+                                            map
+                                        },
+                                    })),
+                                },
+                            );
+                            map
+                        }
+                    }))
+                })?,
+                E::S { r: 1, g: 2, b: 3 },
+            );
+        }
+
         Ok(())
     }
 

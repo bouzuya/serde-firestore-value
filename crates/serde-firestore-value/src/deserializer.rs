@@ -3,6 +3,18 @@ use std::collections::HashMap;
 use google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
 use serde::de::{value::StringDeserializer, MapAccess, SeqAccess};
 
+trait ValueExt {
+    fn value_type(&self) -> Result<&ValueType, Error>;
+}
+
+impl ValueExt for Value {
+    fn value_type(&self) -> Result<&ValueType, Error> {
+        self.value_type
+            .as_ref()
+            .ok_or_else(|| Error::from(ErrorCode::ValueTypeMustBeSome))
+    }
+}
+
 #[derive(Debug, thiserror::Error)]
 #[error(transparent)]
 struct Error {
@@ -62,10 +74,9 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::BooleanValue(value)) => visitor.visit_bool(*value),
-            Some(_) => todo!(),
+        match self.value.value_type()? {
+            ValueType::BooleanValue(value) => visitor.visit_bool(*value),
+            _ => todo!(),
         }
     }
 
@@ -73,11 +84,10 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::IntegerValue(value)) => visitor
+        match self.value.value_type()? {
+            ValueType::IntegerValue(value) => visitor
                 .visit_i8(i8::try_from(*value).map_err(|_| Error::from(ErrorCode::I8OutOfRange))?),
-            Some(_) => todo!(),
+            _ => todo!(),
         }
     }
 
@@ -85,12 +95,11 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::IntegerValue(value)) => visitor.visit_i16(
+        match self.value.value_type()? {
+            ValueType::IntegerValue(value) => visitor.visit_i16(
                 i16::try_from(*value).map_err(|_| Error::from(ErrorCode::I16OutOfRange))?,
             ),
-            Some(_) => todo!(),
+            _ => todo!(),
         }
     }
 
@@ -98,12 +107,11 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::IntegerValue(value)) => visitor.visit_i32(
+        match self.value.value_type()? {
+            ValueType::IntegerValue(value) => visitor.visit_i32(
                 i32::try_from(*value).map_err(|_| Error::from(ErrorCode::I32OutOfRange))?,
             ),
-            Some(_) => todo!(),
+            _ => todo!(),
         }
     }
 
@@ -111,10 +119,9 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::IntegerValue(value)) => visitor.visit_i64(*value),
-            Some(_) => todo!(),
+        match self.value.value_type()? {
+            ValueType::IntegerValue(value) => visitor.visit_i64(*value),
+            _ => todo!(),
         }
     }
 
@@ -122,11 +129,10 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::IntegerValue(value)) => visitor
+        match self.value.value_type()? {
+            ValueType::IntegerValue(value) => visitor
                 .visit_u8(u8::try_from(*value).map_err(|_| Error::from(ErrorCode::U8OutOfRange))?),
-            Some(_) => todo!(),
+            _ => todo!(),
         }
     }
 
@@ -134,12 +140,11 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::IntegerValue(value)) => visitor.visit_u16(
+        match self.value.value_type()? {
+            ValueType::IntegerValue(value) => visitor.visit_u16(
                 u16::try_from(*value).map_err(|_| Error::from(ErrorCode::U16OutOfRange))?,
             ),
-            Some(_) => todo!(),
+            _ => todo!(),
         }
     }
 
@@ -147,12 +152,11 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::IntegerValue(value)) => visitor.visit_u32(
+        match self.value.value_type()? {
+            ValueType::IntegerValue(value) => visitor.visit_u32(
                 u32::try_from(*value).map_err(|_| Error::from(ErrorCode::U32OutOfRange))?,
             ),
-            Some(_) => todo!(),
+            _ => todo!(),
         }
     }
 
@@ -167,10 +171,9 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::DoubleValue(value)) => visitor.visit_f32(*value as f32),
-            Some(_) => todo!(),
+        match self.value.value_type()? {
+            ValueType::DoubleValue(value) => visitor.visit_f32(*value as f32),
+            _ => todo!(),
         }
     }
 
@@ -178,10 +181,9 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::DoubleValue(value)) => visitor.visit_f64(*value),
-            Some(_) => todo!(),
+        match self.value.value_type()? {
+            ValueType::DoubleValue(value) => visitor.visit_f64(*value),
+            _ => todo!(),
         }
     }
 
@@ -189,9 +191,8 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::StringValue(value)) => {
+        match self.value.value_type()? {
+            ValueType::StringValue(value) => {
                 let mut chars = value.chars();
                 match (chars.next(), chars.next()) {
                     (None, None) => Err(Error::from(ErrorCode::StringIsEmpty)),
@@ -200,7 +201,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
                     (Some(_), Some(_)) => Err(Error::from(ErrorCode::TooManyChars)),
                 }
             }
-            Some(_) => todo!(),
+            _ => todo!(),
         }
     }
 
@@ -208,10 +209,9 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::StringValue(value)) => visitor.visit_str(value),
-            Some(_) => todo!(),
+        match self.value.value_type()? {
+            ValueType::StringValue(value) => visitor.visit_str(value),
+            _ => todo!(),
         }
     }
 
@@ -219,10 +219,9 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::StringValue(value)) => visitor.visit_string(value.clone()),
-            Some(_) => todo!(),
+        match self.value.value_type()? {
+            ValueType::StringValue(value) => visitor.visit_string(value.clone()),
+            _ => todo!(),
         }
     }
 
@@ -244,10 +243,9 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::NullValue(_)) => visitor.visit_none(),
-            Some(_) => visitor.visit_some(self),
+        match self.value.value_type()? {
+            ValueType::NullValue(_) => visitor.visit_none(),
+            _ => visitor.visit_some(self),
         }
     }
 
@@ -255,10 +253,9 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::NullValue(_)) => visitor.visit_unit(),
-            Some(_) => todo!(),
+        match self.value.value_type()? {
+            ValueType::NullValue(_) => visitor.visit_unit(),
+            _ => todo!(),
         }
     }
 
@@ -323,15 +320,14 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::MapValue(MapValue { fields })) => {
+        match self.value.value_type()? {
+            ValueType::MapValue(MapValue { fields }) => {
                 visitor.visit_map(FirestoreMapValueDeserializer {
                     iter: fields.iter(),
                     next_value: None,
                 })
             }
-            Some(_) => todo!(),
+            _ => todo!(),
         }
     }
 
@@ -344,9 +340,8 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::MapValue(MapValue { fields: values })) => {
+        match self.value.value_type()? {
+            ValueType::MapValue(MapValue { fields: values }) => {
                 visitor.visit_map(FirestoreStructMapValueDeserializer {
                     fields,
                     index: 0,
@@ -354,7 +349,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
                     values,
                 })
             }
-            Some(_) => todo!(),
+            _ => todo!(),
         }
     }
 
@@ -374,17 +369,16 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::StringValue(s)) => visitor.visit_str(s.as_str()),
-            Some(ValueType::MapValue(MapValue { fields })) => {
+        match self.value.value_type()? {
+            ValueType::StringValue(s) => visitor.visit_str(s.as_str()),
+            ValueType::MapValue(MapValue { fields }) => {
                 if fields.len() != 1 {
                     todo!()
                 }
                 let (variant_name, _) = fields.iter().next().unwrap();
                 visitor.visit_str(variant_name.as_str())
             }
-            Some(_) => todo!(),
+            _ => todo!(),
         }
     }
 
@@ -408,9 +402,8 @@ impl<'de> SeqAccess<'de> for FirestoreArrayValueDeserializer<'de> {
     where
         T: serde::de::DeserializeSeed<'de>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::ArrayValue(ArrayValue { values })) => {
+        match self.value.value_type()? {
+            ValueType::ArrayValue(ArrayValue { values }) => {
                 if self.index < values.len() {
                     let value = &values[self.index];
                     self.index += 1;
@@ -420,7 +413,7 @@ impl<'de> SeqAccess<'de> for FirestoreArrayValueDeserializer<'de> {
                     Ok(None)
                 }
             }
-            Some(_) => todo!(),
+            _ => todo!(),
         }
     }
 }
@@ -525,10 +518,9 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
     type Error = Error;
 
     fn unit_variant(self) -> Result<(), Self::Error> {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::StringValue(_)) => Ok(()),
-            Some(_) => todo!(),
+        match self.value.value_type()? {
+            ValueType::StringValue(_) => Ok(()),
+            _ => todo!(),
         }
     }
 
@@ -536,9 +528,8 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
     where
         T: serde::de::DeserializeSeed<'de>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::MapValue(MapValue { fields })) => {
+        match self.value.value_type()? {
+            ValueType::MapValue(MapValue { fields }) => {
                 if fields.len() != 1 {
                     todo!()
                 }
@@ -547,7 +538,7 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
                     value: variant_value,
                 })
             }
-            Some(_) => todo!(),
+            _ => todo!(),
         }
     }
 
@@ -555,9 +546,8 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
     where
         V: serde::de::Visitor<'de>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::MapValue(MapValue { fields })) => {
+        match self.value.value_type()? {
+            ValueType::MapValue(MapValue { fields }) => {
                 if fields.len() != 1 {
                     todo!()
                 }
@@ -573,7 +563,7 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
                     Some(_) => todo!(),
                 }
             }
-            Some(_) => todo!(),
+            _ => todo!(),
         }
     }
 
@@ -585,9 +575,8 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
     where
         V: serde::de::Visitor<'de>,
     {
-        match self.value.value_type.as_ref() {
-            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-            Some(ValueType::MapValue(MapValue { fields })) => {
+        match self.value.value_type()? {
+            ValueType::MapValue(MapValue { fields }) => {
                 if fields.len() != 1 {
                     todo!()
                 }
@@ -603,7 +592,7 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
                     Some(_) => todo!(),
                 }
             }
-            Some(_) => todo!(),
+            _ => todo!(),
         }
     }
 }

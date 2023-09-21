@@ -452,11 +452,11 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
         }
     }
 
-    fn deserialize_ignored_any<V>(self, visitor: V) -> Result<V::Value, Self::Error>
+    fn deserialize_ignored_any<V>(self, _: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        Err(Error::from(ErrorCode::DeserializeAnyIsNotSupported))
     }
 }
 

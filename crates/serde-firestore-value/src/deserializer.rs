@@ -1232,4 +1232,97 @@ mod tests {
         );
         Ok(())
     }
+
+    #[test]
+    fn test_error_invalid_type() -> anyhow::Result<()> {
+        // expected boolean value
+        assert_eq!(
+            from_value::<'_, bool>(&Value {
+                value_type: Some(ValueType::IntegerValue(1_i64)),
+            })
+            .unwrap_err()
+            .to_string(),
+            "invalid type: integer value, expected boolean value"
+        );
+
+        // expected integer value
+        assert_eq!(
+            from_value::<'_, i8>(&Value {
+                value_type: Some(ValueType::BooleanValue(true)),
+            })
+            .unwrap_err()
+            .to_string(),
+            "invalid type: boolean value, expected integer value"
+        );
+        assert_eq!(
+            from_value::<'_, i16>(&Value {
+                value_type: Some(ValueType::BooleanValue(true)),
+            })
+            .unwrap_err()
+            .to_string(),
+            "invalid type: boolean value, expected integer value"
+        );
+        assert_eq!(
+            from_value::<'_, i32>(&Value {
+                value_type: Some(ValueType::BooleanValue(true)),
+            })
+            .unwrap_err()
+            .to_string(),
+            "invalid type: boolean value, expected integer value"
+        );
+        assert_eq!(
+            from_value::<'_, i64>(&Value {
+                value_type: Some(ValueType::BooleanValue(true)),
+            })
+            .unwrap_err()
+            .to_string(),
+            "invalid type: boolean value, expected integer value"
+        );
+        assert_eq!(
+            from_value::<'_, u8>(&Value {
+                value_type: Some(ValueType::BooleanValue(true)),
+            })
+            .unwrap_err()
+            .to_string(),
+            "invalid type: boolean value, expected integer value"
+        );
+        assert_eq!(
+            from_value::<'_, u16>(&Value {
+                value_type: Some(ValueType::BooleanValue(true)),
+            })
+            .unwrap_err()
+            .to_string(),
+            "invalid type: boolean value, expected integer value"
+        );
+        assert_eq!(
+            from_value::<'_, u32>(&Value {
+                value_type: Some(ValueType::BooleanValue(true)),
+            })
+            .unwrap_err()
+            .to_string(),
+            "invalid type: boolean value, expected integer value"
+        );
+        // u64 is not supported
+
+        // expected double value
+        assert_eq!(
+            from_value::<'_, f32>(&Value {
+                value_type: Some(ValueType::BooleanValue(true)),
+            })
+            .unwrap_err()
+            .to_string(),
+            "invalid type: boolean value, expected double value"
+        );
+        assert_eq!(
+            from_value::<'_, f64>(&Value {
+                value_type: Some(ValueType::BooleanValue(true)),
+            })
+            .unwrap_err()
+            .to_string(),
+            "invalid type: boolean value, expected double value"
+        );
+
+        // TODO: ...
+        Ok(())
+    }
 }

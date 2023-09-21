@@ -12,6 +12,8 @@ struct Error {
 
 #[derive(Debug, thiserror::Error)]
 enum ErrorCode {
+    #[error("{0}")]
+    Custom(String),
     #[error("i16 out of range")]
     I16OutOfRange,
     #[error("i32 out of range")]
@@ -35,8 +37,8 @@ enum ErrorCode {
 }
 
 impl serde::de::Error for Error {
-    fn custom<T: std::fmt::Display>(_msg: T) -> Self {
-        todo!()
+    fn custom<T: std::fmt::Display>(msg: T) -> Self {
+        Error::from(ErrorCode::Custom(msg.to_string()))
     }
 }
 

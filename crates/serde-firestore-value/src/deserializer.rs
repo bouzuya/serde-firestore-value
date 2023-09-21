@@ -50,9 +50,73 @@ enum ErrorCode {
     ValueTypeMustBeSome,
 }
 
+impl Error {
+    fn invalid_value_type(value_type: &ValueType, expected: ValueTypeName) -> Self {
+        <Self as serde::de::Error>::invalid_type(
+            serde::de::Unexpected::Other(value_type.name().as_str()),
+            &expected.as_str(),
+        )
+    }
+}
+
 impl serde::de::Error for Error {
     fn custom<T: std::fmt::Display>(msg: T) -> Self {
         Error::from(ErrorCode::Custom(msg.to_string()))
+    }
+}
+
+trait ValueTypeExt {
+    fn name(&self) -> ValueTypeName;
+}
+
+impl ValueTypeExt for ValueType {
+    fn name(&self) -> ValueTypeName {
+        match self {
+            ValueType::NullValue(_) => ValueTypeName::Null,
+            ValueType::BooleanValue(_) => ValueTypeName::Boolean,
+            ValueType::IntegerValue(_) => ValueTypeName::Integer,
+            ValueType::DoubleValue(_) => ValueTypeName::Double,
+            ValueType::TimestampValue(_) => ValueTypeName::Timestamp,
+            ValueType::StringValue(_) => ValueTypeName::String,
+            ValueType::BytesValue(_) => ValueTypeName::Bytes,
+            ValueType::ReferenceValue(_) => ValueTypeName::Reference,
+            ValueType::GeoPointValue(_) => ValueTypeName::GeoPoint,
+            ValueType::ArrayValue(_) => ValueTypeName::Array,
+            ValueType::MapValue(_) => ValueTypeName::Map,
+        }
+    }
+}
+
+#[derive(Clone, Copy, Debug)]
+enum ValueTypeName {
+    Null,
+    Boolean,
+    Integer,
+    Double,
+    Timestamp,
+    String,
+    Bytes,
+    Reference,
+    GeoPoint,
+    Array,
+    Map,
+}
+
+impl ValueTypeName {
+    fn as_str(&self) -> &'static str {
+        match self {
+            ValueTypeName::Null => "null value",
+            ValueTypeName::Boolean => "boolean value",
+            ValueTypeName::Integer => "integer value",
+            ValueTypeName::Double => "double value",
+            ValueTypeName::Timestamp => "timestamp value",
+            ValueTypeName::String => "string value",
+            ValueTypeName::Bytes => "bytes value",
+            ValueTypeName::Reference => "reference value",
+            ValueTypeName::GeoPoint => "geo point value",
+            ValueTypeName::Array => "array value",
+            ValueTypeName::Map => "map value",
+        }
     }
 }
 
@@ -76,7 +140,10 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     {
         match self.value.value_type()? {
             ValueType::BooleanValue(value) => visitor.visit_bool(*value),
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(
+                value_type,
+                ValueTypeName::Boolean,
+            )),
         }
     }
 
@@ -87,7 +154,10 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
         match self.value.value_type()? {
             ValueType::IntegerValue(value) => visitor
                 .visit_i8(i8::try_from(*value).map_err(|_| Error::from(ErrorCode::I8OutOfRange))?),
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(
+                value_type,
+                ValueTypeName::Integer,
+            )),
         }
     }
 
@@ -99,7 +169,10 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
             ValueType::IntegerValue(value) => visitor.visit_i16(
                 i16::try_from(*value).map_err(|_| Error::from(ErrorCode::I16OutOfRange))?,
             ),
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(
+                value_type,
+                ValueTypeName::Integer,
+            )),
         }
     }
 
@@ -111,7 +184,10 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
             ValueType::IntegerValue(value) => visitor.visit_i32(
                 i32::try_from(*value).map_err(|_| Error::from(ErrorCode::I32OutOfRange))?,
             ),
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(
+                value_type,
+                ValueTypeName::Integer,
+            )),
         }
     }
 
@@ -121,7 +197,10 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     {
         match self.value.value_type()? {
             ValueType::IntegerValue(value) => visitor.visit_i64(*value),
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(
+                value_type,
+                ValueTypeName::Integer,
+            )),
         }
     }
 
@@ -132,7 +211,10 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
         match self.value.value_type()? {
             ValueType::IntegerValue(value) => visitor
                 .visit_u8(u8::try_from(*value).map_err(|_| Error::from(ErrorCode::U8OutOfRange))?),
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(
+                value_type,
+                ValueTypeName::Integer,
+            )),
         }
     }
 
@@ -144,7 +226,10 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
             ValueType::IntegerValue(value) => visitor.visit_u16(
                 u16::try_from(*value).map_err(|_| Error::from(ErrorCode::U16OutOfRange))?,
             ),
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(
+                value_type,
+                ValueTypeName::Integer,
+            )),
         }
     }
 
@@ -156,7 +241,10 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
             ValueType::IntegerValue(value) => visitor.visit_u32(
                 u32::try_from(*value).map_err(|_| Error::from(ErrorCode::U32OutOfRange))?,
             ),
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(
+                value_type,
+                ValueTypeName::Integer,
+            )),
         }
     }
 
@@ -173,7 +261,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     {
         match self.value.value_type()? {
             ValueType::DoubleValue(value) => visitor.visit_f32(*value as f32),
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Double)),
         }
     }
 
@@ -183,7 +271,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     {
         match self.value.value_type()? {
             ValueType::DoubleValue(value) => visitor.visit_f64(*value),
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Double)),
         }
     }
 
@@ -201,7 +289,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
                     (Some(_), Some(_)) => Err(Error::from(ErrorCode::TooManyChars)),
                 }
             }
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::String)),
         }
     }
 
@@ -211,7 +299,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     {
         match self.value.value_type()? {
             ValueType::StringValue(value) => visitor.visit_str(value),
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::String)),
         }
     }
 
@@ -221,7 +309,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     {
         match self.value.value_type()? {
             ValueType::StringValue(value) => visitor.visit_string(value.clone()),
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::String)),
         }
     }
 
@@ -255,7 +343,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     {
         match self.value.value_type()? {
             ValueType::NullValue(_) => visitor.visit_unit(),
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Null)),
         }
     }
 
@@ -327,7 +415,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
                     next_value: None,
                 })
             }
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Map)),
         }
     }
 
@@ -349,7 +437,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
                     values,
                 })
             }
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Map)),
         }
     }
 
@@ -413,7 +501,7 @@ impl<'de> SeqAccess<'de> for FirestoreArrayValueDeserializer<'de> {
                     Ok(None)
                 }
             }
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Array)),
         }
     }
 }
@@ -520,7 +608,7 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
     fn unit_variant(self) -> Result<(), Self::Error> {
         match self.value.value_type()? {
             ValueType::StringValue(_) => Ok(()),
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::String)),
         }
     }
 
@@ -538,7 +626,7 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
                     value: variant_value,
                 })
             }
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Map)),
         }
     }
 
@@ -552,18 +640,17 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
                     todo!()
                 }
                 let (_, variant_value) = fields.iter().next().unwrap();
-                match variant_value.value_type.as_ref() {
-                    None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-                    Some(ValueType::ArrayValue(_)) => {
+                match variant_value.value_type()? {
+                    ValueType::ArrayValue(_) => {
                         visitor.visit_seq(FirestoreArrayValueDeserializer {
                             index: 0,
                             value: variant_value,
                         })
                     }
-                    Some(_) => todo!(),
+                    value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Array)),
                 }
             }
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Map)),
         }
     }
 
@@ -581,18 +668,17 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
                     todo!()
                 }
                 let (_, variant_value) = fields.iter().next().unwrap();
-                match variant_value.value_type.as_ref() {
-                    None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
-                    Some(ValueType::MapValue(MapValue { fields })) => {
+                match variant_value.value_type()? {
+                    ValueType::MapValue(MapValue { fields }) => {
                         visitor.visit_map(FirestoreMapValueDeserializer {
                             iter: fields.iter(),
                             next_value: None,
                         })
                     }
-                    Some(_) => todo!(),
+                    value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Array)),
                 }
             }
-            _ => todo!(),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Map)),
         }
     }
 }

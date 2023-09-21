@@ -4,10 +4,21 @@ use google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
 use serde::de::{value::StringDeserializer, MapAccess, SeqAccess};
 
 trait ValueExt {
+    fn as_integer(&self) -> Result<i64, Error>;
     fn value_type(&self) -> Result<&ValueType, Error>;
 }
 
 impl ValueExt for Value {
+    fn as_integer(&self) -> Result<i64, Error> {
+        match self.value_type()? {
+            ValueType::IntegerValue(value) => Ok(*value),
+            value_type => Err(Error::invalid_value_type(
+                value_type,
+                ValueTypeName::Integer,
+            )),
+        }
+    }
+
     fn value_type(&self) -> Result<&ValueType, Error> {
         self.value_type
             .as_ref()
@@ -151,101 +162,56 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type()? {
-            ValueType::IntegerValue(value) => visitor
-                .visit_i8(i8::try_from(*value).map_err(|_| Error::from(ErrorCode::I8OutOfRange))?),
-            value_type => Err(Error::invalid_value_type(
-                value_type,
-                ValueTypeName::Integer,
-            )),
-        }
+        let value = self.value.as_integer()?;
+        visitor.visit_i8(i8::try_from(value).map_err(|_| Error::from(ErrorCode::I8OutOfRange))?)
     }
 
     fn deserialize_i16<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type()? {
-            ValueType::IntegerValue(value) => visitor.visit_i16(
-                i16::try_from(*value).map_err(|_| Error::from(ErrorCode::I16OutOfRange))?,
-            ),
-            value_type => Err(Error::invalid_value_type(
-                value_type,
-                ValueTypeName::Integer,
-            )),
-        }
+        let value = self.value.as_integer()?;
+        visitor.visit_i16(i16::try_from(value).map_err(|_| Error::from(ErrorCode::I16OutOfRange))?)
     }
 
     fn deserialize_i32<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type()? {
-            ValueType::IntegerValue(value) => visitor.visit_i32(
-                i32::try_from(*value).map_err(|_| Error::from(ErrorCode::I32OutOfRange))?,
-            ),
-            value_type => Err(Error::invalid_value_type(
-                value_type,
-                ValueTypeName::Integer,
-            )),
-        }
+        let value = self.value.as_integer()?;
+        visitor.visit_i32(i32::try_from(value).map_err(|_| Error::from(ErrorCode::I32OutOfRange))?)
     }
 
     fn deserialize_i64<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type()? {
-            ValueType::IntegerValue(value) => visitor.visit_i64(*value),
-            value_type => Err(Error::invalid_value_type(
-                value_type,
-                ValueTypeName::Integer,
-            )),
-        }
+        let value = self.value.as_integer()?;
+        visitor.visit_i64(value)
     }
 
     fn deserialize_u8<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type()? {
-            ValueType::IntegerValue(value) => visitor
-                .visit_u8(u8::try_from(*value).map_err(|_| Error::from(ErrorCode::U8OutOfRange))?),
-            value_type => Err(Error::invalid_value_type(
-                value_type,
-                ValueTypeName::Integer,
-            )),
-        }
+        let value = self.value.as_integer()?;
+        visitor.visit_u8(u8::try_from(value).map_err(|_| Error::from(ErrorCode::U8OutOfRange))?)
     }
 
     fn deserialize_u16<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type()? {
-            ValueType::IntegerValue(value) => visitor.visit_u16(
-                u16::try_from(*value).map_err(|_| Error::from(ErrorCode::U16OutOfRange))?,
-            ),
-            value_type => Err(Error::invalid_value_type(
-                value_type,
-                ValueTypeName::Integer,
-            )),
-        }
+        let value = self.value.as_integer()?;
+        visitor.visit_u16(u16::try_from(value).map_err(|_| Error::from(ErrorCode::U16OutOfRange))?)
     }
 
     fn deserialize_u32<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type()? {
-            ValueType::IntegerValue(value) => visitor.visit_u32(
-                u32::try_from(*value).map_err(|_| Error::from(ErrorCode::U32OutOfRange))?,
-            ),
-            value_type => Err(Error::invalid_value_type(
-                value_type,
-                ValueTypeName::Integer,
-            )),
-        }
+        let value = self.value.as_integer()?;
+        visitor.visit_u32(u32::try_from(value).map_err(|_| Error::from(ErrorCode::U32OutOfRange))?)
     }
 
     fn deserialize_u64<V>(self, _: V) -> Result<V::Value, Self::Error>

@@ -3,6 +3,15 @@ use std::collections::HashMap;
 use google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
 use serde::de::{value::StringDeserializer, MapAccess, SeqAccess};
 
+pub fn from_value<'a, T>(v: &'a Value) -> Result<T, Error>
+where
+    T: serde::Deserialize<'a>,
+{
+    let deserializer = FirestoreValueDeserializer { value: v };
+    let t = T::deserialize(deserializer)?;
+    Ok(t)
+}
+
 trait ValueExt {
     fn as_null(&self) -> Result<(), Error>;
     fn as_boolean(&self) -> Result<bool, Error>;
@@ -100,7 +109,7 @@ impl ValueExt for Value {
 
 #[derive(Debug, thiserror::Error)]
 #[error(transparent)]
-struct Error {
+pub struct Error {
     #[from]
     code: ErrorCode,
 }
@@ -672,15 +681,6 @@ mod tests {
     use google::firestore::v1::{value::ValueType, Value};
 
     use super::*;
-
-    fn from_value<'a, T>(v: &'a Value) -> Result<T, Error>
-    where
-        T: serde::Deserialize<'a>,
-    {
-        let deserializer = FirestoreValueDeserializer { value: v };
-        let t = T::deserialize(deserializer)?;
-        Ok(t)
-    }
 
     #[test]
     fn test_deserialize_bool() -> anyhow::Result<()> {

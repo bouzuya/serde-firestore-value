@@ -1,7 +1,6 @@
-mod deserializer;
-mod error;
+pub mod deserializer;
 mod serde_json;
-mod serializer;
+pub mod serializer;
 
-pub use self::error::*;
-pub use self::serializer::*;
+pub use self::deserializer::from_value;
+pub use self::serializer::to_value;

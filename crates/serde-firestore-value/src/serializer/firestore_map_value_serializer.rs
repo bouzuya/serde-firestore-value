@@ -3,8 +3,11 @@ use std::collections::HashMap;
 use google::firestore::v1::{value::ValueType, MapValue, Value};
 
 use crate::{
-    serializer::firestore_value_serializer::FirestoreValueSerializer, to_value, Error, ErrorCode,
+    serializer::{firestore_value_serializer::FirestoreValueSerializer, Error},
+    to_value,
 };
+
+use super::error::ErrorCode;
 
 pub(crate) struct FirestoreMapValueSerializer<'a> {
     key: Option<String>,

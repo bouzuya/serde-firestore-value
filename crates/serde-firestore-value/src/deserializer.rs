@@ -4,13 +4,35 @@ use google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
 use serde::de::{value::StringDeserializer, MapAccess, SeqAccess};
 
 trait ValueExt {
+    fn as_null(&self) -> Result<(), Error>;
+    fn as_boolean(&self) -> Result<bool, Error>;
     fn as_integer(&self) -> Result<i64, Error>;
+    fn as_double(&self) -> Result<f64, Error>;
+    fn as_string(&self) -> Result<&String, Error>;
+    fn as_array(&self) -> Result<&ArrayValue, Error>;
     fn as_map(&self) -> Result<&MapValue, Error>;
     fn as_variant_value(&self, variants: &'static [&'static str]) -> Result<&Value, Error>;
     fn value_type(&self) -> Result<&ValueType, Error>;
 }
 
 impl ValueExt for Value {
+    fn as_null(&self) -> Result<(), Error> {
+        match self.value_type()? {
+            ValueType::NullValue(_) => Ok(()),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Null)),
+        }
+    }
+
+    fn as_boolean(&self) -> Result<bool, Error> {
+        match self.value_type()? {
+            ValueType::BooleanValue(value) => Ok(*value),
+            value_type => Err(Error::invalid_value_type(
+                value_type,
+                ValueTypeName::Boolean,
+            )),
+        }
+    }
+
     fn as_integer(&self) -> Result<i64, Error> {
         match self.value_type()? {
             ValueType::IntegerValue(value) => Ok(*value),
@@ -18,6 +40,27 @@ impl ValueExt for Value {
                 value_type,
                 ValueTypeName::Integer,
             )),
+        }
+    }
+
+    fn as_double(&self) -> Result<f64, Error> {
+        match self.value_type()? {
+            ValueType::DoubleValue(value) => Ok(*value),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Double)),
+        }
+    }
+
+    fn as_string(&self) -> Result<&String, Error> {
+        match self.value_type()? {
+            ValueType::StringValue(value) => Ok(value),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::String)),
+        }
+    }
+
+    fn as_array(&self) -> Result<&ArrayValue, Error> {
+        match self.value_type()? {
+            ValueType::ArrayValue(value) => Ok(value),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Array)),
         }
     }
 
@@ -170,13 +213,8 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type()? {
-            ValueType::BooleanValue(value) => visitor.visit_bool(*value),
-            value_type => Err(Error::invalid_value_type(
-                value_type,
-                ValueTypeName::Boolean,
-            )),
-        }
+        let value = self.value.as_boolean()?;
+        visitor.visit_bool(value)
     }
 
     fn deserialize_i8<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -246,37 +284,29 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type()? {
-            ValueType::DoubleValue(value) => visitor.visit_f32(*value as f32),
-            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Double)),
-        }
+        let value = self.value.as_double()?;
+        visitor.visit_f32(value as f32)
     }
 
     fn deserialize_f64<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type()? {
-            ValueType::DoubleValue(value) => visitor.visit_f64(*value),
-            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Double)),
-        }
+        let value = self.value.as_double()?;
+        visitor.visit_f64(value)
     }
 
     fn deserialize_char<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type()? {
-            ValueType::StringValue(value) => {
-                let mut chars = value.chars();
-                match (chars.next(), chars.next()) {
-                    (None, None) => Err(Error::from(ErrorCode::StringIsEmpty)),
-                    (None, Some(_)) => unreachable!(),
-                    (Some(c), None) => visitor.visit_char(c),
-                    (Some(_), Some(_)) => Err(Error::from(ErrorCode::TooManyChars)),
-                }
-            }
-            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::String)),
+        let value = self.value.as_string()?;
+        let mut chars = value.chars();
+        match (chars.next(), chars.next()) {
+            (None, None) => Err(Error::from(ErrorCode::StringIsEmpty)),
+            (None, Some(_)) => unreachable!(),
+            (Some(c), None) => visitor.visit_char(c),
+            (Some(_), Some(_)) => Err(Error::from(ErrorCode::TooManyChars)),
         }
     }
 
@@ -284,20 +314,16 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type()? {
-            ValueType::StringValue(value) => visitor.visit_str(value),
-            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::String)),
-        }
+        let value = self.value.as_string()?;
+        visitor.visit_str(value)
     }
 
     fn deserialize_string<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type()? {
-            ValueType::StringValue(value) => visitor.visit_string(value.clone()),
-            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::String)),
-        }
+        let value = self.value.as_string()?;
+        visitor.visit_string(value.clone())
     }
 
     fn deserialize_bytes<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -328,10 +354,8 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        match self.value.value_type()? {
-            ValueType::NullValue(_) => visitor.visit_unit(),
-            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Null)),
-        }
+        self.value.as_null()?;
+        visitor.visit_unit()
     }
 
     fn deserialize_unit_struct<V>(
@@ -472,18 +496,14 @@ impl<'de> SeqAccess<'de> for FirestoreArrayValueDeserializer<'de> {
     where
         T: serde::de::DeserializeSeed<'de>,
     {
-        match self.value.value_type()? {
-            ValueType::ArrayValue(ArrayValue { values }) => {
-                if self.index < values.len() {
-                    let value = &values[self.index];
-                    self.index += 1;
-                    seed.deserialize(FirestoreValueDeserializer { value })
-                        .map(Some)
-                } else {
-                    Ok(None)
-                }
-            }
-            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Array)),
+        let ArrayValue { values } = self.value.as_array()?;
+        if self.index < values.len() {
+            let value = &values[self.index];
+            self.index += 1;
+            seed.deserialize(FirestoreValueDeserializer { value })
+                .map(Some)
+        } else {
+            Ok(None)
         }
     }
 }
@@ -614,12 +634,8 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
         V: serde::de::Visitor<'de>,
     {
         let value = self.value.as_variant_value(self.variants)?;
-        match value.value_type()? {
-            ValueType::ArrayValue(_) => {
-                visitor.visit_seq(FirestoreArrayValueDeserializer { index: 0, value })
-            }
-            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Array)),
-        }
+        value.as_array()?;
+        visitor.visit_seq(FirestoreArrayValueDeserializer { index: 0, value })
     }
 
     fn struct_variant<V>(

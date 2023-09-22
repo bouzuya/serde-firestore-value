@@ -10,4 +10,5 @@ thiserror = "1.0.48"
 
 [dev-dependencies]
 anyhow = "1.0.75"
+prost-types = "0.12.1"
 serde_json = "1.0.107"

@@ -9,6 +9,7 @@ trait ValueExt {
     fn as_integer(&self) -> Result<i64, Error>;
     fn as_double(&self) -> Result<f64, Error>;
     fn as_string(&self) -> Result<&String, Error>;
+    fn as_bytes(&self) -> Result<&[u8], Error>;
     fn as_array(&self) -> Result<&ArrayValue, Error>;
     fn as_map(&self) -> Result<&MapValue, Error>;
     fn as_variant_value(&self, variants: &'static [&'static str]) -> Result<&Value, Error>;
@@ -54,6 +55,13 @@ impl ValueExt for Value {
         match self.value_type()? {
             ValueType::StringValue(value) => Ok(value),
             value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::String)),
+        }
+    }
+
+    fn as_bytes(&self) -> Result<&[u8], Error> {
+        match self.value_type()? {
+            ValueType::BytesValue(value) => Ok(value),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Bytes)),
         }
     }
 
@@ -330,14 +338,16 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        let value = self.value.as_bytes()?;
+        visitor.visit_bytes(value)
     }
 
     fn deserialize_byte_buf<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        todo!()
+        let value = self.value.as_bytes()?;
+        visitor.visit_byte_buf(value.to_vec())
     }
 
     fn deserialize_option<V>(self, visitor: V) -> Result<V::Value, Self::Error>

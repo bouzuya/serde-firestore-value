@@ -1,7 +1,10 @@
 use std::collections::HashMap;
 
 use google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
-use serde::de::{value::StringDeserializer, MapAccess, SeqAccess};
+use serde::de::{
+    value::{StringDeserializer, UnitDeserializer},
+    MapAccess, SeqAccess,
+};
 
 pub fn from_value<'a, T>(v: &'a Value) -> Result<T, Error>
 where
@@ -565,6 +568,7 @@ impl<'de> MapAccess<'de> for FirestoreMapValueDeserializer<'de> {
     }
 }
 
+#[derive(Debug)]
 struct FirestoreStructMapValueDeserializer<'de> {
     fields: &'static [&'static str],
     index: usize,
@@ -601,7 +605,7 @@ impl<'de> MapAccess<'de> for FirestoreStructMapValueDeserializer<'de> {
         if let Some(value) = self.next_value.take() {
             seed.deserialize(FirestoreValueDeserializer { value })
         } else {
-            unreachable!()
+            seed.deserialize(UnitDeserializer::new())
         }
     }
 }

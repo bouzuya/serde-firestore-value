@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use google::firestore::v1::{value::ValueType, MapValue, Value};
 
-use crate::{serializer::Error, value_ext::ValueExt};
+use crate::{ser::Error, value_ext::ValueExt};
 
 use super::{error::ErrorCode, firestore_value_serializer::FirestoreValueSerializer};
 

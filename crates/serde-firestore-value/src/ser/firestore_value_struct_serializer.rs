@@ -1,6 +1,6 @@
 use google::firestore::v1::Value;
 
-use crate::serializer::Error;
+use crate::ser::Error;
 
 use super::{
     firestore_map_value_serializer::FirestoreMapValueSerializer,

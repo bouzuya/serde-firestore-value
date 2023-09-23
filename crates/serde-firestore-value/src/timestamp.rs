@@ -11,5 +11,5 @@ pub fn serialize<S>(timestamp: &Timestamp, serializer: S) -> Result<S::Ok, S::Er
 where
     S: serde::Serializer,
 {
-    crate::serializer::timestamp::serialize(timestamp, serializer)
+    crate::ser::timestamp::serialize(timestamp, serializer)
 }

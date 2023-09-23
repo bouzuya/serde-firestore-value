@@ -5,7 +5,7 @@ use prost_types::Timestamp;
 
 use super::{error::ErrorCode, firestore_value_serializer::FirestoreValueSerializer};
 
-use crate::{serializer::Error, value_ext::ValueExt};
+use crate::{ser::Error, value_ext::ValueExt};
 
 pub(crate) struct FirestoreTimestampValueSerializer {
     seconds: Option<i64>,

@@ -2,7 +2,7 @@ use google::firestore::v1::Value;
 use serde::{ser::SerializeMap, Serialize, Serializer};
 
 use crate::{
-    serializer::{
+    ser::{
         firestore_array_value_serializer::FirestoreArrayValueSerializer,
         firestore_map_value_serializer::FirestoreMapValueSerializer,
     },

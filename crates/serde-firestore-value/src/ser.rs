@@ -8,7 +8,7 @@ mod firestore_value_struct_serializer;
 use google::firestore::v1::Value;
 use serde::Serialize;
 
-use crate::serializer::firestore_value_serializer::FirestoreValueSerializer;
+use crate::ser::firestore_value_serializer::FirestoreValueSerializer;
 
 pub use self::error::Error;
 

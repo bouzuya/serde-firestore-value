@@ -1,14 +1,21 @@
 use std::collections::HashMap;
 
 use google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
-use serde::{ser::SerializeMap, Serialize, Serializer};
+use prost_types::Timestamp;
+use serde::{
+    ser::{SerializeMap, SerializeStruct},
+    Serialize, Serializer,
+};
 
 use crate::serializer::{
     firestore_array_value_serializer::FirestoreArrayValueSerializer,
     firestore_map_value_serializer::FirestoreMapValueSerializer,
 };
 
-use super::{error::ErrorCode, Error};
+use super::{
+    error::ErrorCode, firestore_timestamp_value_serializer::FirestoreTimestampValueSerializer,
+    Error,
+};
 
 #[derive(Debug, Default)]
 pub(crate) struct FirestoreValueSerializer {
@@ -55,6 +62,56 @@ impl FirestoreValueSerializer {
             None => ValueType::MapValue(value),
         });
     }
+
+    pub(crate) fn set_timestamp_value(&mut self, name: Option<&'static str>, value: Timestamp) {
+        self.output.value_type = Some(match name {
+            Some(name) => ValueType::MapValue(MapValue {
+                fields: {
+                    let mut map = HashMap::new();
+                    map.insert(
+                        name.to_string(),
+                        Value {
+                            value_type: Some(ValueType::TimestampValue(value)),
+                        },
+                    );
+                    map
+                },
+            }),
+            None => ValueType::TimestampValue(value),
+        });
+    }
+}
+
+pub(crate) enum FirestoreSerializeStruct<'a> {
+    MapValue(FirestoreMapValueSerializer<'a>),
+    Timestamp(FirestoreTimestampValueSerializer<'a>),
+}
+
+impl<'a> SerializeStruct for FirestoreSerializeStruct<'a> {
+    type Ok = &'a mut FirestoreValueSerializer;
+
+    type Error = Error;
+
+    fn serialize_field<T: ?Sized>(
+        &mut self,
+        key: &'static str,
+        value: &T,
+    ) -> Result<(), Self::Error>
+    where
+        T: Serialize,
+    {
+        match self {
+            Self::MapValue(map_value) => map_value.serialize_field(key, value),
+            Self::Timestamp(timestamp) => timestamp.serialize_field(key, value),
+        }
+    }
+
+    fn end(self) -> Result<Self::Ok, Self::Error> {
+        match self {
+            Self::MapValue(map_value) => serde::ser::SerializeStruct::end(map_value),
+            Self::Timestamp(timestamp) => timestamp.end(),
+        }
+    }
 }
 
 // 1,048,487 bytes = 1MiB - 89 bytes
@@ -75,7 +132,7 @@ impl<'a> Serializer for &'a mut FirestoreValueSerializer {
 
     type SerializeMap = FirestoreMapValueSerializer<'a>;
 
-    type SerializeStruct = FirestoreMapValueSerializer<'a>;
+    type SerializeStruct = FirestoreSerializeStruct<'a>;
 
     type SerializeStructVariant = FirestoreMapValueSerializer<'a>;
 
@@ -238,10 +295,18 @@ impl<'a> Serializer for &'a mut FirestoreValueSerializer {
 
     fn serialize_struct(
         self,
-        _name: &'static str,
+        name: &'static str,
         len: usize,
     ) -> Result<Self::SerializeStruct, Self::Error> {
-        self.serialize_map(Some(len))
+        Ok(if name == FirestoreTimestampValueSerializer::NAME {
+            FirestoreSerializeStruct::Timestamp(FirestoreTimestampValueSerializer::new(self))
+        } else {
+            FirestoreSerializeStruct::MapValue(FirestoreMapValueSerializer::new(
+                self,
+                None,
+                Some(len),
+            ))
+        })
     }
 
     fn serialize_struct_variant(

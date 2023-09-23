@@ -38,7 +38,10 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
         if self.variants.contains(&variant_name.as_str()) {
             Ok(())
         } else {
-            todo!()
+            Err(<Error as serde::de::Error>::unknown_variant(
+                variant_name.as_str(),
+                self.variants,
+            ))
         }
     }
 

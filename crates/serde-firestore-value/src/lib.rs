@@ -1,4 +1,6 @@
 mod de;
+pub mod lat_lng;
+pub mod option_lat_lng;
 pub mod option_timestamp;
 mod ser;
 mod serde_json;

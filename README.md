@@ -3,7 +3,6 @@
 ## TODOs
 
 - ☐ ReferenceValue support
-- ☐ GeoPointValue (LagLng) support
 - ☐ chrono feature
 - ☐ time feature
 - ☐ crates.io

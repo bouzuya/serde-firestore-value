@@ -6,6 +6,7 @@ use super::{
     firestore_enum_deserializer::FirestoreEnumDeserializer,
     firestore_map_value_deserializer::FirestoreMapValueDeserializer,
     firestore_struct_map_value_deserializer::FirestoreStructMapValueDeserializer,
+    lat_lng::FirestoreLatLngValueDeserializer,
     timestamp::FirestoreTimestampValueDeserializer,
     value_ext::ValueExt,
 };
@@ -245,7 +246,9 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        if name == "$__serde-firestore-value_private_timestamp" {
+        if name == "$__serde-firestore-value_private_lat_lng" {
+            visitor.visit_map(FirestoreLatLngValueDeserializer::new(self.value)?)
+        } else if name == "$__serde-firestore-value_private_timestamp" {
             visitor.visit_map(FirestoreTimestampValueDeserializer::new(self.value)?)
         } else {
             visitor.visit_map(FirestoreStructMapValueDeserializer::new(

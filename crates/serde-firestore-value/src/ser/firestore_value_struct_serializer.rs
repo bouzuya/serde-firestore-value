@@ -3,12 +3,14 @@ use google::firestore::v1::Value;
 use crate::ser::Error;
 
 use super::{
+    firestore_geo_point_value_serializer::FirestoreGeoPointValueSerializer,
     firestore_map_value_serializer::FirestoreMapValueSerializer,
     firestore_timestamp_value_serializer::FirestoreTimestampValueSerializer,
 };
 
 pub(crate) enum FirestoreValueStructSerializer {
-    MapValue(FirestoreMapValueSerializer),
+    GeoPoint(FirestoreGeoPointValueSerializer),
+    Map(FirestoreMapValueSerializer),
     Timestamp(FirestoreTimestampValueSerializer),
 }
 
@@ -26,19 +28,17 @@ impl serde::ser::SerializeStruct for FirestoreValueStructSerializer {
         T: serde::Serialize,
     {
         match self {
-            Self::MapValue(map_value) => {
-                serde::ser::SerializeStruct::serialize_field(map_value, key, value)
-            }
-            Self::Timestamp(timestamp) => {
-                serde::ser::SerializeStruct::serialize_field(timestamp, key, value)
-            }
+            Self::GeoPoint(s) => serde::ser::SerializeStruct::serialize_field(s, key, value),
+            Self::Map(s) => serde::ser::SerializeStruct::serialize_field(s, key, value),
+            Self::Timestamp(s) => serde::ser::SerializeStruct::serialize_field(s, key, value),
         }
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
         match self {
-            Self::MapValue(map_value) => serde::ser::SerializeStruct::end(map_value),
-            Self::Timestamp(timestamp) => serde::ser::SerializeStruct::end(timestamp),
+            Self::GeoPoint(s) => serde::ser::SerializeStruct::end(s),
+            Self::Map(s) => serde::ser::SerializeStruct::end(s),
+            Self::Timestamp(s) => serde::ser::SerializeStruct::end(s),
         }
     }
 }

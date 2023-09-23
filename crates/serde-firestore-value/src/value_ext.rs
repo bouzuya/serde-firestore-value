@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
+use google::{
+    firestore::v1::{value::ValueType, ArrayValue, MapValue, Value},
+    r#type::LatLng,
+};
 use prost_types::Timestamp;
 
 pub(crate) trait ValueExt {
@@ -10,6 +13,7 @@ pub(crate) trait ValueExt {
     fn from_f64(value: f64) -> Self;
     fn from_fields(fields: HashMap<String, Value>) -> Self;
     fn from_i64(value: i64) -> Self;
+    fn from_lat_lng(value: LatLng) -> Self;
     fn from_map_value(map_value: MapValue) -> Self;
     fn from_string(value: String) -> Self;
     fn from_timestamp(timestamp: Timestamp) -> Self;
@@ -49,6 +53,12 @@ impl ValueExt for Value {
     fn from_i64(value: i64) -> Self {
         Self {
             value_type: Some(ValueType::IntegerValue(value)),
+        }
+    }
+
+    fn from_lat_lng(value: LatLng) -> Self {
+        Self {
+            value_type: Some(ValueType::GeoPointValue(value)),
         }
     }
 

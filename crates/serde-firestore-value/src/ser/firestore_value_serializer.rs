@@ -10,7 +10,8 @@ use crate::{
 };
 
 use super::{
-    error::ErrorCode, firestore_timestamp_value_serializer::FirestoreTimestampValueSerializer,
+    error::ErrorCode, firestore_geo_point_value_serializer::FirestoreGeoPointValueSerializer,
+    firestore_timestamp_value_serializer::FirestoreTimestampValueSerializer,
     firestore_value_struct_serializer::FirestoreValueStructSerializer, Error,
 };
 
@@ -18,6 +19,7 @@ use super::{
 pub(crate) struct FirestoreValueSerializer;
 
 impl FirestoreValueSerializer {
+    pub(crate) const LAT_LNG_STRUCT_NAME: &str = "$__serde-firestore-value_private_lat_lng";
     pub(crate) const TIMESTAMP_STRUCT_NAME: &str = "$__serde-firestore-value_private_timestamp";
 }
 
@@ -195,13 +197,12 @@ impl Serializer for FirestoreValueSerializer {
         name: &'static str,
         len: usize,
     ) -> Result<Self::SerializeStruct, Self::Error> {
-        Ok(if name == Self::TIMESTAMP_STRUCT_NAME {
+        Ok(if name == Self::LAT_LNG_STRUCT_NAME {
+            FirestoreValueStructSerializer::GeoPoint(FirestoreGeoPointValueSerializer::new())
+        } else if name == Self::TIMESTAMP_STRUCT_NAME {
             FirestoreValueStructSerializer::Timestamp(FirestoreTimestampValueSerializer::new())
         } else {
-            FirestoreValueStructSerializer::MapValue(FirestoreMapValueSerializer::new(
-                None,
-                Some(len),
-            ))
+            FirestoreValueStructSerializer::Map(FirestoreMapValueSerializer::new(None, Some(len)))
         })
     }
 

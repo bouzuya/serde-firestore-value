@@ -4,6 +4,7 @@ mod firestore_enum_deserializer;
 mod firestore_map_value_deserializer;
 mod firestore_struct_map_value_deserializer;
 mod firestore_value_deserializer;
+pub mod lat_lng;
 pub mod timestamp;
 mod value_ext;
 mod value_type_ext;

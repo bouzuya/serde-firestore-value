@@ -1,4 +1,5 @@
 mod error;
+mod firestore_array_value_deserializer;
 pub mod timestamp;
 mod value_ext;
 mod value_type_ext;
@@ -6,16 +7,17 @@ mod value_type_name;
 
 use self::{
     error::{Error, ErrorCode},
+    firestore_array_value_deserializer::FirestoreArrayValueDeserializer,
     value_ext::ValueExt,
     value_type_name::ValueTypeName,
 };
 
 use std::collections::HashMap;
 
-use google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
+use google::firestore::v1::{value::ValueType, MapValue, Value};
 use serde::de::{
     value::{StringDeserializer, UnitDeserializer},
-    MapAccess, SeqAccess,
+    MapAccess,
 };
 
 use self::timestamp::FirestoreTimestampValueDeserializer;
@@ -220,20 +222,14 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        visitor.visit_seq(FirestoreArrayValueDeserializer {
-            index: 0,
-            value: self.value,
-        })
+        visitor.visit_seq(FirestoreArrayValueDeserializer::new(self.value)?)
     }
 
     fn deserialize_tuple<V>(self, _len: usize, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        visitor.visit_seq(FirestoreArrayValueDeserializer {
-            index: 0,
-            value: self.value,
-        })
+        visitor.visit_seq(FirestoreArrayValueDeserializer::new(self.value)?)
     }
 
     fn deserialize_tuple_struct<V>(
@@ -245,10 +241,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        visitor.visit_seq(FirestoreArrayValueDeserializer {
-            index: 0,
-            value: self.value,
-        })
+        visitor.visit_seq(FirestoreArrayValueDeserializer::new(self.value)?)
     }
 
     fn deserialize_map<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -325,30 +318,6 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
         V: serde::de::Visitor<'a>,
     {
         Err(Error::from(ErrorCode::DeserializeAnyIsNotSupported))
-    }
-}
-
-struct FirestoreArrayValueDeserializer<'de> {
-    index: usize,
-    value: &'de Value,
-}
-
-impl<'de> SeqAccess<'de> for FirestoreArrayValueDeserializer<'de> {
-    type Error = Error;
-
-    fn next_element_seed<T>(&mut self, seed: T) -> Result<Option<T::Value>, Self::Error>
-    where
-        T: serde::de::DeserializeSeed<'de>,
-    {
-        let ArrayValue { values } = self.value.as_array()?;
-        if self.index < values.len() {
-            let value = &values[self.index];
-            self.index += 1;
-            seed.deserialize(FirestoreValueDeserializer { value })
-                .map(Some)
-        } else {
-            Ok(None)
-        }
     }
 }
 
@@ -478,8 +447,7 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
         V: serde::de::Visitor<'de>,
     {
         let value = self.value.as_variant_value(self.variants)?;
-        value.as_array()?;
-        visitor.visit_seq(FirestoreArrayValueDeserializer { index: 0, value })
+        visitor.visit_seq(FirestoreArrayValueDeserializer::new(value)?)
     }
 
     fn struct_variant<V>(
@@ -503,7 +471,7 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
 mod tests {
     use std::collections::{BTreeMap, HashMap};
 
-    use google::firestore::v1::{value::ValueType, Value};
+    use google::firestore::v1::{value::ValueType, ArrayValue, Value};
 
     use super::*;
 

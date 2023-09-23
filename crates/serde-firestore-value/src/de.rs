@@ -1,7 +1,8 @@
 pub mod timestamp;
 mod value_ext;
+mod value_type_name;
 
-use self::value_ext::ValueExt;
+use self::{value_ext::ValueExt, value_type_name::ValueTypeName};
 
 use std::collections::HashMap;
 
@@ -90,39 +91,6 @@ impl ValueTypeExt for ValueType {
             ValueType::GeoPointValue(_) => ValueTypeName::GeoPoint,
             ValueType::ArrayValue(_) => ValueTypeName::Array,
             ValueType::MapValue(_) => ValueTypeName::Map,
-        }
-    }
-}
-
-#[derive(Clone, Copy, Debug)]
-enum ValueTypeName {
-    Null,
-    Boolean,
-    Integer,
-    Double,
-    Timestamp,
-    String,
-    Bytes,
-    Reference,
-    GeoPoint,
-    Array,
-    Map,
-}
-
-impl ValueTypeName {
-    fn as_str(&self) -> &'static str {
-        match self {
-            ValueTypeName::Null => "null value",
-            ValueTypeName::Boolean => "boolean value",
-            ValueTypeName::Integer => "integer value",
-            ValueTypeName::Double => "double value",
-            ValueTypeName::Timestamp => "timestamp value",
-            ValueTypeName::String => "string value",
-            ValueTypeName::Bytes => "bytes value",
-            ValueTypeName::Reference => "reference value",
-            ValueTypeName::GeoPoint => "geo point value",
-            ValueTypeName::Array => "array value",
-            ValueTypeName::Map => "map value",
         }
     }
 }

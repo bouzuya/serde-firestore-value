@@ -1,10 +1,8 @@
+use google::firestore::v1::Value;
 use prost_types::Timestamp;
-use serde::de::{
-    value::{I64Deserializer, StrDeserializer},
-    MapAccess,
-};
+use serde::de::value::{I64Deserializer, StrDeserializer};
 
-use super::Error;
+use super::{value_ext::ValueExt, Error};
 
 #[derive(Debug, serde::Deserialize)]
 #[serde(
@@ -16,12 +14,22 @@ struct MyTimestamp {
     nanos: i32,
 }
 
-pub(crate) struct FirestoreTimestampValueDeserializer<'de> {
-    pub(crate) index: usize,
-    pub(crate) timestamp: &'de Timestamp,
+pub(super) struct FirestoreTimestampValueDeserializer<'de> {
+    index: usize,
+    timestamp: &'de Timestamp,
 }
 
-impl<'de> MapAccess<'de> for FirestoreTimestampValueDeserializer<'de> {
+impl<'de> FirestoreTimestampValueDeserializer<'de> {
+    pub(super) fn new(value: &'de Value) -> Result<Self, Error> {
+        let timestamp = value.as_timestamp()?;
+        Ok(Self {
+            index: 0,
+            timestamp,
+        })
+    }
+}
+
+impl<'de> serde::de::MapAccess<'de> for FirestoreTimestampValueDeserializer<'de> {
     type Error = Error;
 
     fn next_key_seed<K>(&mut self, seed: K) -> Result<Option<K::Value>, Self::Error>

@@ -263,11 +263,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
         V: serde::de::Visitor<'a>,
     {
         if name == "$__serde-firestore-value_private_timestamp" {
-            let timestamp = self.value.as_timestamp()?;
-            visitor.visit_map(FirestoreTimestampValueDeserializer {
-                index: 0,
-                timestamp,
-            })
+            visitor.visit_map(FirestoreTimestampValueDeserializer::new(self.value)?)
         } else {
             let MapValue { fields: values } = self.value.as_map()?;
             visitor.visit_map(FirestoreStructMapValueDeserializer {

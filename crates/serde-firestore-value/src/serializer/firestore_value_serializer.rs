@@ -17,6 +17,10 @@ use super::{
 #[derive(Debug, Default)]
 pub(crate) struct FirestoreValueSerializer;
 
+impl FirestoreValueSerializer {
+    pub(crate) const TIMESTAMP_STRUCT_NAME: &str = "$__serde-firestore-value_private_timestamp";
+}
+
 // 1,048,487 bytes = 1MiB - 89 bytes
 const MAX_BYTE_LEN: usize = 1_048_487;
 
@@ -191,7 +195,7 @@ impl Serializer for FirestoreValueSerializer {
         name: &'static str,
         len: usize,
     ) -> Result<Self::SerializeStruct, Self::Error> {
-        Ok(if name == FirestoreTimestampValueSerializer::NAME {
+        Ok(if name == Self::TIMESTAMP_STRUCT_NAME {
             FirestoreValueStructSerializer::Timestamp(FirestoreTimestampValueSerializer::new())
         } else {
             FirestoreValueStructSerializer::MapValue(FirestoreMapValueSerializer::new(

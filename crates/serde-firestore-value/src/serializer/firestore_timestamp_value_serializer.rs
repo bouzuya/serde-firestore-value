@@ -13,8 +13,6 @@ pub(crate) struct FirestoreTimestampValueSerializer {
 }
 
 impl FirestoreTimestampValueSerializer {
-    pub(crate) const NAME: &str = "$__serde-firestore-value_private_timestamp";
-
     pub(crate) fn new() -> Self {
         Self {
             seconds: None,

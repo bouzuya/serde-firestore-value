@@ -1,6 +1,7 @@
 mod error;
 mod firestore_array_value_deserializer;
 mod firestore_map_value_deserializer;
+mod firestore_struct_map_value_deserializer;
 pub mod timestamp;
 mod value_ext;
 mod value_type_ext;
@@ -10,17 +11,12 @@ use self::{
     error::{Error, ErrorCode},
     firestore_array_value_deserializer::FirestoreArrayValueDeserializer,
     firestore_map_value_deserializer::FirestoreMapValueDeserializer,
+    firestore_struct_map_value_deserializer::FirestoreStructMapValueDeserializer,
     value_ext::ValueExt,
     value_type_name::ValueTypeName,
 };
 
-use std::collections::HashMap;
-
 use google::firestore::v1::{value::ValueType, MapValue, Value};
-use serde::de::{
-    value::{StringDeserializer, UnitDeserializer},
-    MapAccess,
-};
 
 use self::timestamp::FirestoreTimestampValueDeserializer;
 
@@ -265,13 +261,9 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
         if name == "$__serde-firestore-value_private_timestamp" {
             visitor.visit_map(FirestoreTimestampValueDeserializer::new(self.value)?)
         } else {
-            let MapValue { fields: values } = self.value.as_map()?;
-            visitor.visit_map(FirestoreStructMapValueDeserializer {
-                fields,
-                index: 0,
-                next_value: None,
-                values,
-            })
+            visitor.visit_map(FirestoreStructMapValueDeserializer::new(
+                self.value, fields,
+            )?)
         }
     }
 
@@ -312,47 +304,6 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
         V: serde::de::Visitor<'a>,
     {
         Err(Error::from(ErrorCode::DeserializeAnyIsNotSupported))
-    }
-}
-
-struct FirestoreStructMapValueDeserializer<'de> {
-    fields: &'static [&'static str],
-    index: usize,
-    next_value: Option<&'de Value>,
-    values: &'de HashMap<String, Value>,
-}
-
-impl<'de> MapAccess<'de> for FirestoreStructMapValueDeserializer<'de> {
-    type Error = Error;
-
-    fn next_key_seed<K>(&mut self, seed: K) -> Result<Option<K::Value>, Self::Error>
-    where
-        K: serde::de::DeserializeSeed<'de>,
-    {
-        if self.index >= self.fields.len() {
-            Ok(None)
-        } else {
-            let field = self.fields[self.index];
-            self.index += 1;
-            if self.next_value.is_none() {
-                self.next_value = self.values.get(field);
-                seed.deserialize(StringDeserializer::new(field.to_string()))
-                    .map(Some)
-            } else {
-                unreachable!()
-            }
-        }
-    }
-
-    fn next_value_seed<V>(&mut self, seed: V) -> Result<V::Value, Self::Error>
-    where
-        V: serde::de::DeserializeSeed<'de>,
-    {
-        if let Some(value) = self.next_value.take() {
-            seed.deserialize(FirestoreValueDeserializer { value })
-        } else {
-            seed.deserialize(UnitDeserializer::new())
-        }
     }
 }
 

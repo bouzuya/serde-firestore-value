@@ -15,7 +15,7 @@ pub use self::error::Error;
 pub mod timestamp {
     use prost_types::Timestamp;
 
-    use crate::serializer::firestore_value_serializer::FirestoreValueSerializer;
+    use super::firestore_value_serializer::FirestoreValueSerializer;
 
     pub fn serialize<S>(timestamp: &Timestamp, serializer: S) -> Result<S::Ok, S::Error>
     where

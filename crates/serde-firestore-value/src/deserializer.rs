@@ -1,10 +1,15 @@
+pub mod timestamp;
+
 use std::collections::HashMap;
 
 use google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
+use prost_types::Timestamp;
 use serde::de::{
     value::{StringDeserializer, UnitDeserializer},
     MapAccess, SeqAccess,
 };
+
+use self::timestamp::FirestoreTimestampValueDeserializer;
 
 pub fn from_value<'a, T>(v: &'a Value) -> Result<T, Error>
 where
@@ -20,6 +25,7 @@ trait ValueExt {
     fn as_boolean(&self) -> Result<bool, Error>;
     fn as_integer(&self) -> Result<i64, Error>;
     fn as_double(&self) -> Result<f64, Error>;
+    fn as_timestamp(&self) -> Result<&Timestamp, Error>;
     fn as_string(&self) -> Result<&String, Error>;
     fn as_bytes(&self) -> Result<&[u8], Error>;
     fn as_array(&self) -> Result<&ArrayValue, Error>;
@@ -60,6 +66,16 @@ impl ValueExt for Value {
         match self.value_type()? {
             ValueType::DoubleValue(value) => Ok(*value),
             value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Double)),
+        }
+    }
+
+    fn as_timestamp(&self) -> Result<&Timestamp, Error> {
+        match self.value_type()? {
+            ValueType::TimestampValue(value) => Ok(value),
+            value_type => Err(Error::invalid_value_type(
+                value_type,
+                ValueTypeName::Timestamp,
+            )),
         }
     }
 
@@ -450,20 +466,28 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
 
     fn deserialize_struct<V>(
         self,
-        _name: &'static str,
+        name: &'static str,
         fields: &'static [&'static str],
         visitor: V,
     ) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        let MapValue { fields: values } = self.value.as_map()?;
-        visitor.visit_map(FirestoreStructMapValueDeserializer {
-            fields,
-            index: 0,
-            next_value: None,
-            values,
-        })
+        if name == "$__serde-firestore-value_private_timestamp" {
+            let timestamp = self.value.as_timestamp()?;
+            visitor.visit_map(FirestoreTimestampValueDeserializer {
+                index: 0,
+                timestamp,
+            })
+        } else {
+            let MapValue { fields: values } = self.value.as_map()?;
+            visitor.visit_map(FirestoreStructMapValueDeserializer {
+                fields,
+                index: 0,
+                next_value: None,
+                values,
+            })
+        }
     }
 
     fn deserialize_enum<V>(
@@ -568,7 +592,6 @@ impl<'de> MapAccess<'de> for FirestoreMapValueDeserializer<'de> {
     }
 }
 
-#[derive(Debug)]
 struct FirestoreStructMapValueDeserializer<'de> {
     fields: &'static [&'static str],
     index: usize,

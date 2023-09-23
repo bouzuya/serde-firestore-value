@@ -3,6 +3,7 @@ mod firestore_array_value_serializer;
 mod firestore_map_value_serializer;
 mod firestore_timestamp_value_serializer;
 mod firestore_value_serializer;
+mod firestore_value_struct_serializer;
 
 use google::firestore::v1::Value;
 use serde::Serialize;

@@ -1,5 +1,6 @@
 mod error;
 mod firestore_array_value_deserializer;
+mod firestore_enum_deserializer;
 mod firestore_map_value_deserializer;
 mod firestore_struct_map_value_deserializer;
 pub mod timestamp;
@@ -10,6 +11,7 @@ mod value_type_name;
 use self::{
     error::{Error, ErrorCode},
     firestore_array_value_deserializer::FirestoreArrayValueDeserializer,
+    firestore_enum_deserializer::FirestoreEnumDeserializer,
     firestore_map_value_deserializer::FirestoreMapValueDeserializer,
     firestore_struct_map_value_deserializer::FirestoreStructMapValueDeserializer,
     value_ext::ValueExt,
@@ -276,10 +278,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        visitor.visit_enum(FirestoreEnumDeserializer {
-            value: self.value,
-            variants,
-        })
+        visitor.visit_enum(FirestoreEnumDeserializer::new(self.value, variants)?)
     }
 
     fn deserialize_identifier<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -304,69 +303,6 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
         V: serde::de::Visitor<'a>,
     {
         Err(Error::from(ErrorCode::DeserializeAnyIsNotSupported))
-    }
-}
-
-struct FirestoreEnumDeserializer<'de> {
-    value: &'de Value,
-    variants: &'static [&'static str],
-}
-
-impl<'de> serde::de::EnumAccess<'de> for FirestoreEnumDeserializer<'de> {
-    type Error = Error;
-    type Variant = FirestoreEnumDeserializer<'de>;
-
-    fn variant_seed<V>(self, seed: V) -> Result<(V::Value, Self::Variant), Self::Error>
-    where
-        V: serde::de::DeserializeSeed<'de>,
-    {
-        seed.deserialize(FirestoreValueDeserializer { value: self.value })
-            .map(|v| (v, self))
-    }
-}
-
-impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
-    type Error = Error;
-
-    fn unit_variant(self) -> Result<(), Self::Error> {
-        match self.value.value_type()? {
-            ValueType::StringValue(variant_name) => {
-                if self.variants.contains(&variant_name.as_str()) {
-                    Ok(())
-                } else {
-                    todo!()
-                }
-            }
-            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::String)),
-        }
-    }
-
-    fn newtype_variant_seed<T>(self, seed: T) -> Result<T::Value, Self::Error>
-    where
-        T: serde::de::DeserializeSeed<'de>,
-    {
-        let value = self.value.as_variant_value(self.variants)?;
-        seed.deserialize(FirestoreValueDeserializer { value })
-    }
-
-    fn tuple_variant<V>(self, _len: usize, visitor: V) -> Result<V::Value, Self::Error>
-    where
-        V: serde::de::Visitor<'de>,
-    {
-        let value = self.value.as_variant_value(self.variants)?;
-        visitor.visit_seq(FirestoreArrayValueDeserializer::new(value)?)
-    }
-
-    fn struct_variant<V>(
-        self,
-        _fields: &'static [&'static str],
-        visitor: V,
-    ) -> Result<V::Value, Self::Error>
-    where
-        V: serde::de::Visitor<'de>,
-    {
-        let value = self.value.as_variant_value(self.variants)?;
-        visitor.visit_map(FirestoreMapValueDeserializer::new(value)?)
     }
 }
 

@@ -25,7 +25,7 @@ impl<'de> serde::de::SeqAccess<'de> for FirestoreArrayValueDeserializer<'de> {
         if self.index < values.len() {
             let value = &values[self.index];
             self.index += 1;
-            seed.deserialize(FirestoreValueDeserializer { value })
+            seed.deserialize(FirestoreValueDeserializer::new(value))
                 .map(Some)
         } else {
             Ok(None)

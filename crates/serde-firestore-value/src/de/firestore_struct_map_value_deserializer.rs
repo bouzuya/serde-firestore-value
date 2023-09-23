@@ -50,7 +50,7 @@ impl<'de> serde::de::MapAccess<'de> for FirestoreStructMapValueDeserializer<'de>
         V: serde::de::DeserializeSeed<'de>,
     {
         if let Some(value) = self.next_value.take() {
-            seed.deserialize(FirestoreValueDeserializer { value })
+            seed.deserialize(FirestoreValueDeserializer::new(value))
         } else {
             seed.deserialize(UnitDeserializer::new())
         }

@@ -25,7 +25,7 @@ impl<'de> serde::de::EnumAccess<'de> for FirestoreEnumDeserializer<'de> {
     where
         V: serde::de::DeserializeSeed<'de>,
     {
-        seed.deserialize(FirestoreValueDeserializer { value: self.value })
+        seed.deserialize(FirestoreValueDeserializer::new(self.value))
             .map(|v| (v, self))
     }
 }
@@ -47,7 +47,7 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
         T: serde::de::DeserializeSeed<'de>,
     {
         let value = self.value.as_variant_value(self.variants)?;
-        seed.deserialize(FirestoreValueDeserializer { value })
+        seed.deserialize(FirestoreValueDeserializer::new(value))
     }
 
     fn tuple_variant<V>(self, _len: usize, visitor: V) -> Result<V::Value, Self::Error>

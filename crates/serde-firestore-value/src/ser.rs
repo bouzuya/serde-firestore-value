@@ -4,6 +4,7 @@ mod firestore_map_value_serializer;
 mod firestore_timestamp_value_serializer;
 mod firestore_value_serializer;
 mod firestore_value_struct_serializer;
+pub mod timestamp;
 
 use google::firestore::v1::Value;
 use serde::Serialize;
@@ -11,23 +12,6 @@ use serde::Serialize;
 use crate::ser::firestore_value_serializer::FirestoreValueSerializer;
 
 pub use self::error::Error;
-
-pub mod timestamp {
-    use prost_types::Timestamp;
-
-    use super::firestore_value_serializer::FirestoreValueSerializer;
-
-    pub fn serialize<S>(timestamp: &Timestamp, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: serde::Serializer,
-    {
-        let mut s =
-            serializer.serialize_struct(FirestoreValueSerializer::TIMESTAMP_STRUCT_NAME, 2)?;
-        serde::ser::SerializeStruct::serialize_field(&mut s, "seconds", &timestamp.seconds)?;
-        serde::ser::SerializeStruct::serialize_field(&mut s, "nanos", &timestamp.nanos)?;
-        serde::ser::SerializeStruct::end(s)
-    }
-}
 
 pub fn to_value<T>(value: &T) -> Result<Value, Error>
 where

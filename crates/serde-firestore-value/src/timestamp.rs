@@ -4,12 +4,12 @@ pub fn deserialize<'de, D>(deserializer: D) -> Result<Timestamp, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
-    crate::de::timestamp::deserialize(deserializer)
+    crate::de::timestamp::deserialize_timestamp(deserializer)
 }
 
 pub fn serialize<S>(timestamp: &Timestamp, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
 {
-    crate::ser::timestamp::serialize(timestamp, serializer)
+    crate::ser::timestamp::serialize_timestamp(timestamp, serializer)
 }

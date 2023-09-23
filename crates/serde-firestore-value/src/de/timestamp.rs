@@ -1,14 +1,14 @@
 use google::firestore::v1::Value;
 use prost_types::Timestamp;
-use serde::de::value::{I64Deserializer, StrDeserializer};
+use serde::{
+    de::value::{I64Deserializer, StrDeserializer},
+    Deserialize,
+};
 
 use super::{value_ext::ValueExt, Error};
 
 #[derive(Debug, serde::Deserialize)]
-#[serde(
-    remote = "Timestamp",
-    rename = "$__serde-firestore-value_private_timestamp"
-)]
+#[serde(rename = "$__serde-firestore-value_private_timestamp")]
 struct MyTimestamp {
     seconds: i64,
     nanos: i32,
@@ -60,9 +60,18 @@ impl<'de> serde::de::MapAccess<'de> for FirestoreTimestampValueDeserializer<'de>
     }
 }
 
-pub fn deserialize<'de, D>(deserializer: D) -> Result<Timestamp, D::Error>
+pub fn deserialize_timestamp<'de, D>(deserializer: D) -> Result<Timestamp, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
     MyTimestamp::deserialize(deserializer)
+        .map(|MyTimestamp { seconds, nanos }| Timestamp { seconds, nanos })
+}
+
+pub fn deserialize_option_timestamp<'de, D>(deserializer: D) -> Result<Option<Timestamp>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    Option::<MyTimestamp>::deserialize(deserializer)
+        .map(|o| o.map(|MyTimestamp { seconds, nanos }| Timestamp { seconds, nanos }))
 }

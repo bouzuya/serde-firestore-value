@@ -28,33 +28,27 @@ where
 mod tests {
     use std::collections::{BTreeMap, HashMap};
 
-    use google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
+    use google::firestore::v1::Value;
+
+    use crate::value_ext::ValueExt;
 
     use super::*;
 
     #[test]
     fn test_deserialize_bool() -> anyhow::Result<()> {
-        assert!(from_value::<'_, bool>(&Value {
-            value_type: Some(ValueType::BooleanValue(true)),
-        })?);
-        assert!(!from_value::<'_, bool>(&Value {
-            value_type: Some(ValueType::BooleanValue(false)),
-        })?);
+        assert!(from_value::<'_, bool>(&Value::from_bool(true))?);
+        assert!(!from_value::<'_, bool>(&Value::from_bool(false))?);
         Ok(())
     }
 
     #[test]
     fn test_deserialize_i8() -> anyhow::Result<()> {
         assert_eq!(
-            from_value::<'_, i8>(&Value {
-                value_type: Some(ValueType::IntegerValue(i64::from(i8::MAX))),
-            })?,
+            from_value::<'_, i8>(&Value::from_i64(i64::from(i8::MAX)))?,
             i8::MAX
         );
         assert_eq!(
-            from_value::<'_, i8>(&Value {
-                value_type: Some(ValueType::IntegerValue(i64::from(i8::MIN))),
-            })?,
+            from_value::<'_, i8>(&Value::from_i64(i64::from(i8::MIN)))?,
             i8::MIN
         );
         Ok(())
@@ -63,15 +57,11 @@ mod tests {
     #[test]
     fn test_deserialize_i16() -> anyhow::Result<()> {
         assert_eq!(
-            from_value::<'_, i16>(&Value {
-                value_type: Some(ValueType::IntegerValue(i64::from(i16::MAX))),
-            })?,
+            from_value::<'_, i16>(&Value::from_i64(i64::from(i16::MAX)))?,
             i16::MAX
         );
         assert_eq!(
-            from_value::<'_, i16>(&Value {
-                value_type: Some(ValueType::IntegerValue(i64::from(i16::MIN))),
-            })?,
+            from_value::<'_, i16>(&Value::from_i64(i64::from(i16::MIN)))?,
             i16::MIN
         );
         Ok(())
@@ -80,15 +70,11 @@ mod tests {
     #[test]
     fn test_deserialize_i32() -> anyhow::Result<()> {
         assert_eq!(
-            from_value::<'_, i32>(&Value {
-                value_type: Some(ValueType::IntegerValue(i64::from(i32::MAX))),
-            })?,
+            from_value::<'_, i32>(&Value::from_i64(i64::from(i32::MAX)))?,
             i32::MAX
         );
         assert_eq!(
-            from_value::<'_, i32>(&Value {
-                value_type: Some(ValueType::IntegerValue(i64::from(i32::MIN))),
-            })?,
+            from_value::<'_, i32>(&Value::from_i64(i64::from(i32::MIN)))?,
             i32::MIN
         );
         Ok(())
@@ -96,33 +82,19 @@ mod tests {
 
     #[test]
     fn test_deserialize_i64() -> anyhow::Result<()> {
-        assert_eq!(
-            from_value::<'_, i64>(&Value {
-                value_type: Some(ValueType::IntegerValue(i64::MAX)),
-            })?,
-            i64::MAX
-        );
-        assert_eq!(
-            from_value::<'_, i64>(&Value {
-                value_type: Some(ValueType::IntegerValue(i64::MIN)),
-            })?,
-            i64::MIN
-        );
+        assert_eq!(from_value::<'_, i64>(&Value::from_i64(i64::MAX))?, i64::MAX);
+        assert_eq!(from_value::<'_, i64>(&Value::from_i64(i64::MIN))?, i64::MIN);
         Ok(())
     }
 
     #[test]
     fn test_deserialize_u8() -> anyhow::Result<()> {
         assert_eq!(
-            from_value::<'_, u8>(&Value {
-                value_type: Some(ValueType::IntegerValue(i64::from(u8::MAX))),
-            })?,
+            from_value::<'_, u8>(&Value::from_i64(i64::from(u8::MAX)))?,
             u8::MAX
         );
         assert_eq!(
-            from_value::<'_, u8>(&Value {
-                value_type: Some(ValueType::IntegerValue(i64::from(u8::MIN))),
-            })?,
+            from_value::<'_, u8>(&Value::from_i64(i64::from(u8::MIN)))?,
             u8::MIN
         );
         Ok(())
@@ -131,15 +103,11 @@ mod tests {
     #[test]
     fn test_deserialize_u16() -> anyhow::Result<()> {
         assert_eq!(
-            from_value::<'_, u16>(&Value {
-                value_type: Some(ValueType::IntegerValue(i64::from(u16::MAX))),
-            })?,
+            from_value::<'_, u16>(&Value::from_i64(i64::from(u16::MAX)))?,
             u16::MAX
         );
         assert_eq!(
-            from_value::<'_, u16>(&Value {
-                value_type: Some(ValueType::IntegerValue(i64::from(u16::MIN))),
-            })?,
+            from_value::<'_, u16>(&Value::from_i64(i64::from(u16::MIN)))?,
             u16::MIN
         );
         Ok(())
@@ -148,15 +116,11 @@ mod tests {
     #[test]
     fn test_deserialize_u32() -> anyhow::Result<()> {
         assert_eq!(
-            from_value::<'_, u32>(&Value {
-                value_type: Some(ValueType::IntegerValue(i64::from(u32::MAX))),
-            })?,
+            from_value::<'_, u32>(&Value::from_i64(i64::from(u32::MAX)))?,
             u32::MAX
         );
         assert_eq!(
-            from_value::<'_, u32>(&Value {
-                value_type: Some(ValueType::IntegerValue(i64::from(u32::MIN))),
-            })?,
+            from_value::<'_, u32>(&Value::from_i64(i64::from(u32::MIN)))?,
             u32::MIN
         );
         Ok(())
@@ -165,11 +129,9 @@ mod tests {
     #[test]
     fn test_deserialize_u64() -> anyhow::Result<()> {
         assert_eq!(
-            from_value::<'_, u64>(&Value {
-                value_type: Some(ValueType::IntegerValue(i64::try_from(u64::MIN)?)),
-            })
-            .unwrap_err()
-            .to_string(),
+            from_value::<'_, u64>(&Value::from_i64(i64::try_from(u64::MIN)?))
+                .unwrap_err()
+                .to_string(),
             "u64 is not supported"
         );
         Ok(())
@@ -178,15 +140,11 @@ mod tests {
     #[test]
     fn test_deserialize_f32() -> anyhow::Result<()> {
         assert_eq!(
-            from_value::<'_, f32>(&Value {
-                value_type: Some(ValueType::DoubleValue(f64::from(f32::MAX))),
-            })?,
+            from_value::<'_, f32>(&Value::from_f64(f64::from(f32::MAX)))?,
             f32::MAX
         );
         assert_eq!(
-            from_value::<'_, f32>(&Value {
-                value_type: Some(ValueType::DoubleValue(f64::from(f32::MIN))),
-            })?,
+            from_value::<'_, f32>(&Value::from_f64(f64::from(f32::MIN)))?,
             f32::MIN
         );
         Ok(())
@@ -194,27 +152,15 @@ mod tests {
 
     #[test]
     fn test_deserialize_f64() -> anyhow::Result<()> {
-        assert_eq!(
-            from_value::<'_, f64>(&Value {
-                value_type: Some(ValueType::DoubleValue(f64::MAX)),
-            })?,
-            f64::MAX
-        );
-        assert_eq!(
-            from_value::<'_, f64>(&Value {
-                value_type: Some(ValueType::DoubleValue(f64::MIN)),
-            })?,
-            f64::MIN
-        );
+        assert_eq!(from_value::<'_, f64>(&Value::from_f64(f64::MAX))?, f64::MAX);
+        assert_eq!(from_value::<'_, f64>(&Value::from_f64(f64::MIN))?, f64::MIN);
         Ok(())
     }
 
     #[test]
     fn test_deserialize_char() -> anyhow::Result<()> {
         assert_eq!(
-            from_value::<'_, char>(&Value {
-                value_type: Some(ValueType::StringValue("a".to_string())),
-            })?,
+            from_value::<'_, char>(&Value::from_string("a".to_string()))?,
             'a'
         );
         Ok(())
@@ -223,9 +169,7 @@ mod tests {
     #[test]
     fn test_deserialize_str() -> anyhow::Result<()> {
         assert_eq!(
-            from_value::<'_, String>(&Value {
-                value_type: Some(ValueType::StringValue("abc".to_string())),
-            })?,
+            from_value::<'_, String>(&Value::from_string("abc".to_string()))?,
             // "abc".to_string()
             "abc"
         );
@@ -235,9 +179,7 @@ mod tests {
     #[test]
     fn test_deserialize_string() -> anyhow::Result<()> {
         assert_eq!(
-            from_value::<'_, String>(&Value {
-                value_type: Some(ValueType::StringValue("abc".to_string())),
-            })?,
+            from_value::<'_, String>(&Value::from_string("abc".to_string()))?,
             // "abc"
             "abc".to_string()
         );
@@ -247,25 +189,16 @@ mod tests {
     #[test]
     fn test_deserialize_option() -> anyhow::Result<()> {
         assert_eq!(
-            from_value::<'_, Option<bool>>(&Value {
-                value_type: Some(ValueType::BooleanValue(true)),
-            })?,
+            from_value::<'_, Option<bool>>(&Value::from_bool(true))?,
             Some(true)
         );
-        assert_eq!(
-            from_value::<'_, Option<bool>>(&Value {
-                value_type: Some(ValueType::NullValue(0_i32)),
-            })?,
-            None,
-        );
+        assert_eq!(from_value::<'_, Option<bool>>(&Value::null())?, None);
         Ok(())
     }
 
     #[test]
     fn test_deserialize_unit() -> anyhow::Result<()> {
-        from_value::<'_, ()>(&Value {
-            value_type: Some(ValueType::NullValue(0_i32)),
-        })?;
+        from_value::<'_, ()>(&Value::null())?;
         Ok(())
     }
 
@@ -273,12 +206,7 @@ mod tests {
     fn test_deserialize_unit_struct() -> anyhow::Result<()> {
         #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
         struct Unit;
-        assert_eq!(
-            from_value::<'_, Unit>(&Value {
-                value_type: Some(ValueType::NullValue(0_i32)),
-            })?,
-            Unit
-        );
+        assert_eq!(from_value::<'_, Unit>(&Value::null())?, Unit);
         Ok(())
     }
 
@@ -287,9 +215,7 @@ mod tests {
         #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
         struct Millimeters(u8);
         assert_eq!(
-            from_value::<'_, Millimeters>(&Value {
-                value_type: Some(ValueType::IntegerValue(i64::from(u8::MAX))),
-            })?,
+            from_value::<'_, Millimeters>(&Value::from_i64(i64::from(u8::MAX)))?,
             Millimeters(u8::MAX)
         );
         Ok(())
@@ -298,21 +224,11 @@ mod tests {
     #[test]
     fn test_deserialize_seq() -> anyhow::Result<()> {
         assert_eq!(
-            from_value::<'_, Vec<i64>>(&Value {
-                value_type: Some(ValueType::ArrayValue(ArrayValue {
-                    values: vec![
-                        Value {
-                            value_type: Some(ValueType::IntegerValue(1_i64))
-                        },
-                        Value {
-                            value_type: Some(ValueType::IntegerValue(2_i64))
-                        },
-                        Value {
-                            value_type: Some(ValueType::IntegerValue(3_i64))
-                        },
-                    ]
-                }))
-            })?,
+            from_value::<'_, Vec<i64>>(&Value::from_values(vec![
+                Value::from_i64(1_i64),
+                Value::from_i64(2_i64),
+                Value::from_i64(3_i64),
+            ]))?,
             vec![1_i64, 2_i64, 3_i64]
         );
         Ok(())
@@ -321,18 +237,10 @@ mod tests {
     #[test]
     fn test_deserialize_tuple() -> anyhow::Result<()> {
         assert_eq!(
-            from_value::<'_, (bool, i64)>(&Value {
-                value_type: Some(ValueType::ArrayValue(ArrayValue {
-                    values: vec![
-                        Value {
-                            value_type: Some(ValueType::BooleanValue(true))
-                        },
-                        Value {
-                            value_type: Some(ValueType::IntegerValue(1_i64))
-                        },
-                    ]
-                }))
-            })?,
+            from_value::<'_, (bool, i64)>(&Value::from_values(vec![
+                Value::from_bool(true),
+                Value::from_i64(1_i64),
+            ]))?,
             (true, 1_i64)
         );
         Ok(())
@@ -343,21 +251,11 @@ mod tests {
         #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
         struct Rgb(u8, u8, u8);
         assert_eq!(
-            from_value::<'_, Rgb>(&Value {
-                value_type: Some(ValueType::ArrayValue(ArrayValue {
-                    values: vec![
-                        Value {
-                            value_type: Some(ValueType::IntegerValue(1_i64))
-                        },
-                        Value {
-                            value_type: Some(ValueType::IntegerValue(2_i64))
-                        },
-                        Value {
-                            value_type: Some(ValueType::IntegerValue(3_i64))
-                        },
-                    ]
-                }))
-            })?,
+            from_value::<'_, Rgb>(&Value::from_values(vec![
+                Value::from_i64(1_i64),
+                Value::from_i64(2_i64),
+                Value::from_i64(3_i64),
+            ]))?,
             Rgb(1_u8, 2_u8, 3_u8)
         );
         Ok(())
@@ -366,26 +264,12 @@ mod tests {
     #[test]
     fn test_deserialize_map() -> anyhow::Result<()> {
         assert_eq!(
-            from_value::<'_, BTreeMap<String, i64>>(&Value {
-                value_type: Some(ValueType::MapValue(MapValue {
-                    fields: {
-                        let mut map = HashMap::new();
-                        map.insert(
-                            "k1".to_string(),
-                            Value {
-                                value_type: Some(ValueType::IntegerValue(1_i64)),
-                            },
-                        );
-                        map.insert(
-                            "k2".to_string(),
-                            Value {
-                                value_type: Some(ValueType::IntegerValue(2_i64)),
-                            },
-                        );
-                        map
-                    }
-                }))
-            })?,
+            from_value::<'_, BTreeMap<String, i64>>(&Value::from_fields({
+                let mut fields = HashMap::new();
+                fields.insert("k1".to_string(), Value::from_i64(1_i64));
+                fields.insert("k2".to_string(), Value::from_i64(2_i64));
+                fields
+            }))?,
             {
                 let mut map = BTreeMap::new();
                 map.insert("k1".to_string(), 1_i64);
@@ -405,32 +289,13 @@ mod tests {
             b: u8,
         }
         assert_eq!(
-            from_value::<'_, S>(&Value {
-                value_type: Some(ValueType::MapValue(MapValue {
-                    fields: {
-                        let mut map = HashMap::new();
-                        map.insert(
-                            "r".to_string(),
-                            Value {
-                                value_type: Some(ValueType::IntegerValue(1_i64)),
-                            },
-                        );
-                        map.insert(
-                            "g".to_string(),
-                            Value {
-                                value_type: Some(ValueType::IntegerValue(2_i64)),
-                            },
-                        );
-                        map.insert(
-                            "b".to_string(),
-                            Value {
-                                value_type: Some(ValueType::IntegerValue(3_i64)),
-                            },
-                        );
-                        map
-                    }
-                }))
-            })?,
+            from_value::<'_, S>(&Value::from_fields({
+                let mut fields = HashMap::new();
+                fields.insert("r".to_string(), Value::from_i64(1_i64));
+                fields.insert("g".to_string(), Value::from_i64(2_i64));
+                fields.insert("b".to_string(), Value::from_i64(3_i64));
+                fields
+            }))?,
             S {
                 r: 1_u8,
                 g: 2_u8,
@@ -450,15 +315,11 @@ mod tests {
                 B,
             }
             assert_eq!(
-                from_value::<'_, E>(&Value {
-                    value_type: Some(ValueType::StringValue("A".to_string()))
-                })?,
+                from_value::<'_, E>(&Value::from_string("A".to_string()))?,
                 E::A
             );
             assert_eq!(
-                from_value::<'_, E>(&Value {
-                    value_type: Some(ValueType::StringValue("B".to_string()))
-                })?,
+                from_value::<'_, E>(&Value::from_string("B".to_string()))?,
                 E::B
             );
         }
@@ -471,37 +332,19 @@ mod tests {
                 B(u8),
             }
             assert_eq!(
-                from_value::<'_, E>(&Value {
-                    value_type: Some(ValueType::MapValue(MapValue {
-                        fields: {
-                            let mut map = HashMap::new();
-                            map.insert(
-                                "A".to_string(),
-                                Value {
-                                    value_type: Some(ValueType::IntegerValue(1_i64)),
-                                },
-                            );
-                            map
-                        }
-                    }))
-                })?,
+                from_value::<'_, E>(&Value::from_fields({
+                    let mut fields = HashMap::new();
+                    fields.insert("A".to_string(), Value::from_i64(1_i64));
+                    fields
+                }))?,
                 E::A(1_u8)
             );
             assert_eq!(
-                from_value::<'_, E>(&Value {
-                    value_type: Some(ValueType::MapValue(MapValue {
-                        fields: {
-                            let mut map = HashMap::new();
-                            map.insert(
-                                "B".to_string(),
-                                Value {
-                                    value_type: Some(ValueType::IntegerValue(2_i64)),
-                                },
-                            );
-                            map
-                        }
-                    }))
-                })?,
+                from_value::<'_, E>(&Value::from_fields({
+                    let mut fields = HashMap::new();
+                    fields.insert("B".to_string(), Value::from_i64(2_i64));
+                    fields
+                }))?,
                 E::B(2_u8)
             );
         }
@@ -514,29 +357,14 @@ mod tests {
                 U(u8, u8),
             }
             assert_eq!(
-                from_value::<'_, E>(&Value {
-                    value_type: Some(ValueType::MapValue(MapValue {
-                        fields: {
-                            let mut map = HashMap::new();
-                            map.insert(
-                                "T".to_string(),
-                                Value {
-                                    value_type: Some(ValueType::ArrayValue(ArrayValue {
-                                        values: vec![
-                                            Value {
-                                                value_type: Some(ValueType::IntegerValue(1_i64)),
-                                            },
-                                            Value {
-                                                value_type: Some(ValueType::IntegerValue(2_i64)),
-                                            },
-                                        ],
-                                    })),
-                                },
-                            );
-                            map
-                        }
-                    }))
-                })?,
+                from_value::<'_, E>(&Value::from_fields({
+                    let mut fields = HashMap::new();
+                    fields.insert(
+                        "T".to_string(),
+                        Value::from_values(vec![Value::from_i64(1_i64), Value::from_i64(2_i64)]),
+                    );
+                    fields
+                }))?,
                 E::T(1_u8, 2_u8)
             );
         }
@@ -548,49 +376,20 @@ mod tests {
                 S { r: u8, g: u8, b: u8 },
             }
             assert_eq!(
-                from_value::<'_, E>(&Value {
-                    value_type: Some(ValueType::MapValue(MapValue {
-                        fields: {
-                            let mut map = HashMap::new();
-                            map.insert(
-                                "S".to_string(),
-                                Value {
-                                    value_type: Some(ValueType::MapValue(MapValue {
-                                        fields: {
-                                            let mut map = HashMap::new();
-                                            map.insert(
-                                                "r".to_string(),
-                                                Value {
-                                                    value_type: Some(ValueType::IntegerValue(
-                                                        1_i64,
-                                                    )),
-                                                },
-                                            );
-                                            map.insert(
-                                                "g".to_string(),
-                                                Value {
-                                                    value_type: Some(ValueType::IntegerValue(
-                                                        2_i64,
-                                                    )),
-                                                },
-                                            );
-                                            map.insert(
-                                                "b".to_string(),
-                                                Value {
-                                                    value_type: Some(ValueType::IntegerValue(
-                                                        3_i64,
-                                                    )),
-                                                },
-                                            );
-                                            map
-                                        },
-                                    })),
-                                },
-                            );
-                            map
-                        }
-                    }))
-                })?,
+                from_value::<'_, E>(&Value::from_fields({
+                    let mut fields = HashMap::new();
+                    fields.insert(
+                        "S".to_string(),
+                        Value::from_fields({
+                            let mut fields = HashMap::new();
+                            fields.insert("r".to_string(), Value::from_i64(1_i64));
+                            fields.insert("g".to_string(), Value::from_i64(2_i64));
+                            fields.insert("b".to_string(), Value::from_i64(3_i64));
+                            fields
+                        }),
+                    );
+                    fields
+                }))?,
                 E::S { r: 1, g: 2, b: 3 },
             );
         }
@@ -613,88 +412,68 @@ mod tests {
     fn test_error_invalid_type() -> anyhow::Result<()> {
         // expected boolean value
         assert_eq!(
-            from_value::<'_, bool>(&Value {
-                value_type: Some(ValueType::IntegerValue(1_i64)),
-            })
-            .unwrap_err()
-            .to_string(),
+            from_value::<'_, bool>(&Value::from_i64(1_i64))
+                .unwrap_err()
+                .to_string(),
             "invalid type: integer value, expected boolean value"
         );
 
         // expected integer value
         assert_eq!(
-            from_value::<'_, i8>(&Value {
-                value_type: Some(ValueType::BooleanValue(true)),
-            })
-            .unwrap_err()
-            .to_string(),
+            from_value::<'_, i8>(&Value::from_bool(true))
+                .unwrap_err()
+                .to_string(),
             "invalid type: boolean value, expected integer value"
         );
         assert_eq!(
-            from_value::<'_, i16>(&Value {
-                value_type: Some(ValueType::BooleanValue(true)),
-            })
-            .unwrap_err()
-            .to_string(),
+            from_value::<'_, i16>(&Value::from_bool(true))
+                .unwrap_err()
+                .to_string(),
             "invalid type: boolean value, expected integer value"
         );
         assert_eq!(
-            from_value::<'_, i32>(&Value {
-                value_type: Some(ValueType::BooleanValue(true)),
-            })
-            .unwrap_err()
-            .to_string(),
+            from_value::<'_, i32>(&Value::from_bool(true))
+                .unwrap_err()
+                .to_string(),
             "invalid type: boolean value, expected integer value"
         );
         assert_eq!(
-            from_value::<'_, i64>(&Value {
-                value_type: Some(ValueType::BooleanValue(true)),
-            })
-            .unwrap_err()
-            .to_string(),
+            from_value::<'_, i64>(&Value::from_bool(true))
+                .unwrap_err()
+                .to_string(),
             "invalid type: boolean value, expected integer value"
         );
         assert_eq!(
-            from_value::<'_, u8>(&Value {
-                value_type: Some(ValueType::BooleanValue(true)),
-            })
-            .unwrap_err()
-            .to_string(),
+            from_value::<'_, u8>(&Value::from_bool(true))
+                .unwrap_err()
+                .to_string(),
             "invalid type: boolean value, expected integer value"
         );
         assert_eq!(
-            from_value::<'_, u16>(&Value {
-                value_type: Some(ValueType::BooleanValue(true)),
-            })
-            .unwrap_err()
-            .to_string(),
+            from_value::<'_, u16>(&Value::from_bool(true))
+                .unwrap_err()
+                .to_string(),
             "invalid type: boolean value, expected integer value"
         );
         assert_eq!(
-            from_value::<'_, u32>(&Value {
-                value_type: Some(ValueType::BooleanValue(true)),
-            })
-            .unwrap_err()
-            .to_string(),
+            from_value::<'_, u32>(&Value::from_bool(true))
+                .unwrap_err()
+                .to_string(),
             "invalid type: boolean value, expected integer value"
         );
         // u64 is not supported
 
         // expected double value
         assert_eq!(
-            from_value::<'_, f32>(&Value {
-                value_type: Some(ValueType::BooleanValue(true)),
-            })
-            .unwrap_err()
-            .to_string(),
+            from_value::<'_, f32>(&Value::from_bool(true))
+                .unwrap_err()
+                .to_string(),
             "invalid type: boolean value, expected double value"
         );
         assert_eq!(
-            from_value::<'_, f64>(&Value {
-                value_type: Some(ValueType::BooleanValue(true)),
-            })
-            .unwrap_err()
-            .to_string(),
+            from_value::<'_, f64>(&Value::from_bool(true))
+                .unwrap_err()
+                .to_string(),
             "invalid type: boolean value, expected double value"
         );
 

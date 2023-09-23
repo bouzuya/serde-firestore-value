@@ -4,7 +4,7 @@ pub fn deserialize<'de, D>(deserializer: D) -> Result<Timestamp, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
-    crate::deserializer::timestamp::deserialize(deserializer)
+    crate::de::timestamp::deserialize(deserializer)
 }
 
 pub fn serialize<S>(timestamp: &Timestamp, serializer: S) -> Result<S::Ok, S::Error>

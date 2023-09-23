@@ -1,30 +1,30 @@
-use google::firestore::v1::value::ValueType;
+use std::collections::HashMap;
+
+use google::firestore::v1::{value::ValueType, Value};
 use prost_types::Timestamp;
 
 use super::{error::ErrorCode, firestore_value_serializer::FirestoreValueSerializer};
 
-use crate::serializer::Error;
+use crate::{serializer::Error, value_ext::ValueExt};
 
-pub(crate) struct FirestoreTimestampValueSerializer<'a> {
-    parent: &'a mut FirestoreValueSerializer,
+pub(crate) struct FirestoreTimestampValueSerializer {
     seconds: Option<i64>,
     nanos: Option<i32>,
 }
 
-impl<'a> FirestoreTimestampValueSerializer<'a> {
+impl FirestoreTimestampValueSerializer {
     pub(crate) const NAME: &str = "$__serde-firestore-value_private_timestamp";
 
-    pub(crate) fn new(parent: &'a mut FirestoreValueSerializer) -> Self {
+    pub(crate) fn new() -> Self {
         Self {
-            parent,
             seconds: None,
             nanos: None,
         }
     }
 }
 
-impl<'a> serde::ser::SerializeStruct for FirestoreTimestampValueSerializer<'a> {
-    type Ok = &'a mut FirestoreValueSerializer;
+impl serde::ser::SerializeStruct for FirestoreTimestampValueSerializer {
+    type Ok = Value;
 
     type Error = Error;
 
@@ -37,9 +37,7 @@ impl<'a> serde::ser::SerializeStruct for FirestoreTimestampValueSerializer<'a> {
         T: serde::Serialize,
     {
         if key == "seconds" {
-            let mut serializer = FirestoreValueSerializer::default();
-            value.serialize(&mut serializer)?;
-            let value = serializer.into_inner();
+            let value = value.serialize(FirestoreValueSerializer)?;
             let value = match value.value_type.as_ref() {
                 None => todo!(),
                 Some(ValueType::IntegerValue(value)) => Ok(*value),
@@ -47,9 +45,7 @@ impl<'a> serde::ser::SerializeStruct for FirestoreTimestampValueSerializer<'a> {
             }?;
             self.seconds = Some(value);
         } else if key == "nanos" {
-            let mut serializer = FirestoreValueSerializer::default();
-            value.serialize(&mut serializer)?;
-            let value = serializer.into_inner();
+            let value = value.serialize(FirestoreValueSerializer)?;
             let value = match value.value_type.as_ref() {
                 None => todo!(),
                 Some(ValueType::IntegerValue(value)) => Ok(*value),
@@ -72,7 +68,13 @@ impl<'a> serde::ser::SerializeStruct for FirestoreTimestampValueSerializer<'a> {
             }
             (Some(seconds), Some(nanos)) => Ok(Timestamp { seconds, nanos }),
         }?;
-        self.parent.set_timestamp_value(None, timestamp);
-        Ok(self.parent)
+        Ok(match None::<&'static str> {
+            Some(name) => Value::from_fields({
+                let mut fields = HashMap::new();
+                fields.insert(name.to_string(), Value::from_timestamp(timestamp));
+                fields
+            }),
+            None => Value::from_timestamp(timestamp),
+        })
     }
 }

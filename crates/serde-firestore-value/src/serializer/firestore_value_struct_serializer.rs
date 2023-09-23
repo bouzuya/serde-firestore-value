@@ -1,18 +1,19 @@
+use google::firestore::v1::Value;
+
 use crate::serializer::Error;
 
 use super::{
     firestore_map_value_serializer::FirestoreMapValueSerializer,
     firestore_timestamp_value_serializer::FirestoreTimestampValueSerializer,
-    firestore_value_serializer::FirestoreValueSerializer,
 };
 
-pub(crate) enum FirestoreValueStructSerializer<'a> {
-    MapValue(FirestoreMapValueSerializer<'a>),
-    Timestamp(FirestoreTimestampValueSerializer<'a>),
+pub(crate) enum FirestoreValueStructSerializer {
+    MapValue(FirestoreMapValueSerializer),
+    Timestamp(FirestoreTimestampValueSerializer),
 }
 
-impl<'a> serde::ser::SerializeStruct for FirestoreValueStructSerializer<'a> {
-    type Ok = &'a mut FirestoreValueSerializer;
+impl serde::ser::SerializeStruct for FirestoreValueStructSerializer {
+    type Ok = Value;
 
     type Error = Error;
 

@@ -1,7 +1,4 @@
-use std::collections::HashMap;
-
-use google::firestore::v1::{ArrayValue, MapValue, Value};
-use prost_types::Timestamp;
+use google::firestore::v1::Value;
 use serde::{ser::SerializeMap, Serialize, Serializer};
 
 use crate::{
@@ -18,74 +15,32 @@ use super::{
 };
 
 #[derive(Debug, Default)]
-pub(crate) struct FirestoreValueSerializer {
-    output: Value,
-}
-
-impl FirestoreValueSerializer {
-    pub(crate) fn into_inner(self) -> Value {
-        self.output
-    }
-
-    pub(crate) fn set_array_value(&mut self, name: Option<&'static str>, value: ArrayValue) {
-        self.output = match name {
-            Some(name) => Value::from_fields({
-                let mut fields = HashMap::new();
-                fields.insert(name.to_string(), Value::from_array_value(value));
-                fields
-            }),
-            None => Value::from_array_value(value),
-        };
-    }
-
-    pub(crate) fn set_map_value(&mut self, name: Option<&'static str>, value: MapValue) {
-        self.output = match name {
-            Some(name) => Value::from_fields({
-                let mut fields = HashMap::new();
-                fields.insert(name.to_string(), Value::from_map_value(value));
-                fields
-            }),
-            None => Value::from_map_value(value),
-        };
-    }
-
-    pub(crate) fn set_timestamp_value(&mut self, name: Option<&'static str>, value: Timestamp) {
-        self.output = match name {
-            Some(name) => Value::from_fields({
-                let mut fields = HashMap::new();
-                fields.insert(name.to_string(), Value::from_timestamp(value));
-                fields
-            }),
-            None => Value::from_timestamp(value),
-        };
-    }
-}
+pub(crate) struct FirestoreValueSerializer;
 
 // 1,048,487 bytes = 1MiB - 89 bytes
 const MAX_BYTE_LEN: usize = 1_048_487;
 
-impl<'a> Serializer for &'a mut FirestoreValueSerializer {
-    type Ok = &'a mut FirestoreValueSerializer;
+impl Serializer for FirestoreValueSerializer {
+    type Ok = Value;
 
     type Error = Error;
 
-    type SerializeSeq = FirestoreArrayValueSerializer<'a>;
+    type SerializeSeq = FirestoreArrayValueSerializer;
 
-    type SerializeTuple = FirestoreArrayValueSerializer<'a>;
+    type SerializeTuple = FirestoreArrayValueSerializer;
 
-    type SerializeTupleStruct = FirestoreArrayValueSerializer<'a>;
+    type SerializeTupleStruct = FirestoreArrayValueSerializer;
 
-    type SerializeTupleVariant = FirestoreArrayValueSerializer<'a>;
+    type SerializeTupleVariant = FirestoreArrayValueSerializer;
 
-    type SerializeMap = FirestoreMapValueSerializer<'a>;
+    type SerializeMap = FirestoreMapValueSerializer;
 
-    type SerializeStruct = FirestoreValueStructSerializer<'a>;
+    type SerializeStruct = FirestoreValueStructSerializer;
 
-    type SerializeStructVariant = FirestoreMapValueSerializer<'a>;
+    type SerializeStructVariant = FirestoreMapValueSerializer;
 
     fn serialize_bool(self, v: bool) -> Result<Self::Ok, Self::Error> {
-        self.output = Value::from_bool(v);
-        Ok(self)
+        Ok(Value::from_bool(v))
     }
 
     fn serialize_i8(self, v: i8) -> Result<Self::Ok, Self::Error> {
@@ -101,8 +56,7 @@ impl<'a> Serializer for &'a mut FirestoreValueSerializer {
     }
 
     fn serialize_i64(self, v: i64) -> Result<Self::Ok, Self::Error> {
-        self.output = Value::from_i64(v);
-        Ok(self)
+        Ok(Value::from_i64(v))
     }
 
     fn serialize_u8(self, v: u8) -> Result<Self::Ok, Self::Error> {
@@ -126,8 +80,7 @@ impl<'a> Serializer for &'a mut FirestoreValueSerializer {
     }
 
     fn serialize_f64(self, v: f64) -> Result<Self::Ok, Self::Error> {
-        self.output = Value::from_f64(v);
-        Ok(self)
+        Ok(Value::from_f64(v))
     }
 
     fn serialize_char(self, v: char) -> Result<Self::Ok, Self::Error> {
@@ -138,8 +91,7 @@ impl<'a> Serializer for &'a mut FirestoreValueSerializer {
         if v.len() > MAX_BYTE_LEN {
             return Err(Error::from(ErrorCode::MaximumByteLengthExceeded));
         }
-        self.output = Value::from_string(v.to_string());
-        Ok(self)
+        Ok(Value::from_string(v.to_string()))
     }
 
     fn serialize_bytes(self, v: &[u8]) -> Result<Self::Ok, Self::Error> {
@@ -147,13 +99,11 @@ impl<'a> Serializer for &'a mut FirestoreValueSerializer {
         if v.len() > MAX_BYTE_LEN {
             return Err(Error::from(ErrorCode::MaximumByteLengthExceeded));
         }
-        self.output = Value::from_bytes(v.to_vec());
-        Ok(self)
+        Ok(Value::from_bytes(v.to_vec()))
     }
 
     fn serialize_none(self) -> Result<Self::Ok, Self::Error> {
-        self.output = Value::null();
-        Ok(self)
+        Ok(Value::null())
     }
 
     fn serialize_some<T: ?Sized>(self, value: &T) -> Result<Self::Ok, Self::Error>
@@ -207,7 +157,7 @@ impl<'a> Serializer for &'a mut FirestoreValueSerializer {
     }
 
     fn serialize_seq(self, len: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
-        Ok(FirestoreArrayValueSerializer::new(self, None, len))
+        Ok(FirestoreArrayValueSerializer::new(None, len))
     }
 
     fn serialize_tuple(self, len: usize) -> Result<Self::SerializeTuple, Self::Error> {
@@ -229,15 +179,11 @@ impl<'a> Serializer for &'a mut FirestoreValueSerializer {
         variant: &'static str,
         len: usize,
     ) -> Result<Self::SerializeTupleVariant, Self::Error> {
-        Ok(FirestoreArrayValueSerializer::new(
-            self,
-            Some(variant),
-            Some(len),
-        ))
+        Ok(FirestoreArrayValueSerializer::new(Some(variant), Some(len)))
     }
 
     fn serialize_map(self, len: Option<usize>) -> Result<Self::SerializeMap, Self::Error> {
-        Ok(FirestoreMapValueSerializer::new(self, None, len))
+        Ok(FirestoreMapValueSerializer::new(None, len))
     }
 
     fn serialize_struct(
@@ -246,10 +192,9 @@ impl<'a> Serializer for &'a mut FirestoreValueSerializer {
         len: usize,
     ) -> Result<Self::SerializeStruct, Self::Error> {
         Ok(if name == FirestoreTimestampValueSerializer::NAME {
-            FirestoreValueStructSerializer::Timestamp(FirestoreTimestampValueSerializer::new(self))
+            FirestoreValueStructSerializer::Timestamp(FirestoreTimestampValueSerializer::new())
         } else {
             FirestoreValueStructSerializer::MapValue(FirestoreMapValueSerializer::new(
-                self,
                 None,
                 Some(len),
             ))
@@ -263,10 +208,6 @@ impl<'a> Serializer for &'a mut FirestoreValueSerializer {
         variant: &'static str,
         len: usize,
     ) -> Result<Self::SerializeStructVariant, Self::Error> {
-        Ok(FirestoreMapValueSerializer::new(
-            self,
-            Some(variant),
-            Some(len),
-        ))
+        Ok(FirestoreMapValueSerializer::new(Some(variant), Some(len)))
     }
 }

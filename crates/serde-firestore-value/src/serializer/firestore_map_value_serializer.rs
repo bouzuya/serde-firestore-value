@@ -2,39 +2,30 @@ use std::collections::HashMap;
 
 use google::firestore::v1::{value::ValueType, MapValue, Value};
 
-use crate::{
-    serializer::{firestore_value_serializer::FirestoreValueSerializer, Error},
-    to_value,
-};
+use crate::{serializer::Error, value_ext::ValueExt};
 
-use super::error::ErrorCode;
+use super::{error::ErrorCode, firestore_value_serializer::FirestoreValueSerializer};
 
-pub(crate) struct FirestoreMapValueSerializer<'a> {
+pub(crate) struct FirestoreMapValueSerializer {
     key: Option<String>,
     name: Option<&'static str>,
     output: MapValue,
-    parent: &'a mut FirestoreValueSerializer,
 }
 
-impl<'a> FirestoreMapValueSerializer<'a> {
-    pub(crate) fn new(
-        parent: &'a mut FirestoreValueSerializer,
-        name: Option<&'static str>,
-        len: Option<usize>,
-    ) -> Self {
+impl FirestoreMapValueSerializer {
+    pub(crate) fn new(name: Option<&'static str>, len: Option<usize>) -> Self {
         Self {
             key: None,
             name,
             output: MapValue {
                 fields: HashMap::with_capacity(len.unwrap_or(0)),
             },
-            parent,
         }
     }
 }
 
-impl<'a> serde::ser::SerializeMap for FirestoreMapValueSerializer<'a> {
-    type Ok = &'a mut FirestoreValueSerializer;
+impl serde::ser::SerializeMap for FirestoreMapValueSerializer {
+    type Ok = Value;
 
     type Error = Error;
 
@@ -44,7 +35,7 @@ impl<'a> serde::ser::SerializeMap for FirestoreMapValueSerializer<'a> {
     {
         if let Value {
             value_type: Some(ValueType::StringValue(key_string)),
-        } = to_value(&key)?
+        } = key.serialize(FirestoreValueSerializer)?
         {
             if self.key.is_none() {
                 self.key = Some(key_string);
@@ -62,7 +53,7 @@ impl<'a> serde::ser::SerializeMap for FirestoreMapValueSerializer<'a> {
         T: serde::Serialize,
     {
         if let Some(k) = self.key.take() {
-            let v = to_value(&value)?;
+            let v = value.serialize(FirestoreValueSerializer)?;
             self.output.fields.insert(k, v);
             Ok(())
         } else {
@@ -71,13 +62,19 @@ impl<'a> serde::ser::SerializeMap for FirestoreMapValueSerializer<'a> {
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        self.parent.set_map_value(self.name, self.output);
-        Ok(self.parent)
+        Ok(match self.name {
+            Some(name) => Value::from_fields({
+                let mut fields = HashMap::new();
+                fields.insert(name.to_string(), Value::from_map_value(self.output));
+                fields
+            }),
+            None => Value::from_map_value(self.output),
+        })
     }
 }
 
-impl<'a> serde::ser::SerializeStruct for FirestoreMapValueSerializer<'a> {
-    type Ok = &'a mut FirestoreValueSerializer;
+impl serde::ser::SerializeStruct for FirestoreMapValueSerializer {
+    type Ok = Value;
 
     type Error = Error;
 
@@ -96,8 +93,8 @@ impl<'a> serde::ser::SerializeStruct for FirestoreMapValueSerializer<'a> {
         serde::ser::SerializeMap::end(self)
     }
 }
-impl<'a> serde::ser::SerializeStructVariant for FirestoreMapValueSerializer<'a> {
-    type Ok = &'a mut FirestoreValueSerializer;
+impl serde::ser::SerializeStructVariant for FirestoreMapValueSerializer {
+    type Ok = Value;
 
     type Error = Error;
 

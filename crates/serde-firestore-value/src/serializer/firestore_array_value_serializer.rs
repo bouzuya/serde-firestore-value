@@ -1,34 +1,29 @@
-use google::firestore::v1::ArrayValue;
+use std::collections::HashMap;
 
-use crate::{
-    serializer::{firestore_value_serializer::FirestoreValueSerializer, Error},
-    to_value,
-};
+use google::firestore::v1::{ArrayValue, Value};
 
-pub(crate) struct FirestoreArrayValueSerializer<'a> {
+use crate::{serializer::Error, value_ext::ValueExt};
+
+use super::firestore_value_serializer::FirestoreValueSerializer;
+
+pub(crate) struct FirestoreArrayValueSerializer {
     name: Option<&'static str>,
     output: ArrayValue,
-    parent: &'a mut FirestoreValueSerializer,
 }
 
-impl<'a> FirestoreArrayValueSerializer<'a> {
-    pub(crate) fn new(
-        parent: &'a mut FirestoreValueSerializer,
-        name: Option<&'static str>,
-        len: Option<usize>,
-    ) -> Self {
+impl FirestoreArrayValueSerializer {
+    pub(crate) fn new(name: Option<&'static str>, len: Option<usize>) -> Self {
         Self {
             name,
             output: ArrayValue {
                 values: Vec::with_capacity(len.unwrap_or(0)),
             },
-            parent,
         }
     }
 }
 
-impl<'a> serde::ser::SerializeSeq for FirestoreArrayValueSerializer<'a> {
-    type Ok = &'a mut FirestoreValueSerializer;
+impl serde::ser::SerializeSeq for FirestoreArrayValueSerializer {
+    type Ok = Value;
 
     type Error = Error;
 
@@ -36,18 +31,26 @@ impl<'a> serde::ser::SerializeSeq for FirestoreArrayValueSerializer<'a> {
     where
         T: serde::Serialize,
     {
-        self.output.values.push(to_value(&value)?);
+        self.output
+            .values
+            .push(value.serialize(FirestoreValueSerializer)?);
         Ok(())
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        self.parent.set_array_value(self.name, self.output);
-        Ok(self.parent)
+        Ok(match self.name {
+            Some(name) => Value::from_fields({
+                let mut fields = HashMap::new();
+                fields.insert(name.to_string(), Value::from_array_value(self.output));
+                fields
+            }),
+            None => Value::from_array_value(self.output),
+        })
     }
 }
 
-impl<'a> serde::ser::SerializeTuple for FirestoreArrayValueSerializer<'a> {
-    type Ok = &'a mut FirestoreValueSerializer;
+impl serde::ser::SerializeTuple for FirestoreArrayValueSerializer {
+    type Ok = Value;
 
     type Error = Error;
 
@@ -63,8 +66,8 @@ impl<'a> serde::ser::SerializeTuple for FirestoreArrayValueSerializer<'a> {
     }
 }
 
-impl<'a> serde::ser::SerializeTupleStruct for FirestoreArrayValueSerializer<'a> {
-    type Ok = &'a mut FirestoreValueSerializer;
+impl serde::ser::SerializeTupleStruct for FirestoreArrayValueSerializer {
+    type Ok = Value;
 
     type Error = Error;
 
@@ -79,8 +82,8 @@ impl<'a> serde::ser::SerializeTupleStruct for FirestoreArrayValueSerializer<'a> 
         serde::ser::SerializeSeq::end(self)
     }
 }
-impl<'a> serde::ser::SerializeTupleVariant for FirestoreArrayValueSerializer<'a> {
-    type Ok = &'a mut FirestoreValueSerializer;
+impl serde::ser::SerializeTupleVariant for FirestoreArrayValueSerializer {
+    type Ok = Value;
 
     type Error = Error;
 

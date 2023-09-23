@@ -32,9 +32,7 @@ pub fn to_value<T>(value: &T) -> Result<Value, Error>
 where
     T: Serialize,
 {
-    let mut serializer = FirestoreValueSerializer::default();
-    value.serialize(&mut serializer)?;
-    Ok(serializer.into_inner())
+    value.serialize(FirestoreValueSerializer)
 }
 
 #[cfg(test)]

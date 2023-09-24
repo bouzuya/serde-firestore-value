@@ -2,7 +2,7 @@ use google::{
     firestore::v1::{value::ValueType, Value},
     r#type::LatLng,
 };
-use serde_firestore_value::{from_value, lat_lng, to_value};
+use serde_firestore_value::{from_value, to_value, with::lat_lng};
 
 #[test]
 fn test_deserialize_with() -> anyhow::Result<()> {

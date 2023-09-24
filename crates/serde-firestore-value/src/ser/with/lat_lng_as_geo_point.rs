@@ -1,6 +1,6 @@
 use google::r#type::LatLng;
 
-use super::firestore_value_serializer::FirestoreValueSerializer;
+use super::super::firestore_value_serializer::FirestoreValueSerializer;
 
 pub fn serialize_lat_lng<S>(lat_lng: &LatLng, serializer: S) -> Result<S::Ok, S::Error>
 where

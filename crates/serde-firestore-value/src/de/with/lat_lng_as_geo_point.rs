@@ -4,7 +4,7 @@ use serde::{
     Deserialize,
 };
 
-use super::{value_ext::ValueExt, Error};
+use super::super::{value_ext::ValueExt, Error};
 
 #[derive(Debug, serde::Deserialize)]
 #[serde(rename = "$__serde-firestore-value_private_lat_lng")]

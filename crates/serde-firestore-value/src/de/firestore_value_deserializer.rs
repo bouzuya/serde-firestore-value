@@ -4,11 +4,11 @@ use super::{
     error::{Error, ErrorCode},
     firestore_array_value_deserializer::FirestoreArrayValueDeserializer,
     firestore_enum_deserializer::FirestoreEnumDeserializer,
+    firestore_geo_point_value_deserializer::FirestoreGeoPointValueDeserializer,
     firestore_map_value_deserializer::FirestoreMapValueDeserializer,
     firestore_reference_value_deserializer::FirestoreReferenceValueDeserializer,
     firestore_struct_map_value_deserializer::FirestoreStructMapValueDeserializer,
     firestore_timestamp_value_deserializer::FirestoreTimestampValueDeserializer,
-    lat_lng::FirestoreLatLngValueDeserializer,
     value_ext::ValueExt,
 };
 
@@ -252,7 +252,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
         V: serde::de::Visitor<'a>,
     {
         if name == "$__serde-firestore-value_private_lat_lng" {
-            visitor.visit_map(FirestoreLatLngValueDeserializer::new(self.value)?)
+            visitor.visit_map(FirestoreGeoPointValueDeserializer::new(self.value)?)
         } else if name == "$__serde-firestore-value_private_timestamp" {
             visitor.visit_map(FirestoreTimestampValueDeserializer::new(self.value)?)
         } else {

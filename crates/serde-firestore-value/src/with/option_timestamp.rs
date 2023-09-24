@@ -1,3 +1,5 @@
+// A (de)serializer that serializes a `Option<Timestamp>` as a `Value` (`TimestampValue` or `NullValue`) .
+
 use prost_types::Timestamp;
 
 pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<Timestamp>, D::Error>

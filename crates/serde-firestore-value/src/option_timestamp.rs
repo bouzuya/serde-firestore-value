@@ -4,12 +4,15 @@ pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<Timestamp>, D::Erro
 where
     D: serde::Deserializer<'de>,
 {
-    crate::de::timestamp::deserialize_option_timestamp(deserializer)
+    crate::de::with::timestamp_as_timestamp::deserialize_option_timestamp(deserializer)
 }
 
 pub fn serialize<S>(option_timestamp: &Option<Timestamp>, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
 {
-    crate::ser::timestamp::serialize_option_timestamp(option_timestamp, serializer)
+    crate::ser::with::timestamp_as_timestamp::serialize_option_timestamp(
+        option_timestamp,
+        serializer,
+    )
 }

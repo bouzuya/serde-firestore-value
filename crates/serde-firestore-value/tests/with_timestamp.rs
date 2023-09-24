@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
 use prost_types::Timestamp;
-use serde_firestore_value::{from_value, timestamp, to_value};
+use serde_firestore_value::{from_value, to_value, with::timestamp};
 
 #[test]
 fn test_deserialize_with() -> anyhow::Result<()> {

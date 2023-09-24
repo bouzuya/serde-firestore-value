@@ -7,8 +7,8 @@ use super::{
     firestore_map_value_deserializer::FirestoreMapValueDeserializer,
     firestore_reference_value_deserializer::FirestoreReferenceValueDeserializer,
     firestore_struct_map_value_deserializer::FirestoreStructMapValueDeserializer,
+    firestore_timestamp_value_deserializer::FirestoreTimestampValueDeserializer,
     lat_lng::FirestoreLatLngValueDeserializer,
-    timestamp::FirestoreTimestampValueDeserializer,
     value_ext::ValueExt,
 };
 

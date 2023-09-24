@@ -6,7 +6,6 @@ mod firestore_timestamp_value_serializer;
 mod firestore_value_serializer;
 mod firestore_value_struct_serializer;
 pub mod lat_lng;
-pub mod timestamp;
 pub(crate) mod with;
 
 use google::firestore::v1::Value;

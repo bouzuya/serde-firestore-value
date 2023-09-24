@@ -1,6 +1,6 @@
 use prost_types::Timestamp;
 
-use super::firestore_value_serializer::FirestoreValueSerializer;
+use super::super::firestore_value_serializer::FirestoreValueSerializer;
 
 pub fn serialize_timestamp<S>(timestamp: &Timestamp, serializer: S) -> Result<S::Ok, S::Error>
 where

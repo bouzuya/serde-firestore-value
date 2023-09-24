@@ -141,17 +141,14 @@ impl Serializer for FirestoreValueSerializer {
     {
         let value = value.serialize(self)?;
         if name == MyReference::NAME {
-            // TODO: value.as_string()
-            let value = match value.value_type {
-                None => Err(Self::Error::from(ErrorCode::Custom(
-                    "TODO: value_type is none".to_string(),
-                ))),
-                Some(ValueType::StringValue(ref value)) => Ok(value),
-                Some(_) => Err(Self::Error::from(ErrorCode::Custom(
-                    "TODO: invalid type".to_string(),
-                ))),
-            }?;
-            Ok(Value::from_string_as_reference_value(value.to_string()))
+            if let Value {
+                value_type: Some(ValueType::StringValue(s)),
+            } = value
+            {
+                Ok(Value::from_string_as_reference_value(s))
+            } else {
+                Err(Error::from(ErrorCode::ReferenceValueMustBeAString))
+            }
         } else {
             Ok(value)
         }

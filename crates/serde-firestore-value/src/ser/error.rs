@@ -21,6 +21,8 @@ pub(crate) enum ErrorCode {
     KeyMustBeAString,
     #[error("maximum byte length (1,048,487 bytes = 1MiB - 89 bytes) exceeded")]
     MaximumByteLengthExceeded,
+    #[error("reference value must be a string")]
+    ReferenceValueMustBeAString,
     #[error("u64 is not supported")]
     U64IsNotSupported,
 }

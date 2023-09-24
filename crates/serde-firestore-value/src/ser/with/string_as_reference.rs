@@ -1,14 +1,12 @@
-use super::super::firestore_value_serializer::FirestoreValueSerializer;
+use crate::typ::my_reference::MyReference;
 
 pub(crate) fn serialize_string_as_reference<S>(
-    value: &String,
+    value: &str,
     serializer: S,
 ) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
 {
-    serializer.serialize_newtype_struct(
-        FirestoreValueSerializer::STRING_AS_REFERENCE_STRUCT_NAME,
-        value,
-    )
+    let reference = MyReference::from(value.to_string());
+    serde::Serialize::serialize(&reference, serializer)
 }

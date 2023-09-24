@@ -6,25 +6,17 @@ use crate::{
         firestore_array_value_serializer::FirestoreArrayValueSerializer,
         firestore_map_value_serializer::FirestoreMapValueSerializer,
     },
+    typ::my_reference::MyReference,
     value_ext::ValueExt,
 };
 
 use super::{
-    error::ErrorCode, firestore_geo_point_value_serializer::FirestoreGeoPointValueSerializer,
-    firestore_timestamp_value_serializer::FirestoreTimestampValueSerializer,
-    firestore_value_struct_serializer::FirestoreValueStructSerializer,
+    error::ErrorCode, firestore_value_struct_serializer::FirestoreValueStructSerializer,
     name_map_value_serializer::NameMapValueSerializer, Error,
 };
 
 #[derive(Debug, Default)]
 pub(crate) struct FirestoreValueSerializer;
-
-impl FirestoreValueSerializer {
-    pub(crate) const LAT_LNG_STRUCT_NAME: &str = "$__serde-firestore-value_private_lat_lng";
-    pub(crate) const STRING_AS_REFERENCE_STRUCT_NAME: &str =
-        "$__serde-firestore-value_private_string_as_reference";
-    pub(crate) const TIMESTAMP_STRUCT_NAME: &str = "$__serde-firestore-value_private_timestamp";
-}
 
 // 1,048,487 bytes = 1MiB - 89 bytes
 const MAX_BYTE_LEN: usize = 1_048_487;
@@ -148,7 +140,7 @@ impl Serializer for FirestoreValueSerializer {
         T: Serialize,
     {
         let value = value.serialize(self)?;
-        if name == Self::STRING_AS_REFERENCE_STRUCT_NAME {
+        if name == MyReference::NAME {
             // TODO: value.as_string()
             let value = match value.value_type {
                 None => Err(Self::Error::from(ErrorCode::Custom(
@@ -218,13 +210,7 @@ impl Serializer for FirestoreValueSerializer {
         name: &'static str,
         len: usize,
     ) -> Result<Self::SerializeStruct, Self::Error> {
-        Ok(if name == Self::LAT_LNG_STRUCT_NAME {
-            FirestoreValueStructSerializer::GeoPoint(FirestoreGeoPointValueSerializer::new())
-        } else if name == Self::TIMESTAMP_STRUCT_NAME {
-            FirestoreValueStructSerializer::Timestamp(FirestoreTimestampValueSerializer::new())
-        } else {
-            FirestoreValueStructSerializer::Map(FirestoreMapValueSerializer::new(Some(len)))
-        })
+        Ok(Self::SerializeStruct::new(name, len))
     }
 
     fn serialize_struct_variant(

@@ -1,26 +1,7 @@
 use google::r#type::LatLng;
 use serde::Deserialize;
 
-#[derive(Debug, serde::Deserialize)]
-#[serde(rename = "$__serde-firestore-value_private_lat_lng")]
-struct MyLatLng {
-    latitude: f64,
-    longitude: f64,
-}
-
-impl From<MyLatLng> for LatLng {
-    fn from(
-        MyLatLng {
-            latitude,
-            longitude,
-        }: MyLatLng,
-    ) -> Self {
-        Self {
-            latitude,
-            longitude,
-        }
-    }
-}
+use crate::typ::my_lat_lng::MyLatLng;
 
 pub(crate) fn deserialize_lat_lng<'de, D>(deserializer: D) -> Result<LatLng, D::Error>
 where

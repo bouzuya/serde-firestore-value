@@ -1,6 +1,6 @@
 use prost_types::Timestamp;
 
-use super::super::firestore_value_serializer::FirestoreValueSerializer;
+use crate::typ::my_timestamp::MyTimestamp;
 
 pub(crate) fn serialize_timestamp<S>(
     timestamp: &Timestamp,
@@ -9,10 +9,8 @@ pub(crate) fn serialize_timestamp<S>(
 where
     S: serde::Serializer,
 {
-    let mut s = serializer.serialize_struct(FirestoreValueSerializer::TIMESTAMP_STRUCT_NAME, 2)?;
-    serde::ser::SerializeStruct::serialize_field(&mut s, "seconds", &timestamp.seconds)?;
-    serde::ser::SerializeStruct::serialize_field(&mut s, "nanos", &timestamp.nanos)?;
-    serde::ser::SerializeStruct::end(s)
+    let timestamp = MyTimestamp::from(timestamp.clone());
+    serde::Serialize::serialize(&timestamp, serializer)
 }
 
 pub(crate) fn serialize_option_timestamp<S>(

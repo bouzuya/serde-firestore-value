@@ -7,7 +7,7 @@ where
     crate::de::with::string_as_reference::deserialize_string_as_reference(deserializer)
 }
 
-pub fn serialize<S>(s: &String, serializer: S) -> Result<S::Ok, S::Error>
+pub fn serialize<S>(s: &str, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
 {

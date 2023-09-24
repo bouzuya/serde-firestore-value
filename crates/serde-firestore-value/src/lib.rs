@@ -1,6 +1,7 @@
 mod de;
 mod ser;
 mod serde_json;
+mod typ;
 mod value_ext;
 pub mod with;
 

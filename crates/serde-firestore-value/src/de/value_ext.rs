@@ -14,6 +14,7 @@ pub(super) trait ValueExt {
     fn as_timestamp(&self) -> Result<&Timestamp, Error>;
     fn as_string(&self) -> Result<&String, Error>;
     fn as_bytes(&self) -> Result<&[u8], Error>;
+    fn as_reference_value_as_string(&self) -> Result<&String, Error>;
     fn as_lat_lng(&self) -> Result<&LatLng, Error>;
     fn as_array(&self) -> Result<&ArrayValue, Error>;
     fn as_map(&self) -> Result<&MapValue, Error>;
@@ -77,6 +78,16 @@ impl ValueExt for Value {
         match self.value_type()? {
             ValueType::BytesValue(value) => Ok(value),
             value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Bytes)),
+        }
+    }
+
+    fn as_reference_value_as_string(&self) -> Result<&String, Error> {
+        match self.value_type()? {
+            ValueType::ReferenceValue(value) => Ok(value),
+            value_type => Err(Error::invalid_value_type(
+                value_type,
+                ValueTypeName::Reference,
+            )),
         }
     }
 

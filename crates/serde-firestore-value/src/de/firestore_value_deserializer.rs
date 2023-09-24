@@ -5,6 +5,7 @@ use super::{
     firestore_array_value_deserializer::FirestoreArrayValueDeserializer,
     firestore_enum_deserializer::FirestoreEnumDeserializer,
     firestore_map_value_deserializer::FirestoreMapValueDeserializer,
+    firestore_reference_value_deserializer::FirestoreReferenceValueDeserializer,
     firestore_struct_map_value_deserializer::FirestoreStructMapValueDeserializer,
     lat_lng::FirestoreLatLngValueDeserializer,
     timestamp::FirestoreTimestampValueDeserializer,
@@ -195,13 +196,17 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
 
     fn deserialize_newtype_struct<V>(
         self,
-        _name: &'static str,
+        name: &'static str,
         visitor: V,
     ) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        visitor.visit_newtype_struct(self)
+        if name == "$__serde-firestore-value_private_string_as_reference" {
+            visitor.visit_newtype_struct(FirestoreReferenceValueDeserializer::new(self.value))
+        } else {
+            visitor.visit_newtype_struct(self)
+        }
     }
 
     fn deserialize_seq<V>(self, visitor: V) -> Result<V::Value, Self::Error>

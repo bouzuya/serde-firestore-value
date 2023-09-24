@@ -2,7 +2,6 @@
 
 ## TODOs
 
-- ☐ ReferenceValue support
 - ☐ chrono feature
 - ☐ time feature
 - ☐ crates.io

@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use google::firestore::v1::{ArrayValue, Value};
 
 use crate::{ser::Error, value_ext::ValueExt};
@@ -7,14 +5,12 @@ use crate::{ser::Error, value_ext::ValueExt};
 use super::firestore_value_serializer::FirestoreValueSerializer;
 
 pub(crate) struct FirestoreArrayValueSerializer {
-    name: Option<&'static str>,
     output: ArrayValue,
 }
 
 impl FirestoreArrayValueSerializer {
-    pub(crate) fn new(name: Option<&'static str>, len: Option<usize>) -> Self {
+    pub(crate) fn new(len: Option<usize>) -> Self {
         Self {
-            name,
             output: ArrayValue {
                 values: Vec::with_capacity(len.unwrap_or(0)),
             },
@@ -38,14 +34,7 @@ impl serde::ser::SerializeSeq for FirestoreArrayValueSerializer {
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        Ok(match self.name {
-            Some(name) => Value::from_fields({
-                let mut fields = HashMap::new();
-                fields.insert(name.to_string(), Value::from_array_value(self.output));
-                fields
-            }),
-            None => Value::from_array_value(self.output),
-        })
+        Ok(Value::from_array_value(self.output))
     }
 }
 

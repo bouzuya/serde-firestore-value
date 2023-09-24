@@ -5,6 +5,7 @@ mod firestore_map_value_serializer;
 mod firestore_timestamp_value_serializer;
 mod firestore_value_serializer;
 mod firestore_value_struct_serializer;
+mod name_map_value_serializer;
 pub(crate) mod with;
 
 use google::firestore::v1::Value;

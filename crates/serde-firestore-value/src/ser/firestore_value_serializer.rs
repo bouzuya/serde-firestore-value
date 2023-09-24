@@ -12,7 +12,8 @@ use crate::{
 use super::{
     error::ErrorCode, firestore_geo_point_value_serializer::FirestoreGeoPointValueSerializer,
     firestore_timestamp_value_serializer::FirestoreTimestampValueSerializer,
-    firestore_value_struct_serializer::FirestoreValueStructSerializer, Error,
+    firestore_value_struct_serializer::FirestoreValueStructSerializer,
+    name_map_value_serializer::NameMapValueSerializer, Error,
 };
 
 #[derive(Debug, Default)]
@@ -39,13 +40,13 @@ impl Serializer for FirestoreValueSerializer {
 
     type SerializeTupleStruct = FirestoreArrayValueSerializer;
 
-    type SerializeTupleVariant = FirestoreArrayValueSerializer;
+    type SerializeTupleVariant = NameMapValueSerializer<FirestoreArrayValueSerializer>;
 
     type SerializeMap = FirestoreMapValueSerializer;
 
     type SerializeStruct = FirestoreValueStructSerializer;
 
-    type SerializeStructVariant = FirestoreMapValueSerializer;
+    type SerializeStructVariant = NameMapValueSerializer<FirestoreMapValueSerializer>;
 
     fn serialize_bool(self, v: bool) -> Result<Self::Ok, Self::Error> {
         Ok(Value::from_bool(v))
@@ -180,7 +181,7 @@ impl Serializer for FirestoreValueSerializer {
     }
 
     fn serialize_seq(self, len: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
-        Ok(FirestoreArrayValueSerializer::new(None, len))
+        Ok(FirestoreArrayValueSerializer::new(len))
     }
 
     fn serialize_tuple(self, len: usize) -> Result<Self::SerializeTuple, Self::Error> {
@@ -202,11 +203,14 @@ impl Serializer for FirestoreValueSerializer {
         variant: &'static str,
         len: usize,
     ) -> Result<Self::SerializeTupleVariant, Self::Error> {
-        Ok(FirestoreArrayValueSerializer::new(Some(variant), Some(len)))
+        Ok(NameMapValueSerializer::new(
+            variant,
+            FirestoreArrayValueSerializer::new(Some(len)),
+        ))
     }
 
     fn serialize_map(self, len: Option<usize>) -> Result<Self::SerializeMap, Self::Error> {
-        Ok(FirestoreMapValueSerializer::new(None, len))
+        Ok(FirestoreMapValueSerializer::new(len))
     }
 
     fn serialize_struct(
@@ -219,7 +223,7 @@ impl Serializer for FirestoreValueSerializer {
         } else if name == Self::TIMESTAMP_STRUCT_NAME {
             FirestoreValueStructSerializer::Timestamp(FirestoreTimestampValueSerializer::new())
         } else {
-            FirestoreValueStructSerializer::Map(FirestoreMapValueSerializer::new(None, Some(len)))
+            FirestoreValueStructSerializer::Map(FirestoreMapValueSerializer::new(Some(len)))
         })
     }
 
@@ -230,6 +234,9 @@ impl Serializer for FirestoreValueSerializer {
         variant: &'static str,
         len: usize,
     ) -> Result<Self::SerializeStructVariant, Self::Error> {
-        Ok(FirestoreMapValueSerializer::new(Some(variant), Some(len)))
+        Ok(NameMapValueSerializer::new(
+            variant,
+            FirestoreMapValueSerializer::new(Some(len)),
+        ))
     }
 }

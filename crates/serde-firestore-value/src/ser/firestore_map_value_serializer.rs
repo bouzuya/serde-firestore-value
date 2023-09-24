@@ -8,15 +8,13 @@ use super::{error::ErrorCode, firestore_value_serializer::FirestoreValueSerializ
 
 pub(crate) struct FirestoreMapValueSerializer {
     key: Option<String>,
-    name: Option<&'static str>,
     output: MapValue,
 }
 
 impl FirestoreMapValueSerializer {
-    pub(crate) fn new(name: Option<&'static str>, len: Option<usize>) -> Self {
+    pub(crate) fn new(len: Option<usize>) -> Self {
         Self {
             key: None,
-            name,
             output: MapValue {
                 fields: HashMap::with_capacity(len.unwrap_or(0)),
             },
@@ -62,14 +60,7 @@ impl serde::ser::SerializeMap for FirestoreMapValueSerializer {
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        Ok(match self.name {
-            Some(name) => Value::from_fields({
-                let mut fields = HashMap::new();
-                fields.insert(name.to_string(), Value::from_map_value(self.output));
-                fields
-            }),
-            None => Value::from_map_value(self.output),
-        })
+        Ok(Value::from_map_value(self.output))
     }
 }
 

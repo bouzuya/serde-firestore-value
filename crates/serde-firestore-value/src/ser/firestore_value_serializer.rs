@@ -1,4 +1,4 @@
-use google::firestore::v1::Value;
+use google::firestore::v1::{value::ValueType, Value};
 use serde::{ser::SerializeMap, Serialize, Serializer};
 
 use crate::{
@@ -20,6 +20,8 @@ pub(crate) struct FirestoreValueSerializer;
 
 impl FirestoreValueSerializer {
     pub(crate) const LAT_LNG_STRUCT_NAME: &str = "$__serde-firestore-value_private_lat_lng";
+    pub(crate) const STRING_AS_REFERENCE_STRUCT_NAME: &str =
+        "$__serde-firestore-value_private_string_as_reference";
     pub(crate) const TIMESTAMP_STRUCT_NAME: &str = "$__serde-firestore-value_private_timestamp";
 }
 
@@ -138,13 +140,28 @@ impl Serializer for FirestoreValueSerializer {
 
     fn serialize_newtype_struct<T: ?Sized>(
         self,
-        _name: &'static str,
+        name: &'static str,
         value: &T,
     ) -> Result<Self::Ok, Self::Error>
     where
         T: Serialize,
     {
-        value.serialize(self)
+        let value = value.serialize(self)?;
+        if name == Self::STRING_AS_REFERENCE_STRUCT_NAME {
+            // TODO: value.as_string()
+            let value = match value.value_type {
+                None => Err(Self::Error::from(ErrorCode::Custom(
+                    "TODO: value_type is none".to_string(),
+                ))),
+                Some(ValueType::StringValue(ref value)) => Ok(value),
+                Some(_) => Err(Self::Error::from(ErrorCode::Custom(
+                    "TODO: invalid type".to_string(),
+                ))),
+            }?;
+            Ok(Value::from_string_as_reference_value(value.to_string()))
+        } else {
+            Ok(value)
+        }
     }
 
     fn serialize_newtype_variant<T: ?Sized>(

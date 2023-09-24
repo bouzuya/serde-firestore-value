@@ -16,6 +16,7 @@ pub(crate) trait ValueExt {
     fn from_lat_lng(value: LatLng) -> Self;
     fn from_map_value(map_value: MapValue) -> Self;
     fn from_string(value: String) -> Self;
+    fn from_string_as_reference_value(value: String) -> Self;
     fn from_timestamp(timestamp: Timestamp) -> Self;
     fn from_values(values: Vec<Value>) -> Self;
     fn null() -> Self;
@@ -77,6 +78,12 @@ impl ValueExt for Value {
     fn from_timestamp(timestamp: Timestamp) -> Self {
         Self {
             value_type: Some(ValueType::TimestampValue(timestamp)),
+        }
+    }
+
+    fn from_string_as_reference_value(value: String) -> Self {
+        Self {
+            value_type: Some(ValueType::ReferenceValue(value)),
         }
     }
 

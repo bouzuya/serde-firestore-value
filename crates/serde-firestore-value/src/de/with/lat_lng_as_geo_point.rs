@@ -22,14 +22,16 @@ impl From<MyLatLng> for LatLng {
     }
 }
 
-pub fn deserialize_lat_lng<'de, D>(deserializer: D) -> Result<LatLng, D::Error>
+pub(crate) fn deserialize_lat_lng<'de, D>(deserializer: D) -> Result<LatLng, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
     MyLatLng::deserialize(deserializer).map(LatLng::from)
 }
 
-pub fn deserialize_option_lat_lng<'de, D>(deserializer: D) -> Result<Option<LatLng>, D::Error>
+pub(crate) fn deserialize_option_lat_lng<'de, D>(
+    deserializer: D,
+) -> Result<Option<LatLng>, D::Error>
 where
     D: serde::Deserializer<'de>,
 {

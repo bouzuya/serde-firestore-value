@@ -8,7 +8,7 @@ struct MyTimestamp {
     nanos: i32,
 }
 
-pub fn deserialize_timestamp<'de, D>(deserializer: D) -> Result<Timestamp, D::Error>
+pub(crate) fn deserialize_timestamp<'de, D>(deserializer: D) -> Result<Timestamp, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
@@ -16,7 +16,9 @@ where
         .map(|MyTimestamp { seconds, nanos }| Timestamp { seconds, nanos })
 }
 
-pub fn deserialize_option_timestamp<'de, D>(deserializer: D) -> Result<Option<Timestamp>, D::Error>
+pub(crate) fn deserialize_option_timestamp<'de, D>(
+    deserializer: D,
+) -> Result<Option<Timestamp>, D::Error>
 where
     D: serde::Deserializer<'de>,
 {

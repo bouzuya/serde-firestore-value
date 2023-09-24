@@ -2,7 +2,7 @@ use google::r#type::LatLng;
 
 use super::super::firestore_value_serializer::FirestoreValueSerializer;
 
-pub fn serialize_lat_lng<S>(lat_lng: &LatLng, serializer: S) -> Result<S::Ok, S::Error>
+pub(crate) fn serialize_lat_lng<S>(lat_lng: &LatLng, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
 {
@@ -12,7 +12,7 @@ where
     serde::ser::SerializeStruct::end(s)
 }
 
-pub fn serialize_option_lat_lng<S>(
+pub(crate) fn serialize_option_lat_lng<S>(
     lat_lng: &Option<LatLng>,
     serializer: S,
 ) -> Result<S::Ok, S::Error>

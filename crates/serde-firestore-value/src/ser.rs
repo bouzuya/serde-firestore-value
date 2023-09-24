@@ -12,7 +12,7 @@ use serde::Serialize;
 
 use crate::ser::firestore_value_serializer::FirestoreValueSerializer;
 
-pub use self::error::Error;
+pub(crate) use self::error::Error;
 
 pub fn to_value<T>(value: &T) -> Result<Value, Error>
 where

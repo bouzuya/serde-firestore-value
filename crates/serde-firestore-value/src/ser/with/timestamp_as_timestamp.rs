@@ -2,7 +2,10 @@ use prost_types::Timestamp;
 
 use super::super::firestore_value_serializer::FirestoreValueSerializer;
 
-pub fn serialize_timestamp<S>(timestamp: &Timestamp, serializer: S) -> Result<S::Ok, S::Error>
+pub(crate) fn serialize_timestamp<S>(
+    timestamp: &Timestamp,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
 {
@@ -12,7 +15,7 @@ where
     serde::ser::SerializeStruct::end(s)
 }
 
-pub fn serialize_option_timestamp<S>(
+pub(crate) fn serialize_option_timestamp<S>(
     timestamp: &Option<Timestamp>,
     serializer: S,
 ) -> Result<S::Ok, S::Error>

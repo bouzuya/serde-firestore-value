@@ -1,5 +1,4 @@
 mod de;
-pub mod option_lat_lng;
 mod ser;
 mod serde_json;
 mod value_ext;

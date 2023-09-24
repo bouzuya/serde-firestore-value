@@ -1,5 +1,7 @@
 use google::firestore::v1::{value::ValueType, MapValue, Value};
 
+use crate::typ::{my_lat_lng::MyLatLng, my_reference::MyReference, my_timestamp::MyTimestamp};
+
 use super::{
     error::{Error, ErrorCode},
     firestore_array_value_deserializer::FirestoreArrayValueDeserializer,
@@ -202,7 +204,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        if name == "$__serde-firestore-value_private_string_as_reference" {
+        if name == MyReference::NAME {
             visitor.visit_newtype_struct(FirestoreReferenceValueDeserializer::new(self.value))
         } else {
             visitor.visit_newtype_struct(self)
@@ -251,9 +253,9 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        if name == "$__serde-firestore-value_private_lat_lng" {
+        if name == MyLatLng::NAME {
             visitor.visit_map(FirestoreGeoPointValueDeserializer::new(self.value)?)
-        } else if name == "$__serde-firestore-value_private_timestamp" {
+        } else if name == MyTimestamp::NAME {
             visitor.visit_map(FirestoreTimestampValueDeserializer::new(self.value)?)
         } else {
             visitor.visit_map(FirestoreStructMapValueDeserializer::new(

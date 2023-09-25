@@ -10,16 +10,22 @@ use super::{error::ErrorCode, firestore_value_serializer::FirestoreValueSerializ
 use crate::{ser::Error, value_ext::ValueExt};
 
 pub(crate) struct FirestoreGeoPointValueSerializer {
-    latitude: Option<f64>,
-    longitude: Option<f64>,
+    fields: HashMap<&'static str, f64>,
 }
 
 impl FirestoreGeoPointValueSerializer {
+    const FIELDS: [&'static str; 2] = ["latitude", "longitude"];
+
     pub(crate) fn new() -> Self {
         Self {
-            latitude: None,
-            longitude: None,
+            fields: HashMap::with_capacity(2),
         }
+    }
+
+    fn get(&self, field: &'static str) -> Result<f64, Error> {
+        self.fields.get(field).copied().ok_or_else(|| {
+            <Error as serde::ser::Error>::custom(format!("missing field `{}`", field))
+        })
     }
 }
 
@@ -36,47 +42,28 @@ impl serde::ser::SerializeStruct for FirestoreGeoPointValueSerializer {
     where
         T: serde::Serialize,
     {
-        if key == "latitude" {
-            let value = value.serialize(FirestoreValueSerializer)?;
-            let value = match value.value_type.as_ref() {
-                None => todo!(),
-                Some(ValueType::DoubleValue(value)) => Ok(*value),
-                Some(_) => Err(Self::Error::from(ErrorCode::Custom("TODO".to_string()))),
-            }?;
-            self.latitude = Some(value);
-        } else if key == "longitude" {
-            let value = value.serialize(FirestoreValueSerializer)?;
-            let value = match value.value_type.as_ref() {
-                None => todo!(),
-                Some(ValueType::DoubleValue(value)) => Ok(*value),
-                Some(_) => Err(Self::Error::from(ErrorCode::Custom("TODO".to_string()))),
-            }?;
-            self.longitude = Some(value);
-        } else {
-            // TODO: invalid lat_lng
-            todo!()
+        if !Self::FIELDS.contains(&key) {
+            return Err(<Self::Error as serde::ser::Error>::custom(format!(
+                "unknown field `{}`, expected `{}` or `{}`",
+                key,
+                Self::FIELDS[0],
+                Self::FIELDS[1]
+            )));
         }
+        let value = value.serialize(FirestoreValueSerializer)?;
+        let value = match value.value_type.as_ref() {
+            None => todo!(),
+            Some(ValueType::DoubleValue(value)) => Ok(*value),
+            Some(_) => Err(Self::Error::from(ErrorCode::Custom("TODO".to_string()))),
+        }?;
+        self.fields.insert(key, value);
         Ok(())
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        let value = match (self.latitude, self.longitude) {
-            (None, None) | (None, Some(_)) | (Some(_), None) => {
-                Err(Self::Error::from(ErrorCode::Custom("TODO".to_string())))
-            }
-            (Some(latitude), Some(longitude)) => Ok(LatLng {
-                latitude,
-                longitude,
-            }),
-        }?;
-        let value = Value::from_lat_lng(value);
-        Ok(match None::<&'static str> {
-            Some(name) => Value::from_fields({
-                let mut fields = HashMap::new();
-                fields.insert(name.to_string(), value);
-                fields
-            }),
-            None => value,
-        })
+        Ok(Value::from_lat_lng(LatLng {
+            latitude: self.get(Self::FIELDS[0])?,
+            longitude: self.get(Self::FIELDS[0])?,
+        }))
     }
 }

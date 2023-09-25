@@ -9,6 +9,7 @@ google = { path = "../google" }
 prost-types = "0.12.1"
 serde = { version = "1.0.188", features = ["derive"] }
 thiserror = "1.0.48"
+time = { version = "0.3.29", optional = true }
 
 [dev-dependencies]
 anyhow = "1.0.75"
@@ -18,3 +19,4 @@ serde_json = "1.0.107"
 [features]
 default = []
 chrono = ["dep:chrono"]
+time = ["dep:time"]

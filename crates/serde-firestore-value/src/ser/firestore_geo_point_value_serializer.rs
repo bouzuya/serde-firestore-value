@@ -63,7 +63,7 @@ impl serde::ser::SerializeStruct for FirestoreGeoPointValueSerializer {
     fn end(self) -> Result<Self::Ok, Self::Error> {
         Ok(Value::from_lat_lng(LatLng {
             latitude: self.get(Self::FIELDS[0])?,
-            longitude: self.get(Self::FIELDS[0])?,
+            longitude: self.get(Self::FIELDS[1])?,
         }))
     }
 }

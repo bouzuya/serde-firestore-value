@@ -5,9 +5,9 @@ use google::{
     r#type::LatLng,
 };
 
-use super::{error::ErrorCode, firestore_value_serializer::FirestoreValueSerializer};
+use super::firestore_value_serializer::FirestoreValueSerializer;
 
-use crate::{ser::Error, value_ext::ValueExt};
+use crate::{error::ErrorCode, value_ext::ValueExt, Error};
 
 pub(crate) struct FirestoreGeoPointValueSerializer {
     fields: HashMap<&'static str, f64>,

@@ -1,6 +1,8 @@
 use google::firestore::v1::{ArrayValue, Value};
 
-use super::{error::Error, value_ext::ValueExt, FirestoreValueDeserializer};
+use crate::Error;
+
+use super::{value_ext::ValueExt, FirestoreValueDeserializer};
 
 pub(super) struct FirestoreArrayValueDeserializer<'de> {
     index: usize,

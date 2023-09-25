@@ -2,9 +2,9 @@ use std::collections::HashMap;
 
 use google::firestore::v1::{value::ValueType, Value};
 
-use crate::{ser::Error, value_ext::ValueExt};
+use crate::{error::ErrorCode, value_ext::ValueExt, Error};
 
-use super::{error::ErrorCode, firestore_value_serializer::FirestoreValueSerializer};
+use super::firestore_value_serializer::FirestoreValueSerializer;
 
 pub(crate) struct FirestoreMapValueSerializer {
     fields: HashMap<String, Value>,

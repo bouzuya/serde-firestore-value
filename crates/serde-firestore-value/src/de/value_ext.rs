@@ -4,7 +4,7 @@ use google::{
 };
 use prost_types::Timestamp;
 
-use super::{Error, ErrorCode, ValueTypeName};
+use crate::{error::ErrorCode, value_type_name::ValueTypeName, Error};
 
 pub(super) trait ValueExt {
     fn as_null(&self) -> Result<(), Error>;

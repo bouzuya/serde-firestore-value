@@ -3,9 +3,9 @@ use std::collections::HashMap;
 use google::firestore::v1::{value::ValueType, Value};
 use prost_types::Timestamp;
 
-use super::{error::ErrorCode, firestore_value_serializer::FirestoreValueSerializer};
+use super::firestore_value_serializer::FirestoreValueSerializer;
 
-use crate::{ser::Error, value_ext::ValueExt};
+use crate::{error::ErrorCode, value_ext::ValueExt, Error};
 
 pub(crate) struct FirestoreTimestampValueSerializer {
     seconds: Option<i64>,

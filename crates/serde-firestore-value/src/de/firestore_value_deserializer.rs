@@ -1,9 +1,12 @@
 use google::firestore::v1::{value::ValueType, MapValue, Value};
 
-use crate::typ::{my_lat_lng::MyLatLng, my_reference::MyReference, my_timestamp::MyTimestamp};
+use crate::{
+    error::ErrorCode,
+    typ::{my_lat_lng::MyLatLng, my_reference::MyReference, my_timestamp::MyTimestamp},
+    Error,
+};
 
 use super::{
-    error::{Error, ErrorCode},
     firestore_array_value_deserializer::FirestoreArrayValueDeserializer,
     firestore_enum_deserializer::FirestoreEnumDeserializer,
     firestore_geo_point_value_deserializer::FirestoreGeoPointValueDeserializer,

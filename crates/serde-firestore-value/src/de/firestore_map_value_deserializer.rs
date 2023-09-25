@@ -1,7 +1,9 @@
 use google::firestore::v1::{MapValue, Value};
 use serde::de::value::StrDeserializer;
 
-use super::{error::Error, value_ext::ValueExt, FirestoreValueDeserializer};
+use crate::Error;
+
+use super::{value_ext::ValueExt, FirestoreValueDeserializer};
 
 pub(super) struct FirestoreMapValueDeserializer<'de> {
     iter: std::collections::hash_map::Iter<'de, String, Value>,

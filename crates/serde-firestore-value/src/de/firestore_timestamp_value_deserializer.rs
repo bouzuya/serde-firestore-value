@@ -2,7 +2,9 @@ use google::firestore::v1::Value;
 use prost_types::Timestamp;
 use serde::de::value::{I64Deserializer, StrDeserializer};
 
-use super::{error::Error, value_ext::ValueExt};
+use crate::Error;
+
+use super::value_ext::ValueExt;
 
 pub(super) struct FirestoreTimestampValueDeserializer<'de> {
     index: usize,

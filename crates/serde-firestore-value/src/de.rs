@@ -1,4 +1,3 @@
-mod error;
 mod firestore_array_value_deserializer;
 mod firestore_enum_deserializer;
 mod firestore_geo_point_value_deserializer;
@@ -8,15 +7,11 @@ mod firestore_struct_map_value_deserializer;
 mod firestore_timestamp_value_deserializer;
 mod firestore_value_deserializer;
 mod value_ext;
-mod value_type_ext;
-mod value_type_name;
 pub(crate) mod with;
 
-use self::{
-    error::{Error, ErrorCode},
-    firestore_value_deserializer::FirestoreValueDeserializer,
-    value_type_name::ValueTypeName,
-};
+use crate::Error;
+
+use self::firestore_value_deserializer::FirestoreValueDeserializer;
 
 use google::firestore::v1::Value;
 

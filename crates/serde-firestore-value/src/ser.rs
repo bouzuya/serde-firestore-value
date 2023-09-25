@@ -1,4 +1,3 @@
-mod error;
 mod firestore_array_value_serializer;
 mod firestore_geo_point_value_serializer;
 mod firestore_map_value_serializer;
@@ -11,9 +10,7 @@ pub(crate) mod with;
 use google::firestore::v1::Value;
 use serde::Serialize;
 
-use crate::ser::firestore_value_serializer::FirestoreValueSerializer;
-
-pub(crate) use self::error::Error;
+use crate::{ser::firestore_value_serializer::FirestoreValueSerializer, Error};
 
 pub fn to_value<T>(value: &T) -> Result<Value, Error>
 where

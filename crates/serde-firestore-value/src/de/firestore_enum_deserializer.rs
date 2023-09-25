@@ -1,7 +1,9 @@
 use google::firestore::v1::Value;
 
+use crate::Error;
+
 use super::{
-    error::Error, firestore_array_value_deserializer::FirestoreArrayValueDeserializer,
+    firestore_array_value_deserializer::FirestoreArrayValueDeserializer,
     firestore_map_value_deserializer::FirestoreMapValueDeserializer, value_ext::ValueExt,
     FirestoreValueDeserializer,
 };

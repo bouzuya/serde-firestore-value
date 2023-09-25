@@ -2,6 +2,7 @@ use google::firestore::v1::{value::ValueType, Value};
 use serde::{ser::SerializeMap, Serialize, Serializer};
 
 use crate::{
+    error::ErrorCode,
     ser::{
         firestore_array_value_serializer::FirestoreArrayValueSerializer,
         firestore_map_value_serializer::FirestoreMapValueSerializer,
@@ -11,7 +12,7 @@ use crate::{
 };
 
 use super::{
-    error::ErrorCode, firestore_value_struct_serializer::FirestoreValueStructSerializer,
+    firestore_value_struct_serializer::FirestoreValueStructSerializer,
     name_map_value_serializer::NameMapValueSerializer, Error,
 };
 

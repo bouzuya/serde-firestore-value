@@ -1,23 +1,21 @@
 use std::collections::HashMap;
 
-use google::firestore::v1::{value::ValueType, MapValue, Value};
+use google::firestore::v1::{value::ValueType, Value};
 
 use crate::{ser::Error, value_ext::ValueExt};
 
 use super::{error::ErrorCode, firestore_value_serializer::FirestoreValueSerializer};
 
 pub(crate) struct FirestoreMapValueSerializer {
+    fields: HashMap<String, Value>,
     key: Option<String>,
-    output: MapValue,
 }
 
 impl FirestoreMapValueSerializer {
     pub(crate) fn new(len: Option<usize>) -> Self {
         Self {
+            fields: HashMap::with_capacity(len.unwrap_or(0)),
             key: None,
-            output: MapValue {
-                fields: HashMap::with_capacity(len.unwrap_or(0)),
-            },
         }
     }
 }
@@ -52,7 +50,7 @@ impl serde::ser::SerializeMap for FirestoreMapValueSerializer {
     {
         if let Some(k) = self.key.take() {
             let v = value.serialize(FirestoreValueSerializer)?;
-            self.output.fields.insert(k, v);
+            self.fields.insert(k, v);
             Ok(())
         } else {
             unreachable!()
@@ -60,7 +58,7 @@ impl serde::ser::SerializeMap for FirestoreMapValueSerializer {
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        Ok(Value::from_map_value(self.output))
+        Ok(Value::from_fields(self.fields))
     }
 }
 

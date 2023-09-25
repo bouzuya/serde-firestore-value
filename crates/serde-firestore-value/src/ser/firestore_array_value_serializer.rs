@@ -1,19 +1,17 @@
-use google::firestore::v1::{ArrayValue, Value};
+use google::firestore::v1::Value;
 
 use crate::{ser::Error, value_ext::ValueExt};
 
 use super::firestore_value_serializer::FirestoreValueSerializer;
 
 pub(crate) struct FirestoreArrayValueSerializer {
-    output: ArrayValue,
+    values: Vec<Value>,
 }
 
 impl FirestoreArrayValueSerializer {
     pub(crate) fn new(len: Option<usize>) -> Self {
         Self {
-            output: ArrayValue {
-                values: Vec::with_capacity(len.unwrap_or(0)),
-            },
+            values: Vec::with_capacity(len.unwrap_or(0)),
         }
     }
 }
@@ -27,14 +25,12 @@ impl serde::ser::SerializeSeq for FirestoreArrayValueSerializer {
     where
         T: serde::Serialize,
     {
-        self.output
-            .values
-            .push(value.serialize(FirestoreValueSerializer)?);
+        self.values.push(value.serialize(FirestoreValueSerializer)?);
         Ok(())
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        Ok(Value::from_array_value(self.output))
+        Ok(Value::from_values(self.values))
     }
 }
 

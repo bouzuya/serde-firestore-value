@@ -87,12 +87,9 @@ fn test_internally_tagged() -> anyhow::Result<()> {
         })),
     };
     let s = to_value(&o)?;
+    let d = from_value::<'_, E>(&s)?;
     assert_eq!(s, v);
-    // TODO: Fix this
-    assert_eq!(
-        from_value::<'_, E>(&s).unwrap_err().to_string(),
-        "deserialize_any is not supported"
-    );
+    assert_eq!(d, o);
     Ok(())
 }
 
@@ -144,12 +141,9 @@ fn test_adjacently_tagged() -> anyhow::Result<()> {
         })),
     };
     let s = to_value(&o)?;
+    let d = from_value::<'_, E>(&s)?;
     assert_eq!(s, v);
-    // TODO: Fix this
-    assert_eq!(
-        from_value::<'_, E>(&s).unwrap_err().to_string(),
-        "deserialize_any is not supported"
-    );
+    assert_eq!(d, o);
     Ok(())
 }
 
@@ -184,11 +178,8 @@ fn test_untagged() -> anyhow::Result<()> {
         })),
     };
     let s = to_value(&o)?;
+    let d = from_value::<'_, E>(&s)?;
     assert_eq!(s, v);
-    // TODO: Fix this
-    assert_eq!(
-        from_value::<'_, E>(&s).unwrap_err().to_string(),
-        "deserialize_any is not supported"
-    );
+    assert_eq!(d, o);
     Ok(())
 }

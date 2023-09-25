@@ -27,11 +27,34 @@ impl<'de> FirestoreValueDeserializer<'de> {
 impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     type Error = Error;
 
-    fn deserialize_any<V>(self, _: V) -> Result<V::Value, Self::Error>
+    fn deserialize_any<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        Err(Error::from(ErrorCode::DeserializeAnyIsNotSupported))
+        match self.value.value_type {
+            Some(ref value_type) => match value_type {
+                ValueType::NullValue(_) => visitor.visit_unit(),
+                ValueType::BooleanValue(v) => visitor.visit_bool(*v),
+                ValueType::IntegerValue(v) => visitor.visit_i64(*v),
+                ValueType::DoubleValue(v) => visitor.visit_f64(*v),
+                ValueType::TimestampValue(_) => {
+                    visitor.visit_map(FirestoreTimestampValueDeserializer::new(self.value)?)
+                }
+                ValueType::StringValue(v) => visitor.visit_str(v),
+                ValueType::BytesValue(v) => visitor.visit_bytes(v),
+                ValueType::ReferenceValue(v) => visitor.visit_str(v),
+                ValueType::GeoPointValue(_) => {
+                    visitor.visit_map(FirestoreGeoPointValueDeserializer::new(self.value)?)
+                }
+                ValueType::ArrayValue(_) => {
+                    visitor.visit_seq(FirestoreArrayValueDeserializer::new(self.value)?)
+                }
+                ValueType::MapValue(_) => {
+                    visitor.visit_map(FirestoreMapValueDeserializer::new(self.value)?)
+                }
+            },
+            None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
+        }
     }
 
     fn deserialize_bool<V>(self, visitor: V) -> Result<V::Value, Self::Error>
@@ -292,10 +315,10 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
         }
     }
 
-    fn deserialize_ignored_any<V>(self, _: V) -> Result<V::Value, Self::Error>
+    fn deserialize_ignored_any<V>(self, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        Err(Error::from(ErrorCode::DeserializeAnyIsNotSupported))
+        visitor.visit_unit()
     }
 }

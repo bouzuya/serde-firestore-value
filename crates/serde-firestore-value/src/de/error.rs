@@ -13,8 +13,6 @@ pub struct Error {
 pub(super) enum ErrorCode {
     #[error("{0}")]
     Custom(String),
-    #[error("deserialize_any is not supported")]
-    DeserializeAnyIsNotSupported,
     #[error("i16 out of range")]
     I16OutOfRange,
     #[error("i32 out of range")]

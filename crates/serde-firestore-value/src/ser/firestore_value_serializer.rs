@@ -1,5 +1,5 @@
 use google::firestore::v1::{value::ValueType, Value};
-use serde::{ser::SerializeMap, Serialize, Serializer};
+use serde::{Serialize, Serializer};
 
 use crate::{
     error::ErrorCode,
@@ -166,12 +166,12 @@ impl Serializer for FirestoreValueSerializer {
         T: Serialize,
     {
         let mut map = self.serialize_map(Some(1))?;
-        map.serialize_entry(variant, value)?;
-        SerializeMap::end(map)
+        serde::ser::SerializeMap::serialize_entry(&mut map, variant, value)?;
+        serde::ser::SerializeMap::end(map)
     }
 
     fn serialize_seq(self, len: Option<usize>) -> Result<Self::SerializeSeq, Self::Error> {
-        Ok(FirestoreArrayValueSerializer::new(len))
+        Ok(Self::SerializeSeq::new(len))
     }
 
     fn serialize_tuple(self, len: usize) -> Result<Self::SerializeTuple, Self::Error> {
@@ -193,14 +193,14 @@ impl Serializer for FirestoreValueSerializer {
         variant: &'static str,
         len: usize,
     ) -> Result<Self::SerializeTupleVariant, Self::Error> {
-        Ok(NameMapValueSerializer::new(
+        Ok(Self::SerializeTupleVariant::new(
             variant,
-            FirestoreArrayValueSerializer::new(Some(len)),
+            Self::SerializeSeq::new(Some(len)),
         ))
     }
 
     fn serialize_map(self, len: Option<usize>) -> Result<Self::SerializeMap, Self::Error> {
-        Ok(FirestoreMapValueSerializer::new(len))
+        Ok(Self::SerializeMap::new(len))
     }
 
     fn serialize_struct(
@@ -218,9 +218,9 @@ impl Serializer for FirestoreValueSerializer {
         variant: &'static str,
         len: usize,
     ) -> Result<Self::SerializeStructVariant, Self::Error> {
-        Ok(NameMapValueSerializer::new(
+        Ok(Self::SerializeStructVariant::new(
             variant,
-            FirestoreMapValueSerializer::new(Some(len)),
+            Self::SerializeMap::new(Some(len)),
         ))
     }
 }

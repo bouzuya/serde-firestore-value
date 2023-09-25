@@ -2,7 +2,6 @@
 
 ## TODOs
 
-- ☐ `#[serde(with = "option_string_as_reference")]`
 - ☐ chrono feature
 - ☐ time feature
 - ☐ crates.io

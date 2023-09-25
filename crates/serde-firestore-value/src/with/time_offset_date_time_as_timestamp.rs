@@ -7,7 +7,10 @@ where
     D: serde::Deserializer<'de>,
 {
     let Timestamp { seconds, nanos } = crate::with::timestamp::deserialize(deserializer)?;
-    Ok(time::OffsetDateTime::from_unix_timestamp_nanos(i128::from(seconds) * 1_000_000_000_i128 + i128::from(nanos)).expect("timestamp"))
+    Ok(time::OffsetDateTime::from_unix_timestamp_nanos(
+        i128::from(seconds) * 1_000_000_000_i128 + i128::from(nanos),
+    )
+    .expect("timestamp"))
 }
 
 pub fn serialize<S>(
@@ -19,7 +22,8 @@ where
 {
     let timestamp = Timestamp {
         seconds: offset_date_time.unix_timestamp(),
-        nanos: i32::try_from(offset_date_time.unix_timestamp_nanos() % 1_000_000_000_i128).expect("nanos"),
+        nanos: i32::try_from(offset_date_time.unix_timestamp_nanos() % 1_000_000_000_i128)
+            .expect("nanos"),
     };
     crate::with::timestamp::serialize(&timestamp, serializer)
 }

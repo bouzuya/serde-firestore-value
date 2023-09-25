@@ -12,7 +12,9 @@ mod time_feature {
             time::OffsetDateTime,
         );
 
-        let o = S(time::OffsetDateTime::from_unix_timestamp_nanos(1_000_000_002_i128)?);
+        let o = S(time::OffsetDateTime::from_unix_timestamp_nanos(
+            1_000_000_002_i128,
+        )?);
         let v = Value {
             value_type: Some(ValueType::TimestampValue(Timestamp {
                 seconds: 1_i64,
@@ -32,7 +34,9 @@ mod time_feature {
             time::OffsetDateTime,
         );
 
-        let o = S(time::OffsetDateTime::from_unix_timestamp_nanos(1_000_000_002_i128)?);
+        let o = S(time::OffsetDateTime::from_unix_timestamp_nanos(
+            1_000_000_002_i128,
+        )?);
         let v = Value {
             value_type: Some(ValueType::TimestampValue(Timestamp {
                 seconds: 1_i64,
@@ -49,7 +53,9 @@ mod time_feature {
         #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
         struct S(#[serde(with = "time_offset_date_time_as_timestamp")] time::OffsetDateTime);
 
-        let o = S(time::OffsetDateTime::from_unix_timestamp_nanos(1_000_000_002_i128)?);
+        let o = S(time::OffsetDateTime::from_unix_timestamp_nanos(
+            1_000_000_002_i128,
+        )?);
         let v = Value {
             value_type: Some(ValueType::TimestampValue(Timestamp {
                 seconds: 1_i64,

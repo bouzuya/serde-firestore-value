@@ -2,7 +2,6 @@
 
 ## TODOs
 
-- ☐ chrono feature
 - ☐ time feature
 - ☐ crates.io
 

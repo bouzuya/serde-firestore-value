@@ -1,6 +1,6 @@
 #[cfg(feature = "chrono")]
 mod chrono_feature {
-    use google::firestore::v1::{value::ValueType, Value};
+    use google_api_proto::google::firestore::v1::{value::ValueType, Value};
     use prost_types::Timestamp;
     use serde_firestore_value::{from_value, to_value, with::chrono_date_time_as_timestamp};
 

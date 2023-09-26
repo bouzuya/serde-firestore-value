@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
-use google::firestore::v1::{value::ValueType, MapValue, Value};
+use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value};
 use serde_firestore_value::{from_value, to_value};
 
 #[test]
@@ -15,13 +15,13 @@ fn test_externally_tagged() -> anyhow::Result<()> {
     let v = Value {
         value_type: Some(ValueType::MapValue(MapValue {
             fields: {
-                let mut fields = HashMap::new();
+                let mut fields = BTreeMap::new();
                 fields.insert(
                     "A".to_string(),
                     Value {
                         value_type: Some(ValueType::MapValue(MapValue {
                             fields: {
-                                let mut fields = HashMap::new();
+                                let mut fields = BTreeMap::new();
                                 fields.insert(
                                     "f1".to_string(),
                                     Value {
@@ -63,7 +63,7 @@ fn test_internally_tagged() -> anyhow::Result<()> {
     let v = Value {
         value_type: Some(ValueType::MapValue(MapValue {
             fields: {
-                let mut fields = HashMap::new();
+                let mut fields = BTreeMap::new();
                 fields.insert(
                     "type".to_string(),
                     Value {
@@ -106,7 +106,7 @@ fn test_adjacently_tagged() -> anyhow::Result<()> {
     let v = Value {
         value_type: Some(ValueType::MapValue(MapValue {
             fields: {
-                let mut fields = HashMap::new();
+                let mut fields = BTreeMap::new();
                 fields.insert(
                     "t".to_string(),
                     Value {
@@ -118,7 +118,7 @@ fn test_adjacently_tagged() -> anyhow::Result<()> {
                     Value {
                         value_type: Some(ValueType::MapValue(MapValue {
                             fields: {
-                                let mut fields = HashMap::new();
+                                let mut fields = BTreeMap::new();
                                 fields.insert(
                                     "f1".to_string(),
                                     Value {
@@ -160,7 +160,7 @@ fn test_untagged() -> anyhow::Result<()> {
     let v = Value {
         value_type: Some(ValueType::MapValue(MapValue {
             fields: {
-                let mut fields = HashMap::new();
+                let mut fields = BTreeMap::new();
                 fields.insert(
                     "f1".to_string(),
                     Value {

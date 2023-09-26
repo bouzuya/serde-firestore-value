@@ -1,20 +1,20 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
-use google::firestore::v1::{value::ValueType, Value};
+use google_api_proto::google::firestore::v1::{value::ValueType, Value};
 
 use crate::{error::ErrorCode, value_ext::ValueExt, Error};
 
 use super::firestore_value_serializer::FirestoreValueSerializer;
 
 pub(crate) struct FirestoreMapValueSerializer {
-    fields: HashMap<String, Value>,
+    fields: BTreeMap<String, Value>,
     key: Option<String>,
 }
 
 impl FirestoreMapValueSerializer {
-    pub(crate) fn new(len: Option<usize>) -> Self {
+    pub(crate) fn new(_len: Option<usize>) -> Self {
         Self {
-            fields: HashMap::with_capacity(len.unwrap_or(0)),
+            fields: BTreeMap::new(),
             key: None,
         }
     }

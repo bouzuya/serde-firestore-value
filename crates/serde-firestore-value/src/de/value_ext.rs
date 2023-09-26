@@ -1,4 +1,4 @@
-use google::{
+use google_api_proto::google::{
     firestore::v1::{value::ValueType, ArrayValue, MapValue, Value},
     r#type::LatLng,
 };

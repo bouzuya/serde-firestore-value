@@ -1,4 +1,4 @@
-use google::firestore::v1::Value;
+use google_api_proto::google::firestore::v1::Value;
 use prost_types::Timestamp;
 use serde::de::value::{I64Deserializer, StrDeserializer};
 

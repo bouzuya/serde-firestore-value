@@ -1,4 +1,4 @@
-use google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
+use google_api_proto::google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
 
 #[test]
 fn test() -> anyhow::Result<()> {
@@ -8,7 +8,7 @@ fn test() -> anyhow::Result<()> {
         i: i64,
         s: String,
         a: Vec<Option<i64>>,
-        m: std::collections::HashMap<String, bool>,
+        m: std::collections::BTreeMap<String, bool>,
     }
 
     let t = T {
@@ -17,7 +17,7 @@ fn test() -> anyhow::Result<()> {
         s: "s".to_string(),
         a: vec![Some(1), Some(2), None],
         m: {
-            let mut m = std::collections::HashMap::new();
+            let mut m = std::collections::BTreeMap::new();
             m.insert("a".to_string(), false);
             m.insert("b".to_string(), true);
             m
@@ -26,7 +26,7 @@ fn test() -> anyhow::Result<()> {
     let value = Value {
         value_type: Some(ValueType::MapValue(MapValue {
             fields: {
-                let mut fields = std::collections::HashMap::new();
+                let mut fields = std::collections::BTreeMap::new();
                 fields.insert(
                     "b".to_string(),
                     Value {
@@ -68,7 +68,7 @@ fn test() -> anyhow::Result<()> {
                     Value {
                         value_type: Some(ValueType::MapValue(MapValue {
                             fields: {
-                                let mut fields = std::collections::HashMap::new();
+                                let mut fields = std::collections::BTreeMap::new();
                                 fields.insert(
                                     "a".to_string(),
                                     Value {

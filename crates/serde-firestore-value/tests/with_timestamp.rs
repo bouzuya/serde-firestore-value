@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
-use google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
+use google_api_proto::google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
 use prost_types::Timestamp;
 use serde_firestore_value::{from_value, to_value, with::timestamp};
 
@@ -81,7 +81,7 @@ fn test_newtype_variant() -> anyhow::Result<()> {
     let v = Value {
         value_type: Some(ValueType::MapValue(MapValue {
             fields: {
-                let mut map = HashMap::new();
+                let mut map = BTreeMap::new();
                 map.insert(
                     "A".to_string(),
                     Value {
@@ -154,7 +154,7 @@ fn test_tuple_variant() -> anyhow::Result<()> {
     let v = Value {
         value_type: Some(ValueType::MapValue(MapValue {
             fields: {
-                let mut map = HashMap::new();
+                let mut map = BTreeMap::new();
                 map.insert(
                     "A".to_string(),
                     Value {
@@ -202,7 +202,7 @@ fn test_struct() -> anyhow::Result<()> {
     let v = Value {
         value_type: Some(ValueType::MapValue(MapValue {
             fields: {
-                let mut map = HashMap::new();
+                let mut map = BTreeMap::new();
                 map.insert(
                     "a".to_string(),
                     Value {
@@ -241,13 +241,13 @@ fn test_struct_variant() -> anyhow::Result<()> {
     let v = Value {
         value_type: Some(ValueType::MapValue(MapValue {
             fields: {
-                let mut map = HashMap::new();
+                let mut map = BTreeMap::new();
                 map.insert(
                     "S".to_string(),
                     Value {
                         value_type: Some(ValueType::MapValue(MapValue {
                             fields: {
-                                let mut map = HashMap::new();
+                                let mut map = BTreeMap::new();
                                 map.insert(
                                     "a".to_string(),
                                     Value {

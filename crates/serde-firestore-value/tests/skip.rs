@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
-use google::firestore::v1::{value::ValueType, MapValue, Value};
+use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value};
 use serde_firestore_value::{from_value, to_value};
 
 #[test]
@@ -16,7 +16,7 @@ fn test_skip() -> anyhow::Result<()> {
     let v = Value {
         value_type: Some(ValueType::MapValue(MapValue {
             fields: {
-                let mut map = HashMap::new();
+                let mut map = BTreeMap::new();
                 map.insert(
                     "b".to_string(),
                     Value {
@@ -49,7 +49,7 @@ fn test_skip_serializing_if_is_none() -> anyhow::Result<()> {
             Value {
                 value_type: Some(ValueType::MapValue(MapValue {
                     fields: {
-                        let mut map = HashMap::new();
+                        let mut map = BTreeMap::new();
                         // a is skipped
                         map.insert(
                             "b".to_string(),
@@ -70,7 +70,7 @@ fn test_skip_serializing_if_is_none() -> anyhow::Result<()> {
             Value {
                 value_type: Some(ValueType::MapValue(MapValue {
                     fields: {
-                        let mut map = HashMap::new();
+                        let mut map = BTreeMap::new();
                         map.insert(
                             "a".to_string(),
                             Value {
@@ -108,7 +108,7 @@ fn test_skip_serializing_if_is_none() -> anyhow::Result<()> {
             Value {
                 value_type: Some(ValueType::MapValue(MapValue {
                     fields: {
-                        let mut map = HashMap::new();
+                        let mut map = BTreeMap::new();
                         // a is not skipped
                         map.insert(
                             "a".to_string(),
@@ -135,7 +135,7 @@ fn test_skip_serializing_if_is_none() -> anyhow::Result<()> {
             Value {
                 value_type: Some(ValueType::MapValue(MapValue {
                     fields: {
-                        let mut map = HashMap::new();
+                        let mut map = BTreeMap::new();
                         map.insert(
                             "a".to_string(),
                             Value {

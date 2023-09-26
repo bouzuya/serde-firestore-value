@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
-use google::firestore::v1::{value::ValueType, Value};
+use google_api_proto::google::firestore::v1::{value::ValueType, Value};
 use prost_types::Timestamp;
 
 use super::firestore_value_serializer::FirestoreValueSerializer;
@@ -68,7 +68,7 @@ impl serde::ser::SerializeStruct for FirestoreTimestampValueSerializer {
         }?;
         Ok(match None::<&'static str> {
             Some(name) => Value::from_fields({
-                let mut fields = HashMap::new();
+                let mut fields = BTreeMap::new();
                 fields.insert(name.to_string(), Value::from_timestamp(timestamp));
                 fields
             }),

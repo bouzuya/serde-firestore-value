@@ -1,4 +1,4 @@
-use google::firestore::v1::{MapValue, Value};
+use google_api_proto::google::firestore::v1::{MapValue, Value};
 use serde::de::value::StrDeserializer;
 
 use crate::Error;
@@ -6,7 +6,7 @@ use crate::Error;
 use super::{value_ext::ValueExt, FirestoreValueDeserializer};
 
 pub(super) struct FirestoreMapValueDeserializer<'de> {
-    iter: std::collections::hash_map::Iter<'de, String, Value>,
+    iter: std::collections::btree_map::Iter<'de, String, Value>,
     next_value: Option<&'de Value>,
 }
 

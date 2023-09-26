@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
-use google::firestore::v1::Value;
+use google_api_proto::google::firestore::v1::Value;
 
 use crate::value_ext::ValueExt;
 
@@ -32,7 +32,7 @@ impl<S: serde::ser::SerializeTupleVariant<Ok = Value>> serde::ser::SerializeTupl
     fn end(self) -> Result<Self::Ok, Self::Error> {
         let value = self.serializer.end()?;
         Ok(Self::Ok::from_fields({
-            let mut fields = HashMap::new();
+            let mut fields = BTreeMap::new();
             fields.insert(self.name.to_string(), value);
             fields
         }))
@@ -60,7 +60,7 @@ impl<S: serde::ser::SerializeStructVariant<Ok = Value>> serde::ser::SerializeStr
     fn end(self) -> Result<Self::Ok, Self::Error> {
         let value = self.serializer.end()?;
         Ok(Self::Ok::from_fields({
-            let mut fields = HashMap::new();
+            let mut fields = BTreeMap::new();
             fields.insert(self.name.to_string(), value);
             fields
         }))

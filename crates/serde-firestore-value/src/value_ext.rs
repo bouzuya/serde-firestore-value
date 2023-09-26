@@ -1,16 +1,17 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
-use google::{
+use google_api_proto::google::{
     firestore::v1::{value::ValueType, ArrayValue, MapValue, Value},
     r#type::LatLng,
 };
+use prost::bytes::Bytes;
 use prost_types::Timestamp;
 
 pub(crate) trait ValueExt {
     fn from_bool(value: bool) -> Self;
-    fn from_bytes(value: Vec<u8>) -> Self;
+    fn from_bytes(value: Bytes) -> Self;
     fn from_f64(value: f64) -> Self;
-    fn from_fields(fields: HashMap<String, Value>) -> Self;
+    fn from_fields(fields: BTreeMap<String, Value>) -> Self;
     fn from_i64(value: i64) -> Self;
     fn from_lat_lng(value: LatLng) -> Self;
     fn from_string(value: String) -> Self;
@@ -27,7 +28,7 @@ impl ValueExt for Value {
         }
     }
 
-    fn from_bytes(value: Vec<u8>) -> Self {
+    fn from_bytes(value: Bytes) -> Self {
         Self {
             value_type: Some(ValueType::BytesValue(value)),
         }
@@ -39,7 +40,7 @@ impl ValueExt for Value {
         }
     }
 
-    fn from_fields(fields: HashMap<String, Value>) -> Self {
+    fn from_fields(fields: BTreeMap<String, Value>) -> Self {
         Self {
             value_type: Some(ValueType::MapValue(MapValue { fields })),
         }

@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
-use google::firestore::v1::{value::ValueType, MapValue, Value};
+use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value};
 use prost_types::Timestamp;
 use serde_firestore_value::{from_value, to_value, with::option_timestamp};
 
@@ -89,7 +89,7 @@ fn test_struct() -> anyhow::Result<()> {
     let v = Value {
         value_type: Some(ValueType::MapValue(MapValue {
             fields: {
-                let mut map = HashMap::new();
+                let mut map = BTreeMap::new();
                 map.insert(
                     "a".to_string(),
                     Value {

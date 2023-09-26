@@ -1,4 +1,4 @@
-use google::firestore::v1::{value::ValueType, MapValue, Value};
+use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value};
 
 use crate::{
     error::ErrorCode,

@@ -1,6 +1,6 @@
 use std::slice::Iter;
 
-use google::firestore::v1::Value;
+use google_api_proto::google::firestore::v1::Value;
 
 use crate::Error;
 

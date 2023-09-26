@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
-use google::firestore::v1::{value::ValueType, MapValue, Value};
+use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value};
 use serde_firestore_value::{from_value, to_value};
 
 #[test]
@@ -24,7 +24,7 @@ fn test_rename() -> anyhow::Result<()> {
         Value {
             value_type: Some(ValueType::MapValue(MapValue {
                 fields: {
-                    let mut map = HashMap::new();
+                    let mut map = BTreeMap::new();
                     map.insert(
                         "x".to_string(),
                         Value {
@@ -76,7 +76,7 @@ fn test_rename_all_camel_case() -> anyhow::Result<()> {
         Value {
             value_type: Some(ValueType::MapValue(MapValue {
                 fields: {
-                    let mut map = HashMap::new();
+                    let mut map = BTreeMap::new();
                     map.insert(
                         "firstName".to_string(),
                         Value {

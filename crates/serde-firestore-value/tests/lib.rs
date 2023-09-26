@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
-use google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
+use google_api_proto::google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
 use serde_firestore_value::{from_value, to_value};
 
 #[test]
@@ -19,7 +19,7 @@ fn test_struct() -> anyhow::Result<()> {
         Value {
             value_type: Some(ValueType::MapValue(MapValue {
                 fields: {
-                    let mut map = HashMap::new();
+                    let mut map = BTreeMap::new();
                     map.insert(
                         "int".to_string(),
                         Value {
@@ -79,7 +79,7 @@ fn test_enum() -> anyhow::Result<()> {
             Value {
                 value_type: Some(ValueType::MapValue(MapValue {
                     fields: {
-                        let mut map = HashMap::new();
+                        let mut map = BTreeMap::new();
                         map.insert(
                             "Newtype".to_string(),
                             Value {
@@ -96,7 +96,7 @@ fn test_enum() -> anyhow::Result<()> {
             Value {
                 value_type: Some(ValueType::MapValue(MapValue {
                     fields: {
-                        let mut map = HashMap::new();
+                        let mut map = BTreeMap::new();
                         map.insert(
                             "Tuple".to_string(),
                             Value {
@@ -122,13 +122,13 @@ fn test_enum() -> anyhow::Result<()> {
             Value {
                 value_type: Some(ValueType::MapValue(MapValue {
                     fields: {
-                        let mut map = HashMap::new();
+                        let mut map = BTreeMap::new();
                         map.insert(
                             "Struct".to_string(),
                             Value {
                                 value_type: Some(ValueType::MapValue(MapValue {
                                     fields: {
-                                        let mut map = HashMap::new();
+                                        let mut map = BTreeMap::new();
                                         map.insert(
                                             "a".to_string(),
                                             Value {

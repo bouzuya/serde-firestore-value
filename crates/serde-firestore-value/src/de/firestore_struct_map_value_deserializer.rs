@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
-use google::firestore::v1::{MapValue, Value};
+use google_api_proto::google::firestore::v1::{MapValue, Value};
 use serde::de::value::{StrDeserializer, UnitDeserializer};
 
 use crate::Error;
@@ -11,7 +11,7 @@ pub(super) struct FirestoreStructMapValueDeserializer<'de> {
     fields: &'static [&'static str],
     index: usize,
     next_value: Option<&'de Value>,
-    values: &'de HashMap<String, Value>,
+    values: &'de BTreeMap<String, Value>,
 }
 
 impl<'de> FirestoreStructMapValueDeserializer<'de> {

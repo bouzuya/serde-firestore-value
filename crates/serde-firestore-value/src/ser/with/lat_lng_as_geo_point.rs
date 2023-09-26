@@ -1,4 +1,4 @@
-use google::r#type::LatLng;
+use google_api_proto::google::r#type::LatLng;
 
 use crate::typ::my_lat_lng::MyLatLng;
 

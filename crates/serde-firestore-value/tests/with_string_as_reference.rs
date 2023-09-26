@@ -1,6 +1,6 @@
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
-use google::firestore::v1::{value::ValueType, MapValue, Value};
+use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value};
 use serde_firestore_value::{from_value, to_value, with::string_as_reference};
 
 #[test]
@@ -19,7 +19,7 @@ fn test_deserialize_with() -> anyhow::Result<()> {
     let v = Value {
         value_type: Some(ValueType::MapValue(MapValue {
             fields: {
-                let mut fields = HashMap::new();
+                let mut fields = BTreeMap::new();
                 fields.insert(
                     "r".to_string(),
                     Value {
@@ -59,7 +59,7 @@ fn test_serialize_with() -> anyhow::Result<()> {
     let v = Value {
         value_type: Some(ValueType::MapValue(MapValue {
             fields: {
-                let mut fields = HashMap::new();
+                let mut fields = BTreeMap::new();
                 fields.insert(
                     "r".to_string(),
                     Value {
@@ -99,7 +99,7 @@ fn test_with() -> anyhow::Result<()> {
     let v = Value {
         value_type: Some(ValueType::MapValue(MapValue {
             fields: {
-                let mut fields = HashMap::new();
+                let mut fields = BTreeMap::new();
                 fields.insert(
                     "r".to_string(),
                     Value {

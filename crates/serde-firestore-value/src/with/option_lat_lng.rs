@@ -1,4 +1,4 @@
-use google::r#type::LatLng;
+use google_api_proto::google::r#type::LatLng;
 
 pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<LatLng>, D::Error>
 where

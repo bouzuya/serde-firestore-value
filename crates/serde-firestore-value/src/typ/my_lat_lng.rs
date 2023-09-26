@@ -1,4 +1,4 @@
-use google::r#type::LatLng;
+use google_api_proto::google::r#type::LatLng;
 
 #[derive(Clone, Copy, Debug, serde::Deserialize, serde::Serialize)]
 #[serde(rename = "$__serde-firestore-value_private_lat_lng")]

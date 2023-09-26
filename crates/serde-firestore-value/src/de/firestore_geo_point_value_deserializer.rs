@@ -1,4 +1,4 @@
-use google::{firestore::v1::Value, r#type::LatLng};
+use google_api_proto::google::{firestore::v1::Value, r#type::LatLng};
 use serde::de::value::{F64Deserializer, StrDeserializer};
 
 use super::{value_ext::ValueExt, Error};

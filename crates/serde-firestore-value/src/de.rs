@@ -13,7 +13,7 @@ use crate::Error;
 
 use self::firestore_value_deserializer::FirestoreValueDeserializer;
 
-use google::firestore::v1::Value;
+use google_api_proto::google::firestore::v1::Value;
 
 pub fn from_value<'a, T>(value: &'a Value) -> Result<T, Error>
 where
@@ -24,9 +24,9 @@ where
 
 #[cfg(test)]
 mod tests {
-    use std::collections::{BTreeMap, HashMap};
+    use std::collections::BTreeMap;
 
-    use google::firestore::v1::Value;
+    use google_api_proto::google::firestore::v1::Value;
 
     use crate::value_ext::ValueExt;
 
@@ -263,7 +263,7 @@ mod tests {
     fn test_deserialize_map() -> anyhow::Result<()> {
         assert_eq!(
             from_value::<'_, BTreeMap<String, i64>>(&Value::from_fields({
-                let mut fields = HashMap::new();
+                let mut fields = BTreeMap::new();
                 fields.insert("k1".to_string(), Value::from_i64(1_i64));
                 fields.insert("k2".to_string(), Value::from_i64(2_i64));
                 fields
@@ -288,7 +288,7 @@ mod tests {
         }
         assert_eq!(
             from_value::<'_, S>(&Value::from_fields({
-                let mut fields = HashMap::new();
+                let mut fields = BTreeMap::new();
                 fields.insert("r".to_string(), Value::from_i64(1_i64));
                 fields.insert("g".to_string(), Value::from_i64(2_i64));
                 fields.insert("b".to_string(), Value::from_i64(3_i64));
@@ -331,7 +331,7 @@ mod tests {
             }
             assert_eq!(
                 from_value::<'_, E>(&Value::from_fields({
-                    let mut fields = HashMap::new();
+                    let mut fields = BTreeMap::new();
                     fields.insert("A".to_string(), Value::from_i64(1_i64));
                     fields
                 }))?,
@@ -339,7 +339,7 @@ mod tests {
             );
             assert_eq!(
                 from_value::<'_, E>(&Value::from_fields({
-                    let mut fields = HashMap::new();
+                    let mut fields = BTreeMap::new();
                     fields.insert("B".to_string(), Value::from_i64(2_i64));
                     fields
                 }))?,
@@ -356,7 +356,7 @@ mod tests {
             }
             assert_eq!(
                 from_value::<'_, E>(&Value::from_fields({
-                    let mut fields = HashMap::new();
+                    let mut fields = BTreeMap::new();
                     fields.insert(
                         "T".to_string(),
                         Value::from_values(vec![Value::from_i64(1_i64), Value::from_i64(2_i64)]),
@@ -375,11 +375,11 @@ mod tests {
             }
             assert_eq!(
                 from_value::<'_, E>(&Value::from_fields({
-                    let mut fields = HashMap::new();
+                    let mut fields = BTreeMap::new();
                     fields.insert(
                         "S".to_string(),
                         Value::from_fields({
-                            let mut fields = HashMap::new();
+                            let mut fields = BTreeMap::new();
                             fields.insert("r".to_string(), Value::from_i64(1_i64));
                             fields.insert("g".to_string(), Value::from_i64(2_i64));
                             fields.insert("b".to_string(), Value::from_i64(3_i64));

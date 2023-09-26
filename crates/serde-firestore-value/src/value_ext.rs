@@ -203,7 +203,10 @@ impl ValueExt for Value {
         }
         let (variant, value) = fields.iter().next().expect("fields must have an entry");
         if !variants.contains(&variant.as_str()) {
-            todo!()
+            return Err(<Error as serde::de::Error>::unknown_variant(
+                variant.as_str(),
+                variants,
+            ));
         }
         Ok(value)
     }

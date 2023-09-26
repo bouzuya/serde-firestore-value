@@ -36,21 +36,13 @@ impl serde::ser::SerializeStruct for FirestoreTimestampValueSerializer {
     {
         if key == "seconds" {
             let value = value.serialize(FirestoreValueSerializer)?;
-            let value = match value.value_type.as_ref() {
-                None => todo!(),
-                Some(ValueType::IntegerValue(value)) => Ok(*value),
-                Some(_) => Err(Self::Error::from(ErrorCode::Custom("TODO".to_string()))),
-            }?;
+            let value = value.as_integer()?;
             self.seconds = Some(value);
         } else if key == "nanos" {
             let value = value.serialize(FirestoreValueSerializer)?;
-            let value = match value.value_type.as_ref() {
-                None => todo!(),
-                Some(ValueType::IntegerValue(value)) => Ok(*value),
-                Some(_) => Err(Self::Error::from(ErrorCode::Custom("TODO".to_string()))),
-            }?;
-            let value = i32::try_from(value)
-                .map_err(|_| Self::Error::from(ErrorCode::Custom("TODO".to_string())))?;
+            let value = value.as_integer()?;
+            let value =
+                i32::try_from(value).map_err(|_| Self::Error::from(ErrorCode::I32OutOfRange))?;
             self.nanos = Some(value);
         } else {
             // TODO: invalid timestamp

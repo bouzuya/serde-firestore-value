@@ -51,11 +51,7 @@ impl serde::ser::SerializeStruct for FirestoreGeoPointValueSerializer {
             )));
         }
         let value = value.serialize(FirestoreValueSerializer)?;
-        let value = match value.value_type.as_ref() {
-            None => todo!(),
-            Some(ValueType::DoubleValue(value)) => Ok(*value),
-            Some(_) => Err(Self::Error::from(ErrorCode::Custom("TODO".to_string()))),
-        }?;
+        let value = value.as_double()?;
         self.fields.insert(key, value);
         Ok(())
     }

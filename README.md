@@ -4,10 +4,8 @@ A serde (de)serializer using Firestore Value as data format.
 
 ## TODOs
 
-- ☐ Use <https://crates.io/crates/google-api-proto>
 - ☐ crates.io
 - ☐ docs.rs
-- ☐ GitHub Actions
 
 ## API Overview
 

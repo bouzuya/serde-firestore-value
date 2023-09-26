@@ -2,9 +2,9 @@ use std::slice::Iter;
 
 use google_api_proto::google::firestore::v1::Value;
 
-use crate::Error;
+use crate::{value_ext::ValueExt, Error};
 
-use super::{value_ext::ValueExt, FirestoreValueDeserializer};
+use super::FirestoreValueDeserializer;
 
 pub(super) struct FirestoreArrayValueDeserializer<'de> {
     iter: Iter<'de, Value>,

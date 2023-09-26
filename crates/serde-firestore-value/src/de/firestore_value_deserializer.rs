@@ -3,6 +3,7 @@ use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value}
 use crate::{
     error::ErrorCode,
     typ::{my_lat_lng::MyLatLng, my_reference::MyReference, my_timestamp::MyTimestamp},
+    value_ext::ValueExt,
     Error,
 };
 
@@ -14,7 +15,6 @@ use super::{
     firestore_reference_value_deserializer::FirestoreReferenceValueDeserializer,
     firestore_struct_map_value_deserializer::FirestoreStructMapValueDeserializer,
     firestore_timestamp_value_deserializer::FirestoreTimestampValueDeserializer,
-    value_ext::ValueExt,
 };
 
 pub(super) struct FirestoreValueDeserializer<'a> {

@@ -3,9 +3,9 @@ use std::collections::BTreeMap;
 use google_api_proto::google::firestore::v1::{MapValue, Value};
 use serde::de::value::{StrDeserializer, UnitDeserializer};
 
-use crate::Error;
+use crate::{value_ext::ValueExt, Error};
 
-use super::{value_ext::ValueExt, FirestoreValueDeserializer};
+use super::FirestoreValueDeserializer;
 
 pub(super) struct FirestoreStructMapValueDeserializer<'de> {
     fields: &'static [&'static str],

@@ -1,4 +1,4 @@
-use google_api_proto::google::firestore::v1::{value::ValueType, Value};
+use google_api_proto::google::firestore::v1::Value;
 use prost::bytes::Bytes;
 use serde::{Serialize, Serializer};
 
@@ -13,6 +13,7 @@ use crate::{
 };
 
 use super::{
+    firestore_reference_value_serializer::FirestoreReferenceValueSerializer,
     firestore_value_struct_serializer::FirestoreValueStructSerializer,
     name_map_value_serializer::NameMapValueSerializer, Error,
 };
@@ -117,11 +118,11 @@ impl Serializer for FirestoreValueSerializer {
     }
 
     fn serialize_unit(self) -> Result<Self::Ok, Self::Error> {
-        self.serialize_none()
+        Ok(Value::null())
     }
 
     fn serialize_unit_struct(self, _name: &'static str) -> Result<Self::Ok, Self::Error> {
-        self.serialize_none()
+        Ok(Value::null())
     }
 
     fn serialize_unit_variant(
@@ -141,18 +142,10 @@ impl Serializer for FirestoreValueSerializer {
     where
         T: Serialize,
     {
-        let value = value.serialize(self)?;
         if name == MyReference::NAME {
-            if let Value {
-                value_type: Some(ValueType::StringValue(s)),
-            } = value
-            {
-                Ok(Value::from_string_as_reference_value(s))
-            } else {
-                Err(Error::from(ErrorCode::ReferenceValueMustBeAString))
-            }
+            value.serialize(FirestoreReferenceValueSerializer)
         } else {
-            Ok(value)
+            value.serialize(FirestoreValueSerializer)
         }
     }
 

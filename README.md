@@ -1,6 +1,6 @@
 # serde-firestore-value
 
-A serde (de)serializer using Firestore Value as data format.
+A serde (de)serializer using Firestore Value as its data format.
 
 ## TODOs
 

@@ -1,3 +1,0 @@
-[submodule "crates/google/proto/googleapis"]
-	path = crates/google/proto/googleapis
-	url = https://github.com/googleapis/googleapis

@@ -14,6 +14,67 @@ use self::firestore_value_deserializer::FirestoreValueDeserializer;
 
 use google_api_proto::google::firestore::v1::Value;
 
+/// Deserialize an instance of type `T` from a Firestore Value.
+///
+/// # Example
+///
+/// ```rust
+/// # fn main() -> anyhow::Result<()> {
+/// #     use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value};
+/// #     use serde_firestore_value::from_value;
+/// #     use std::collections::BTreeMap;
+/// #[derive(Debug, PartialEq, serde::Deserialize)]
+/// struct T {
+///     b: bool,
+///     n: i64,
+/// }
+/// assert_eq!(
+///     from_value::<'_, T>(&Value {
+///         value_type: Some(ValueType::MapValue(MapValue {
+///             fields: BTreeMap::from([
+///                 (
+///                     "b".to_string(),
+///                     Value {
+///                         value_type: Some(ValueType::BooleanValue(true))
+///                     }
+///                 ),
+///                 (
+///                     "n".to_string(),
+///                     Value {
+///                         value_type: Some(ValueType::IntegerValue(1))
+///                     }
+///                 )
+///             ])
+///         }))
+///     })?,
+///     T { b: true, n: 1 }
+/// );
+/// #     Ok(())
+/// # }
+/// ```
+///
+/// # Deserialize GeoPoint, Reference, and Timestamp
+///
+/// See: [`with`](crate::with).
+///
+/// # Mapping table (no type hint)
+///
+/// | [Firestore Value]  | [serde data model]                            |
+/// |--------------------|-----------------------------------------------|
+/// | nullValue          | unit                                          |
+/// | booleanValue       | bool                                          |
+/// | integerValue       | i64                                           |
+/// | doubleValue        | f64                                           |
+/// | timestampValue     | map (`{ "seconds": i64, "nanos": i64 }`)      |
+/// | stringValue        | string                                        |
+/// | bytesValue         | bytes                                         |
+/// | referenceValue     | string                                        |
+/// | geoPointValue      | map (`{ "latitude": f64, "longitude": f64 }`) |
+/// | arrayValue         | seq                                           |
+/// | mapValue           | map                                           |
+///
+/// [Firestore Value]: https://firebase.google.com/docs/firestore/reference/rest/v1/Value
+/// [serde data model]: https://serde.rs/data-model.html
 pub fn from_value<'a, T>(value: &'a Value) -> Result<T, Error>
 where
     T: serde::Deserialize<'a>,

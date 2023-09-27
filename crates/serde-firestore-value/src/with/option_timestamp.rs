@@ -1,4 +1,4 @@
-// A (de)serializer that serializes a `Option<Timestamp>` as a `Value` (`TimestampValue` or `NullValue`) .
+//! (De)serialize `Option<Timestamp>` as `timestampValue` or `nullValue`.
 
 use prost_types::Timestamp;
 

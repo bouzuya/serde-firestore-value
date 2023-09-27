@@ -1,4 +1,4 @@
-// A (de)serializer that serializes a `time::OffsetDateTime` as a `Value` (`ValueType::TimestampValue(Timestamp)`) .
+//! (De)serialize `time::OffsetDateTime` as `timestampValue`.
 
 use prost_types::Timestamp;
 

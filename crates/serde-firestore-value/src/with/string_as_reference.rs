@@ -1,4 +1,4 @@
-// A (de)serializer that serializes a `String` as a `Value` (`ValueType::ReferenceValue(String)`) .
+//! (De)serialize `String` as `referenceValue`.
 
 pub fn deserialize<'de, D>(deserializer: D) -> Result<String, D::Error>
 where

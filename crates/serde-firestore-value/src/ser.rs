@@ -13,6 +13,88 @@ use serde::Serialize;
 
 use crate::{ser::firestore_value_serializer::FirestoreValueSerializer, Error};
 
+/// Serialize an instance of type `T` to a Firestore Value.
+///
+/// # Example
+///
+/// ```rust
+/// # fn main() -> anyhow::Result<()> {
+/// #     use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value};
+/// #     use serde_firestore_value::to_value;
+/// #     use std::collections::BTreeMap;
+/// #[derive(serde::Serialize)]
+/// struct T {
+///     b: bool,
+///     n: i64,
+/// }
+/// assert_eq!(
+///     to_value(&T { b: true, n: 1 })?,
+///     Value {
+///         value_type: Some(ValueType::MapValue(MapValue {
+///             fields: BTreeMap::from([
+///                 (
+///                     "b".to_string(),
+///                     Value {
+///                         value_type: Some(ValueType::BooleanValue(true))
+///                     }
+///                 ),
+///                 (
+///                     "n".to_string(),
+///                     Value {
+///                         value_type: Some(ValueType::IntegerValue(1))
+///                     }
+///                 )
+///             ])
+///         }))
+///     }
+/// );
+/// #     Ok(())
+/// # }
+/// ```
+///
+/// # Serialize GeoPoint, Reference, and Timestamp
+///
+/// See: [`with`](crate::with).
+///
+/// # Mapping table
+///
+/// | [serde data model]         | [Firestore Value]                   |
+/// |----------------------------|-------------------------------------|
+/// | bool                       | booleanValue                        |
+/// | i8                         | integerValue                        |
+/// | i16                        | integerValue                        |
+/// | i32                        | integerValue                        |
+/// | i64                        | integerValue                        |
+/// | i128                       | (not supported)                     |
+/// | u8                         | integerValue                        |
+/// | u16                        | integerValue                        |
+/// | u32                        | integerValue                        |
+/// | u64                        | (not supported)                     |
+/// | u128                       | (not supported)                     |
+/// | f32                        | doubleValue                         |
+/// | f64                        | doubleValue                         |
+/// | char                       | stringValue                         |
+/// | string                     | stringValue                         |
+/// | byte array                 | bytesValue                          |
+/// | option                     | nullValue or (value)                |
+/// | unit                       | nullValue                           |
+/// | unit_struct                | nullValue                           |
+/// | unit_variant               | stringValue                         |
+/// | newtype_struct             | (value)                             |
+/// | newtype_struct (reference) | referenceValue                      |
+/// | newtype_variant            | mapValue (`{ (name): (value) }`)    |
+/// | seq                        | arrayValue                          |
+/// | tuple                      | arrayValue                          |
+/// | tuple_struct               | arrayValue                          |
+/// | tuple_variant              | mapValue (`{ (name): arrayValue }`) |
+/// | map                        | mapValue (`{ (key): (value) }`)     |
+/// | struct                     | mapValue (`{ (field): (value) }`)   |
+/// | struct (lat_lng)           | geoPointValue                       |
+/// | struct (timestamp)         | timestampValue                      |
+/// | struct_variant             | mapValue (`{ (name): mapValue }`)   |
+///
+/// [Firestore Value]: https://firebase.google.com/docs/firestore/reference/rest/v1/Value
+/// [serde data model]: https://serde.rs/data-model.html
 pub fn to_value<T>(value: &T) -> Result<Value, Error>
 where
     T: Serialize,

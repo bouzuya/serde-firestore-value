@@ -1,3 +1,5 @@
+//! (De)serialize `LatLng` as `geoPointValue`.
+
 use google_api_proto::google::r#type::LatLng;
 
 pub fn deserialize<'de, D>(deserializer: D) -> Result<LatLng, D::Error>

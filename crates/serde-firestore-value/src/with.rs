@@ -1,3 +1,76 @@
+//! Modules specified in `#[serde(with = "...")]` to support special values
+//! such as GeoPoint, Reference, and Timestamp.
+//!
+//! # Serialize and Deserialize GeoPoint, Reference, and Timestamp
+//!
+//! ```rust
+//! # fn main() -> anyhow::Result<()> {
+//! use google_api_proto::google::{
+//!     firestore::v1::{value::ValueType, MapValue, Value},
+//!     r#type::LatLng,
+//! };
+//! use prost_types::Timestamp;
+//! use serde_firestore_value::{
+//!     from_value, to_value,
+//!     with::{lat_lng, string_as_reference, timestamp},
+//! };
+//! use std::collections::BTreeMap;
+//!
+//! #[derive(Debug, PartialEq, serde::Deserialize, serde::Serialize)]
+//! struct T {
+//!     #[serde(with = "lat_lng")]
+//!     lat_lng: LatLng,
+//!     #[serde(with = "string_as_reference")]
+//!     reference: String,
+//!     #[serde(with = "timestamp")]
+//!     timestamp: Timestamp,
+//! }
+//! let t = T {
+//!     lat_lng: LatLng {
+//!         latitude: 1_f64,
+//!         longitude: 2_f64,
+//!     },
+//!     reference: "projects/p/databases/d/documents/c".to_string(),
+//!     timestamp: Timestamp {
+//!         seconds: 3_i64,
+//!         nanos: 4_i32,
+//!     },
+//! };
+//! let v = Value {
+//!     value_type: Some(ValueType::MapValue(MapValue {
+//!         fields: BTreeMap::from([
+//!             (
+//!                 "lat_lng".to_string(),
+//!                 Value {
+//!                     value_type: Some(ValueType::GeoPointValue(LatLng { latitude: 1_f64, longitude: 2_f64 })),
+//!                 },
+//!             ),
+//!             (
+//!                 "reference".to_string(),
+//!                 Value {
+//!                     value_type: Some(ValueType::ReferenceValue(
+//!                         "projects/p/databases/d/documents/c".to_string(),
+//!                     )),
+//!                 },
+//!             ),
+//!             (
+//!                 "timestamp".to_string(),
+//!                 Value {
+//!                     value_type: Some(ValueType::TimestampValue(Timestamp { seconds: 3_i64, nanos: 4_i32 })),
+//!                 },
+//!             ),
+//!         ]),
+//!     })),
+//! };
+//!
+//! let s = to_value(&t)?;
+//! let d = from_value::<'_, T>(&s)?;
+//! assert_eq!(s, v);
+//! assert_eq!(d, t);
+//! #     Ok(())
+//! # }
+//! ```
+
 #[cfg(feature = "chrono")]
 pub mod chrono_date_time_as_timestamp;
 pub mod lat_lng;

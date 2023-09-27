@@ -1,4 +1,4 @@
-// A (de)serializer that serializes a `Option<String>` as a `Value` (`ValueType::ReferenceValue(String)`) .
+//! (De)serialize `Option<String>` as `referenceValue` or `nullValue`.
 
 pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<String>, D::Error>
 where

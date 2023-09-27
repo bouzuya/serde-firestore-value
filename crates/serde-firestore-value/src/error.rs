@@ -2,6 +2,7 @@ use google_api_proto::google::firestore::v1::value::ValueType;
 
 use super::{value_type_ext::ValueTypeExt, value_type_name::ValueTypeName};
 
+/// Represents all possible errors that can occur when serializing or deserializing a Firestore Value.
 #[derive(Debug, thiserror::Error)]
 #[error(transparent)]
 pub struct Error {

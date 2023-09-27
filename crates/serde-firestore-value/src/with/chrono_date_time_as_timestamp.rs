@@ -1,4 +1,4 @@
-// A (de)serializer that serializes a `chrono::DateTime<Tz>` as a `Value` (`ValueType::TimestampValue(Timestamp)`) .
+//! (De)serialize `chrono::DateTime<Tz>` as `timestampValue`.
 
 use prost_types::Timestamp;
 

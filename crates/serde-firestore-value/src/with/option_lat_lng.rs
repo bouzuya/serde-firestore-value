@@ -1,3 +1,5 @@
+//! (De)serialize `Option<LatLng>` as `geoPointValue` or `nullValue`.
+
 use google_api_proto::google::r#type::LatLng;
 
 pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<LatLng>, D::Error>

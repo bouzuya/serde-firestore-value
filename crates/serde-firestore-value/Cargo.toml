@@ -5,14 +5,7 @@ authors = ["bouzuya <m@bouzuya.net>"]
 description = "A serde (de)serializer using Firestore Value as its data format"
 edition = "2021"
 exclude = [".github"]
-keywords = [
-  "firestore",
-  "gcloud",
-  "google",
-  "googleapis",
-  "serde",
-  "serialization",
-]
+keywords = ["firestore", "gcloud", "google", "serde", "serialization"]
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/bouzuya/serde-firestore-value"
 

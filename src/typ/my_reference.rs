@@ -3,7 +3,7 @@
 pub(crate) struct MyReference(String);
 
 impl MyReference {
-    pub(crate) const NAME: &str = "$__serde-firestore-value_private_string_as_reference";
+    pub(crate) const NAME: &'static str = "$__serde-firestore-value_private_string_as_reference";
 }
 
 impl From<MyReference> for String {

@@ -11,7 +11,7 @@ repository = "https://github.com/bouzuya/serde-firestore-value"
 
 [dependencies]
 chrono = { version = "0.4.31", optional = true }
-google-api-proto = { version = "1.434.0", features = ["google-firestore-v1"] }
+google-api-proto = { version = "1.447.0", features = ["google-firestore-v1"] }
 prost = "0.12"
 prost-types = "0.12"
 serde = { version = "1.0.188", features = ["derive"] }

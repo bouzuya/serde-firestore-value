@@ -15,7 +15,7 @@ google-api-proto = { version = "1.447.0", features = ["google-firestore-v1"] }
 prost = "0.12"
 prost-types = "0.12"
 serde = { version = "1.0.188", features = ["derive"] }
-thiserror = "1.0.48"
+thiserror = "1.0.51"
 time = { version = "0.3.29", optional = true }
 
 [dev-dependencies]

@@ -4,7 +4,7 @@ use prost_types::Timestamp;
 
 /// Deserialize `Option<time::OffsetDateTime>` from `timestampValue` or `nullValue
 ///
-/// # Example
+/// # Examples
 ///
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
@@ -57,7 +57,7 @@ where
 
 /// Serialize `Option<time::OffsetDateTime>` as `timestampValue` or `nullValue`.
 ///
-/// # Example
+/// # Examples
 ///
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {

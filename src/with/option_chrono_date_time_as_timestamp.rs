@@ -4,7 +4,7 @@ use prost_types::Timestamp;
 
 /// Deserialize `Option<chrono::DateTime<chrono::Utc>>` from `timestampValue` or `nullValue
 ///
-/// # Example
+/// # Examples
 ///
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
@@ -62,7 +62,7 @@ where
 
 /// Serialize `Option<chrono::DateTime<chrono::Utc>` as `referenceValue` or `nullValue`.
 ///
-/// # Example
+/// # Examples
 ///
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {

@@ -16,7 +16,7 @@ use google_api_proto::google::firestore::v1::Value;
 
 /// Deserialize an instance of type `T` from a Firestore Value.
 ///
-/// # Example
+/// # Examples
 ///
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {

@@ -15,7 +15,7 @@ use crate::{ser::firestore_value_serializer::FirestoreValueSerializer, Error};
 
 /// Serialize an instance of type `T` to a Firestore Value.
 ///
-/// # Example
+/// # Examples
 ///
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {

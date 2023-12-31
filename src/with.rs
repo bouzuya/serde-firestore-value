@@ -78,6 +78,8 @@ pub mod lat_lng;
 pub mod option_chrono_date_time_as_timestamp;
 pub mod option_lat_lng;
 pub mod option_string_as_reference;
+#[cfg(feature = "time")]
+pub mod option_time_offset_date_time_as_timestamp;
 pub mod option_timestamp;
 pub mod string_as_reference;
 #[cfg(feature = "time")]

@@ -2,24 +2,33 @@
 mod time_feature {
     use google_api_proto::google::firestore::v1::{value::ValueType, Value};
     use prost_types::Timestamp;
-    use serde_firestore_value::{from_value, to_value, with::time_offset_date_time_as_timestamp};
+    use serde_firestore_value::{
+        from_value, to_value, with::option_time_offset_date_time_as_timestamp,
+    };
 
     #[test]
     fn test_deserialize_with() -> anyhow::Result<()> {
         #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
         struct S(
-            #[serde(deserialize_with = "time_offset_date_time_as_timestamp::deserialize")]
-            time::OffsetDateTime,
+            #[serde(deserialize_with = "option_time_offset_date_time_as_timestamp::deserialize")]
+            Option<time::OffsetDateTime>,
         );
 
-        let o = S(time::OffsetDateTime::from_unix_timestamp_nanos(
+        let o = S(Some(time::OffsetDateTime::from_unix_timestamp_nanos(
             1_000_000_002_i128,
-        )?);
+        )?));
         let v = Value {
             value_type: Some(ValueType::TimestampValue(Timestamp {
                 seconds: 1_i64,
                 nanos: 2_i32,
             })),
+        };
+        let d = from_value::<'_, S>(&v)?;
+        assert_eq!(d, o);
+
+        let o = S(None);
+        let v = Value {
+            value_type: Some(ValueType::NullValue(0)),
         };
         let d = from_value::<'_, S>(&v)?;
         assert_eq!(d, o);
@@ -30,18 +39,25 @@ mod time_feature {
     fn test_serialize_with() -> anyhow::Result<()> {
         #[derive(Debug, Eq, PartialEq, serde::Serialize)]
         struct S(
-            #[serde(serialize_with = "time_offset_date_time_as_timestamp::serialize")]
-            time::OffsetDateTime,
+            #[serde(serialize_with = "option_time_offset_date_time_as_timestamp::serialize")]
+            Option<time::OffsetDateTime>,
         );
 
-        let o = S(time::OffsetDateTime::from_unix_timestamp_nanos(
+        let o = S(Some(time::OffsetDateTime::from_unix_timestamp_nanos(
             1_000_000_002_i128,
-        )?);
+        )?));
         let v = Value {
             value_type: Some(ValueType::TimestampValue(Timestamp {
                 seconds: 1_i64,
                 nanos: 2_i32,
             })),
+        };
+        let s = to_value(&o)?;
+        assert_eq!(s, v);
+
+        let o = S(None);
+        let v = Value {
+            value_type: Some(ValueType::NullValue(0)),
         };
         let s = to_value(&o)?;
         assert_eq!(s, v);
@@ -51,16 +67,28 @@ mod time_feature {
     #[test]
     fn test_with() -> anyhow::Result<()> {
         #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
-        struct S(#[serde(with = "time_offset_date_time_as_timestamp")] time::OffsetDateTime);
+        struct S(
+            #[serde(with = "option_time_offset_date_time_as_timestamp")]
+            Option<time::OffsetDateTime>,
+        );
 
-        let o = S(time::OffsetDateTime::from_unix_timestamp_nanos(
+        let o = S(Some(time::OffsetDateTime::from_unix_timestamp_nanos(
             1_000_000_002_i128,
-        )?);
+        )?));
         let v = Value {
             value_type: Some(ValueType::TimestampValue(Timestamp {
                 seconds: 1_i64,
                 nanos: 2_i32,
             })),
+        };
+        let s = to_value(&o)?;
+        let d = from_value::<'_, S>(&s)?;
+        assert_eq!(s, v);
+        assert_eq!(d, o);
+
+        let o = S(None);
+        let v = Value {
+            value_type: Some(ValueType::NullValue(0)),
         };
         let s = to_value(&o)?;
         let d = from_value::<'_, S>(&s)?;

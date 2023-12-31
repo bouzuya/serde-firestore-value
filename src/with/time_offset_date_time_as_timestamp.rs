@@ -2,6 +2,45 @@
 
 use prost_types::Timestamp;
 
+/// Deserialize `time::OffsetDateTime` from `timestampValue`.
+///
+/// # Examples
+///
+/// ```rust
+/// # fn main() -> anyhow::Result<()> {
+/// use google_api_proto::google::firestore::v1::{value::ValueType, Value};
+/// use prost_types::Timestamp;
+/// use serde_firestore_value::{
+///     from_value, with::option_time_offset_date_time_as_timestamp,
+/// };
+///
+/// #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
+/// struct S(
+///     #[serde(deserialize_with = "option_time_offset_date_time_as_timestamp::deserialize")]
+///     Option<time::OffsetDateTime>,
+/// );
+///
+/// let o = S(Some(time::OffsetDateTime::from_unix_timestamp_nanos(
+///     1_000_000_002_i128,
+/// )?));
+/// let v = Value {
+///     value_type: Some(ValueType::TimestampValue(Timestamp {
+///         seconds: 1_i64,
+///         nanos: 2_i32,
+///     })),
+/// };
+/// let d = from_value::<'_, S>(&v)?;
+/// assert_eq!(d, o);
+///
+/// let o = S(None);
+/// let v = Value {
+///     value_type: Some(ValueType::NullValue(0)),
+/// };
+/// let d = from_value::<'_, S>(&v)?;
+/// assert_eq!(d, o);
+/// #     Ok(())
+/// # }
+/// ```
 pub fn deserialize<'de, D>(deserializer: D) -> Result<time::OffsetDateTime, D::Error>
 where
     D: serde::Deserializer<'de>,
@@ -13,6 +52,45 @@ where
     .expect("timestamp"))
 }
 
+/// Serialize `time::OffsetDateTime` as `timestampValue`.
+///
+/// # Examples
+///
+/// ```rust
+/// # fn main() -> anyhow::Result<()> {
+/// use google_api_proto::google::firestore::v1::{value::ValueType, Value};
+/// use prost_types::Timestamp;
+/// use serde_firestore_value::{
+///     to_value, with::option_time_offset_date_time_as_timestamp,
+/// };
+///
+/// #[derive(Debug, Eq, PartialEq, serde::Serialize)]
+/// struct S(
+///     #[serde(serialize_with = "option_time_offset_date_time_as_timestamp::serialize")]
+///     Option<time::OffsetDateTime>,
+/// );
+///
+/// let o = S(Some(time::OffsetDateTime::from_unix_timestamp_nanos(
+///     1_000_000_002_i128,
+/// )?));
+/// let v = Value {
+///     value_type: Some(ValueType::TimestampValue(Timestamp {
+///         seconds: 1_i64,
+///         nanos: 2_i32,
+///     })),
+/// };
+/// let s = to_value(&o)?;
+/// assert_eq!(s, v);
+///
+/// let o = S(None);
+/// let v = Value {
+///     value_type: Some(ValueType::NullValue(0)),
+/// };
+/// let s = to_value(&o)?;
+/// assert_eq!(s, v);
+/// #     Ok(())
+/// # }
+/// ```
 pub fn serialize<S>(
     offset_date_time: &time::OffsetDateTime,
     serializer: S,

@@ -17,3 +17,12 @@ where
 {
     Option::<MyReference>::deserialize(deserializer).map(|o| o.map(String::from))
 }
+
+pub(crate) fn deserialize_vec_string_as_reference<'de, D>(
+    deserializer: D,
+) -> Result<Vec<String>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    Vec::<MyReference>::deserialize(deserializer).map(|o| o.into_iter().map(String::from).collect())
+}

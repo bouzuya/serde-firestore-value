@@ -85,3 +85,4 @@ pub mod string_as_reference;
 #[cfg(feature = "time")]
 pub mod time_offset_date_time_as_timestamp;
 pub mod timestamp;
+pub mod vec_string_as_reference;

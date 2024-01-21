@@ -23,3 +23,13 @@ where
         None => serializer.serialize_none(),
     }
 }
+
+pub(crate) fn serialize_vec_string_as_reference<S>(
+    value: &Vec<String>,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    serializer.collect_seq(value.iter().cloned().map(MyReference::from))
+}

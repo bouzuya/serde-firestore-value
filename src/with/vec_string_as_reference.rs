@@ -9,7 +9,7 @@ where
 }
 
 /// Serialize `Vec<String>` as `arrayValue` of `referenceValue`.
-pub fn serialize<S>(vec_string: &Vec<String>, serializer: S) -> Result<S::Ok, S::Error>
+pub fn serialize<S>(vec_string: &[String], serializer: S) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
 {

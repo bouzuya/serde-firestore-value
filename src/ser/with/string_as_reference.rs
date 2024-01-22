@@ -25,7 +25,7 @@ where
 }
 
 pub(crate) fn serialize_vec_string_as_reference<S>(
-    value: &Vec<String>,
+    value: &[String],
     serializer: S,
 ) -> Result<S::Ok, S::Error>
 where

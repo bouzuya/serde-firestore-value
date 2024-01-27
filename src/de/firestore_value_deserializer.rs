@@ -2,7 +2,7 @@ use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value}
 
 use crate::{
     error::ErrorCode,
-    typ::{lat_lng::LatLng, my_reference::MyReference, my_timestamp::MyTimestamp},
+    typ::{lat_lng::LatLng, my_timestamp::MyTimestamp, reference::Reference},
     value_ext::ValueExt,
     Error,
 };
@@ -229,7 +229,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        if name == MyReference::NAME {
+        if name == Reference::NAME {
             visitor.visit_newtype_struct(FirestoreReferenceValueDeserializer::new(self.value))
         } else {
             visitor.visit_newtype_struct(self)

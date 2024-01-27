@@ -1,12 +1,12 @@
 use serde::Deserialize;
 
-use crate::typ::my_reference::MyReference;
+use crate::typ::reference::Reference;
 
 pub(crate) fn deserialize_string_as_reference<'de, D>(deserializer: D) -> Result<String, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
-    MyReference::deserialize(deserializer).map(String::from)
+    Reference::deserialize(deserializer).map(String::from)
 }
 
 pub(crate) fn deserialize_option_string_as_reference<'de, D>(
@@ -15,7 +15,7 @@ pub(crate) fn deserialize_option_string_as_reference<'de, D>(
 where
     D: serde::Deserializer<'de>,
 {
-    Option::<MyReference>::deserialize(deserializer).map(|o| o.map(String::from))
+    Option::<Reference>::deserialize(deserializer).map(|o| o.map(String::from))
 }
 
 pub(crate) fn deserialize_vec_string_as_reference<'de, D>(
@@ -24,5 +24,5 @@ pub(crate) fn deserialize_vec_string_as_reference<'de, D>(
 where
     D: serde::Deserializer<'de>,
 {
-    Vec::<MyReference>::deserialize(deserializer).map(|o| o.into_iter().map(String::from).collect())
+    Vec::<Reference>::deserialize(deserializer).map(|o| o.into_iter().map(String::from).collect())
 }

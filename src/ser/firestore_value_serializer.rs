@@ -8,7 +8,7 @@ use crate::{
         firestore_array_value_serializer::FirestoreArrayValueSerializer,
         firestore_map_value_serializer::FirestoreMapValueSerializer,
     },
-    typ::my_reference::MyReference,
+    typ::reference::Reference,
     value_ext::ValueExt,
 };
 
@@ -142,7 +142,7 @@ impl Serializer for FirestoreValueSerializer {
     where
         T: Serialize,
     {
-        if name == MyReference::NAME {
+        if name == Reference::NAME {
             value.serialize(FirestoreReferenceValueSerializer)
         } else {
             value.serialize(FirestoreValueSerializer)

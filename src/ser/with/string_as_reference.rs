@@ -1,4 +1,4 @@
-use crate::typ::my_reference::MyReference;
+use crate::typ::reference::Reference;
 
 pub(crate) fn serialize_string_as_reference<S>(
     value: &str,
@@ -7,7 +7,7 @@ pub(crate) fn serialize_string_as_reference<S>(
 where
     S: serde::Serializer,
 {
-    let reference = MyReference::from(value.to_string());
+    let reference = Reference::from(value.to_string());
     serde::Serialize::serialize(&reference, serializer)
 }
 
@@ -31,5 +31,5 @@ pub(crate) fn serialize_vec_string_as_reference<S>(
 where
     S: serde::Serializer,
 {
-    serializer.collect_seq(value.iter().cloned().map(MyReference::from))
+    serializer.collect_seq(value.iter().cloned().map(Reference::from))
 }

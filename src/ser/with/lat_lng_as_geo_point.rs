@@ -1,6 +1,6 @@
 use google_api_proto::google::r#type::LatLng as GoogleApiProtoLatLng;
 
-use crate::typ::my_lat_lng::MyLatLng;
+use crate::typ::lat_lng::LatLng;
 
 pub(crate) fn serialize_lat_lng<S>(
     lat_lng: &GoogleApiProtoLatLng,
@@ -9,7 +9,7 @@ pub(crate) fn serialize_lat_lng<S>(
 where
     S: serde::Serializer,
 {
-    let lat_lng = MyLatLng::from(lat_lng.clone());
+    let lat_lng = LatLng::from(lat_lng.clone());
     serde::Serialize::serialize(&lat_lng, serializer)
 }
 

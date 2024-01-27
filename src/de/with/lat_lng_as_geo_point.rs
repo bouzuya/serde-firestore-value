@@ -1,13 +1,13 @@
 use google_api_proto::google::r#type::LatLng as GoogleApiProtoLatLng;
 use serde::Deserialize;
 
-use crate::typ::my_lat_lng::MyLatLng;
+use crate::typ::lat_lng::LatLng;
 
 pub(crate) fn deserialize_lat_lng<'de, D>(deserializer: D) -> Result<GoogleApiProtoLatLng, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
-    MyLatLng::deserialize(deserializer).map(GoogleApiProtoLatLng::from)
+    LatLng::deserialize(deserializer).map(GoogleApiProtoLatLng::from)
 }
 
 pub(crate) fn deserialize_option_lat_lng<'de, D>(
@@ -16,5 +16,5 @@ pub(crate) fn deserialize_option_lat_lng<'de, D>(
 where
     D: serde::Deserializer<'de>,
 {
-    Option::<MyLatLng>::deserialize(deserializer).map(|o| o.map(GoogleApiProtoLatLng::from))
+    Option::<LatLng>::deserialize(deserializer).map(|o| o.map(GoogleApiProtoLatLng::from))
 }

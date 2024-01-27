@@ -1,6 +1,6 @@
 //! (De)serialize `Option<LatLng>` as `geoPointValue` or `nullValue`.
 
-use google_api_proto::google::r#type::LatLng;
+use google_api_proto::google::r#type::LatLng as GoogleApiProtoLatLng;
 
 /// Deserialize `Option<LatLng>` from `geoPointValue` or `nullValue`.
 ///
@@ -46,7 +46,7 @@ use google_api_proto::google::r#type::LatLng;
 /// #     Ok(())
 /// # }
 /// ```
-pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<LatLng>, D::Error>
+pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<GoogleApiProtoLatLng>, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
@@ -96,7 +96,10 @@ where
 /// #     Ok(())
 /// # }
 /// ```
-pub fn serialize<S>(lat_lng: &Option<LatLng>, serializer: S) -> Result<S::Ok, S::Error>
+pub fn serialize<S>(
+    lat_lng: &Option<GoogleApiProtoLatLng>,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
 {

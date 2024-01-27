@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 
 use google_api_proto::google::{
     firestore::v1::{value::ValueType, ArrayValue, MapValue, Value},
-    r#type::LatLng,
+    r#type::LatLng as GoogleApiProtoLatLng,
 };
 use prost::bytes::Bytes;
 use prost_types::Timestamp;
@@ -15,7 +15,7 @@ pub(crate) trait ValueExt {
     fn from_f64(value: f64) -> Self;
     fn from_fields(fields: BTreeMap<String, Value>) -> Self;
     fn from_i64(value: i64) -> Self;
-    fn from_lat_lng(value: LatLng) -> Self;
+    fn from_lat_lng(value: GoogleApiProtoLatLng) -> Self;
     fn from_string(value: String) -> Self;
     fn from_string_as_reference_value(value: String) -> Self;
     fn from_timestamp(timestamp: Timestamp) -> Self;
@@ -27,7 +27,7 @@ pub(crate) trait ValueExt {
     fn as_bytes(&self) -> Result<&[u8], Error>;
     fn as_double(&self) -> Result<f64, Error>;
     fn as_integer(&self) -> Result<i64, Error>;
-    fn as_lat_lng(&self) -> Result<&LatLng, Error>;
+    fn as_lat_lng(&self) -> Result<&GoogleApiProtoLatLng, Error>;
     fn as_map(&self) -> Result<&MapValue, Error>;
     fn as_null(&self) -> Result<(), Error>;
     fn as_reference_value_as_string(&self) -> Result<&String, Error>;
@@ -68,7 +68,7 @@ impl ValueExt for Value {
         }
     }
 
-    fn from_lat_lng(value: LatLng) -> Self {
+    fn from_lat_lng(value: GoogleApiProtoLatLng) -> Self {
         Self {
             value_type: Some(ValueType::GeoPointValue(value)),
         }
@@ -145,7 +145,7 @@ impl ValueExt for Value {
         }
     }
 
-    fn as_lat_lng(&self) -> Result<&LatLng, Error> {
+    fn as_lat_lng(&self) -> Result<&GoogleApiProtoLatLng, Error> {
         match self.value_type()? {
             ValueType::GeoPointValue(value) => Ok(value),
             value_type => Err(Error::invalid_value_type(

@@ -1,8 +1,11 @@
-use google_api_proto::google::r#type::LatLng;
+use google_api_proto::google::r#type::LatLng as GoogleApiProtoLatLng;
 
 use crate::typ::my_lat_lng::MyLatLng;
 
-pub(crate) fn serialize_lat_lng<S>(lat_lng: &LatLng, serializer: S) -> Result<S::Ok, S::Error>
+pub(crate) fn serialize_lat_lng<S>(
+    lat_lng: &GoogleApiProtoLatLng,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
 {
@@ -11,7 +14,7 @@ where
 }
 
 pub(crate) fn serialize_option_lat_lng<S>(
-    lat_lng: &Option<LatLng>,
+    lat_lng: &Option<GoogleApiProtoLatLng>,
     serializer: S,
 ) -> Result<S::Ok, S::Error>
 where

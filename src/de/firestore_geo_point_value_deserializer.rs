@@ -1,4 +1,4 @@
-use google_api_proto::google::{firestore::v1::Value, r#type::LatLng};
+use google_api_proto::google::{firestore::v1::Value, r#type::LatLng as GoogleApiProtoLatLng};
 use serde::de::value::{F64Deserializer, StrDeserializer};
 
 use crate::value_ext::ValueExt;
@@ -7,7 +7,7 @@ use super::Error;
 
 pub(super) struct FirestoreGeoPointValueDeserializer<'de> {
     index: usize,
-    lat_lng: &'de LatLng,
+    lat_lng: &'de GoogleApiProtoLatLng,
 }
 
 impl<'de> FirestoreGeoPointValueDeserializer<'de> {

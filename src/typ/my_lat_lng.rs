@@ -1,4 +1,4 @@
-use google_api_proto::google::r#type::LatLng;
+use google_api_proto::google::r#type::LatLng as GoogleApiProtoLatLng;
 
 #[derive(Clone, Copy, Debug, serde::Deserialize, serde::Serialize)]
 #[serde(rename = "$__serde-firestore-value_private_lat_lng")]
@@ -11,12 +11,12 @@ impl MyLatLng {
     pub(crate) const NAME: &'static str = "$__serde-firestore-value_private_lat_lng";
 }
 
-impl From<LatLng> for MyLatLng {
+impl From<GoogleApiProtoLatLng> for MyLatLng {
     fn from(
-        LatLng {
+        GoogleApiProtoLatLng {
             latitude,
             longitude,
-        }: LatLng,
+        }: GoogleApiProtoLatLng,
     ) -> Self {
         Self {
             latitude,
@@ -25,7 +25,7 @@ impl From<LatLng> for MyLatLng {
     }
 }
 
-impl From<MyLatLng> for LatLng {
+impl From<MyLatLng> for GoogleApiProtoLatLng {
     fn from(
         MyLatLng {
             latitude,

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use google_api_proto::google::{firestore::v1::Value, r#type::LatLng};
+use google_api_proto::google::{firestore::v1::Value, r#type::LatLng as GoogleApiProtoLatLng};
 
 use super::firestore_value_serializer::FirestoreValueSerializer;
 
@@ -54,7 +54,7 @@ impl serde::ser::SerializeStruct for FirestoreGeoPointValueSerializer {
     }
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
-        Ok(Value::from_lat_lng(LatLng {
+        Ok(Value::from_lat_lng(GoogleApiProtoLatLng {
             latitude: self.get(Self::FIELDS[0])?,
             longitude: self.get(Self::FIELDS[1])?,
         }))

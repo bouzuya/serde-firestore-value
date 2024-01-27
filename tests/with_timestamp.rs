@@ -1,20 +1,19 @@
 use std::collections::BTreeMap;
 
 use google_api_proto::google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
-use prost_types::Timestamp;
 use serde_firestore_value::{from_value, to_value, with::timestamp};
 
 #[test]
 fn test_deserialize_with() -> anyhow::Result<()> {
     #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
-    struct S(#[serde(deserialize_with = "timestamp::deserialize")] Timestamp);
+    struct S(#[serde(deserialize_with = "timestamp::deserialize")] prost_types::Timestamp);
 
-    let o = S(Timestamp {
+    let o = S(prost_types::Timestamp {
         seconds: 1_i64,
         nanos: 2_i32,
     });
     let v = Value {
-        value_type: Some(ValueType::TimestampValue(Timestamp {
+        value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
             seconds: 1_i64,
             nanos: 2_i32,
         })),
@@ -27,14 +26,14 @@ fn test_deserialize_with() -> anyhow::Result<()> {
 #[test]
 fn test_serialize_with() -> anyhow::Result<()> {
     #[derive(Debug, Eq, PartialEq, serde::Serialize)]
-    struct S(#[serde(serialize_with = "timestamp::serialize")] Timestamp);
+    struct S(#[serde(serialize_with = "timestamp::serialize")] prost_types::Timestamp);
 
-    let o = S(Timestamp {
+    let o = S(prost_types::Timestamp {
         seconds: 1_i64,
         nanos: 2_i32,
     });
     let v = Value {
-        value_type: Some(ValueType::TimestampValue(Timestamp {
+        value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
             seconds: 1_i64,
             nanos: 2_i32,
         })),
@@ -44,19 +43,19 @@ fn test_serialize_with() -> anyhow::Result<()> {
     Ok(())
 }
 
-// TODO: Timestamp -> Value
+// TODO: prost_types::Timestamp -> Value
 
 #[test]
 fn test_newtype_struct() -> anyhow::Result<()> {
     #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
-    struct S(#[serde(with = "timestamp")] Timestamp);
+    struct S(#[serde(with = "timestamp")] prost_types::Timestamp);
 
-    let o = S(Timestamp {
+    let o = S(prost_types::Timestamp {
         seconds: 1_i64,
         nanos: 2_i32,
     });
     let v = Value {
-        value_type: Some(ValueType::TimestampValue(Timestamp {
+        value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
             seconds: 1_i64,
             nanos: 2_i32,
         })),
@@ -72,9 +71,9 @@ fn test_newtype_struct() -> anyhow::Result<()> {
 fn test_newtype_variant() -> anyhow::Result<()> {
     #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
     enum E {
-        A(#[serde(with = "timestamp")] Timestamp),
+        A(#[serde(with = "timestamp")] prost_types::Timestamp),
     }
-    let o = E::A(Timestamp {
+    let o = E::A(prost_types::Timestamp {
         seconds: 1_i64,
         nanos: 2_i32,
     });
@@ -85,7 +84,7 @@ fn test_newtype_variant() -> anyhow::Result<()> {
                 map.insert(
                     "A".to_string(),
                     Value {
-                        value_type: Some(ValueType::TimestampValue(Timestamp {
+                        value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
                             seconds: 1_i64,
                             nanos: 2_i32,
                         })),
@@ -103,14 +102,14 @@ fn test_newtype_variant() -> anyhow::Result<()> {
 }
 
 // TODO: seq (Vec<Timestamp> -> Value)
-// TODO: tuple ((Timestamp,) -> Value)
+// TODO: tuple ((prost_types::Timestamp,) -> Value)
 
 #[test]
 fn test_tuple_struct() -> anyhow::Result<()> {
     #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
-    struct S(#[serde(with = "timestamp")] Timestamp, bool);
+    struct S(#[serde(with = "timestamp")] prost_types::Timestamp, bool);
     let o = S(
-        Timestamp {
+        prost_types::Timestamp {
             seconds: 1_i64,
             nanos: 2_i32,
         },
@@ -120,7 +119,7 @@ fn test_tuple_struct() -> anyhow::Result<()> {
         value_type: Some(ValueType::ArrayValue(ArrayValue {
             values: vec![
                 Value {
-                    value_type: Some(ValueType::TimestampValue(Timestamp {
+                    value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
                         seconds: 1_i64,
                         nanos: 2_i32,
                     })),
@@ -142,10 +141,10 @@ fn test_tuple_struct() -> anyhow::Result<()> {
 fn test_tuple_variant() -> anyhow::Result<()> {
     #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
     enum E {
-        A(#[serde(with = "timestamp")] Timestamp, bool),
+        A(#[serde(with = "timestamp")] prost_types::Timestamp, bool),
     }
     let o = E::A(
-        Timestamp {
+        prost_types::Timestamp {
             seconds: 1_i64,
             nanos: 2_i32,
         },
@@ -161,10 +160,12 @@ fn test_tuple_variant() -> anyhow::Result<()> {
                         value_type: Some(ValueType::ArrayValue(ArrayValue {
                             values: vec![
                                 Value {
-                                    value_type: Some(ValueType::TimestampValue(Timestamp {
-                                        seconds: 1_i64,
-                                        nanos: 2_i32,
-                                    })),
+                                    value_type: Some(ValueType::TimestampValue(
+                                        prost_types::Timestamp {
+                                            seconds: 1_i64,
+                                            nanos: 2_i32,
+                                        },
+                                    )),
                                 },
                                 Value {
                                     value_type: Some(ValueType::BooleanValue(true)),
@@ -191,10 +192,10 @@ fn test_struct() -> anyhow::Result<()> {
     #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
     struct S {
         #[serde(with = "timestamp")]
-        a: Timestamp,
+        a: prost_types::Timestamp,
     }
     let o = S {
-        a: Timestamp {
+        a: prost_types::Timestamp {
             seconds: 1_i64,
             nanos: 2_i32,
         },
@@ -206,7 +207,7 @@ fn test_struct() -> anyhow::Result<()> {
                 map.insert(
                     "a".to_string(),
                     Value {
-                        value_type: Some(ValueType::TimestampValue(Timestamp {
+                        value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
                             seconds: 1_i64,
                             nanos: 2_i32,
                         })),
@@ -229,11 +230,11 @@ fn test_struct_variant() -> anyhow::Result<()> {
     enum E {
         S {
             #[serde(with = "timestamp")]
-            a: Timestamp,
+            a: prost_types::Timestamp,
         },
     }
     let o = E::S {
-        a: Timestamp {
+        a: prost_types::Timestamp {
             seconds: 1_i64,
             nanos: 2_i32,
         },
@@ -251,10 +252,12 @@ fn test_struct_variant() -> anyhow::Result<()> {
                                 map.insert(
                                     "a".to_string(),
                                     Value {
-                                        value_type: Some(ValueType::TimestampValue(Timestamp {
-                                            seconds: 1_i64,
-                                            nanos: 2_i32,
-                                        })),
+                                        value_type: Some(ValueType::TimestampValue(
+                                            prost_types::Timestamp {
+                                                seconds: 1_i64,
+                                                nanos: 2_i32,
+                                            },
+                                        )),
                                     },
                                 );
                                 map

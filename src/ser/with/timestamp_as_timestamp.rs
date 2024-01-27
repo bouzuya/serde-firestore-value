@@ -1,9 +1,7 @@
-use prost_types::Timestamp;
-
 use crate::typ::my_timestamp::MyTimestamp;
 
 pub(crate) fn serialize_timestamp<S>(
-    timestamp: &Timestamp,
+    timestamp: &prost_types::Timestamp,
     serializer: S,
 ) -> Result<S::Ok, S::Error>
 where
@@ -14,7 +12,7 @@ where
 }
 
 pub(crate) fn serialize_option_timestamp<S>(
-    timestamp: &Option<Timestamp>,
+    timestamp: &Option<prost_types::Timestamp>,
     serializer: S,
 ) -> Result<S::Ok, S::Error>
 where

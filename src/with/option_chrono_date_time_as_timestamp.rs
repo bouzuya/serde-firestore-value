@@ -1,7 +1,5 @@
 //! (De)serialize `Option<chrono::DateTime<chrono::Utc>>` as `timestampValue`.
 
-use prost_types::Timestamp;
-
 /// Deserialize `Option<chrono::DateTime<chrono::Utc>>` from `timestampValue` or `nullValue
 ///
 /// # Examples
@@ -9,7 +7,6 @@ use prost_types::Timestamp;
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
 /// use google_api_proto::google::firestore::v1::{value::ValueType, Value};
-/// use prost_types::Timestamp;
 /// use serde_firestore_value::{from_value, with::option_chrono_date_time_as_timestamp};
 ///
 /// #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
@@ -25,7 +22,7 @@ use prost_types::Timestamp;
 ///     .with_timezone(&chrono::Utc),
 /// ));
 /// let v = Value {
-///     value_type: Some(ValueType::TimestampValue(Timestamp {
+///     value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
 ///         seconds: 1_i64,
 ///         nanos: 2_i32,
 ///     })),
@@ -50,7 +47,7 @@ where
 {
     let option_timestamp = crate::with::option_timestamp::deserialize(deserializer)?;
     option_timestamp
-        .map(|Timestamp { seconds, nanos }| {
+        .map(|prost_types::Timestamp { seconds, nanos }| {
             Ok(chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(
                 chrono::NaiveDateTime::from_timestamp_opt(seconds, nanos as u32)
                     .expect("timestamp"),
@@ -67,7 +64,6 @@ where
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
 /// use google_api_proto::google::firestore::v1::{value::ValueType, Value};
-/// use prost_types::Timestamp;
 /// use serde_firestore_value::{to_value, with::option_chrono_date_time_as_timestamp};
 ///
 /// #[derive(Debug, Eq, PartialEq, serde::Serialize)]
@@ -83,7 +79,7 @@ where
 ///     .with_timezone(&chrono::Utc),
 /// ));
 /// let v = Value {
-///     value_type: Some(ValueType::TimestampValue(Timestamp {
+///     value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
 ///         seconds: 1_i64,
 ///         nanos: 2_i32,
 ///     })),
@@ -107,9 +103,11 @@ pub fn serialize<S>(
 where
     S: serde::Serializer,
 {
-    let option_timestamp = option_date_time.as_ref().map(|date_time| Timestamp {
-        seconds: date_time.timestamp(),
-        nanos: date_time.timestamp_subsec_nanos() as i32,
-    });
+    let option_timestamp = option_date_time
+        .as_ref()
+        .map(|date_time| prost_types::Timestamp {
+            seconds: date_time.timestamp(),
+            nanos: date_time.timestamp_subsec_nanos() as i32,
+        });
     crate::with::option_timestamp::serialize(&option_timestamp, serializer)
 }

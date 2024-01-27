@@ -1,7 +1,5 @@
 //! (De)serialize `time::OffsetDateTime` as `timestampValue`.
 
-use prost_types::Timestamp;
-
 /// Deserialize `time::OffsetDateTime` from `timestampValue`.
 ///
 /// # Examples
@@ -9,7 +7,6 @@ use prost_types::Timestamp;
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
 /// use google_api_proto::google::firestore::v1::{value::ValueType, Value};
-/// use prost_types::Timestamp;
 /// use serde_firestore_value::{
 ///     from_value, with::option_time_offset_date_time_as_timestamp,
 /// };
@@ -24,7 +21,7 @@ use prost_types::Timestamp;
 ///     1_000_000_002_i128,
 /// )?));
 /// let v = Value {
-///     value_type: Some(ValueType::TimestampValue(Timestamp {
+///     value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
 ///         seconds: 1_i64,
 ///         nanos: 2_i32,
 ///     })),
@@ -45,7 +42,8 @@ pub fn deserialize<'de, D>(deserializer: D) -> Result<time::OffsetDateTime, D::E
 where
     D: serde::Deserializer<'de>,
 {
-    let Timestamp { seconds, nanos } = crate::with::timestamp::deserialize(deserializer)?;
+    let prost_types::Timestamp { seconds, nanos } =
+        crate::with::timestamp::deserialize(deserializer)?;
     Ok(time::OffsetDateTime::from_unix_timestamp_nanos(
         i128::from(seconds) * 1_000_000_000_i128 + i128::from(nanos),
     )
@@ -59,7 +57,6 @@ where
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
 /// use google_api_proto::google::firestore::v1::{value::ValueType, Value};
-/// use prost_types::Timestamp;
 /// use serde_firestore_value::{
 ///     to_value, with::option_time_offset_date_time_as_timestamp,
 /// };
@@ -74,7 +71,7 @@ where
 ///     1_000_000_002_i128,
 /// )?));
 /// let v = Value {
-///     value_type: Some(ValueType::TimestampValue(Timestamp {
+///     value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
 ///         seconds: 1_i64,
 ///         nanos: 2_i32,
 ///     })),
@@ -98,7 +95,7 @@ pub fn serialize<S>(
 where
     S: serde::Serializer,
 {
-    let timestamp = Timestamp {
+    let timestamp = prost_types::Timestamp {
         seconds: offset_date_time.unix_timestamp(),
         nanos: i32::try_from(offset_date_time.unix_timestamp_nanos() % 1_000_000_000_i128)
             .expect("nanos"),

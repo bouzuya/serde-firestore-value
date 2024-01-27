@@ -1,22 +1,23 @@
 use std::collections::BTreeMap;
 
 use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value};
-use prost_types::Timestamp;
 use serde_firestore_value::{from_value, to_value, with::option_timestamp};
 
 #[test]
 fn test_deserialize_with() -> anyhow::Result<()> {
     #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
-    struct S(#[serde(deserialize_with = "option_timestamp::deserialize")] Option<Timestamp>);
+    struct S(
+        #[serde(deserialize_with = "option_timestamp::deserialize")] Option<prost_types::Timestamp>,
+    );
 
     // some
     {
-        let o = S(Some(Timestamp {
+        let o = S(Some(prost_types::Timestamp {
             seconds: 1_i64,
             nanos: 2_i32,
         }));
         let v = Value {
-            value_type: Some(ValueType::TimestampValue(Timestamp {
+            value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
                 seconds: 1_i64,
                 nanos: 2_i32,
             })),
@@ -40,16 +41,18 @@ fn test_deserialize_with() -> anyhow::Result<()> {
 #[test]
 fn test_serialize_with() -> anyhow::Result<()> {
     #[derive(Debug, Eq, PartialEq, serde::Serialize)]
-    struct S(#[serde(serialize_with = "option_timestamp::serialize")] Option<Timestamp>);
+    struct S(
+        #[serde(serialize_with = "option_timestamp::serialize")] Option<prost_types::Timestamp>,
+    );
 
     // some
     {
-        let o = S(Some(Timestamp {
+        let o = S(Some(prost_types::Timestamp {
             seconds: 1_i64,
             nanos: 2_i32,
         }));
         let v = Value {
-            value_type: Some(ValueType::TimestampValue(Timestamp {
+            value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
                 seconds: 1_i64,
                 nanos: 2_i32,
             })),
@@ -75,12 +78,12 @@ fn test_struct() -> anyhow::Result<()> {
     #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
     struct S {
         #[serde(with = "option_timestamp")]
-        a: Option<Timestamp>,
+        a: Option<prost_types::Timestamp>,
         #[serde(with = "option_timestamp")]
-        b: Option<Timestamp>,
+        b: Option<prost_types::Timestamp>,
     }
     let o = S {
-        a: Some(Timestamp {
+        a: Some(prost_types::Timestamp {
             seconds: 1_i64,
             nanos: 2_i32,
         }),
@@ -93,7 +96,7 @@ fn test_struct() -> anyhow::Result<()> {
                 map.insert(
                     "a".to_string(),
                     Value {
-                        value_type: Some(ValueType::TimestampValue(Timestamp {
+                        value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
                             seconds: 1_i64,
                             nanos: 2_i32,
                         })),

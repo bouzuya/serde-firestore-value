@@ -9,7 +9,6 @@
 //!     firestore::v1::{value::ValueType, MapValue, Value},
 //!     r#type::LatLng,
 //! };
-//! use prost_types::Timestamp;
 //! use serde_firestore_value::{
 //!     from_value, to_value,
 //!     with::{lat_lng, string_as_reference, timestamp},
@@ -23,7 +22,7 @@
 //!     #[serde(with = "string_as_reference")]
 //!     reference: String,
 //!     #[serde(with = "timestamp")]
-//!     timestamp: Timestamp,
+//!     timestamp: prost_types::Timestamp,
 //! }
 //! let t = T {
 //!     lat_lng: LatLng {
@@ -31,7 +30,7 @@
 //!         longitude: 2_f64,
 //!     },
 //!     reference: "projects/p/databases/d/documents/c".to_string(),
-//!     timestamp: Timestamp {
+//!     timestamp: prost_types::Timestamp {
 //!         seconds: 3_i64,
 //!         nanos: 4_i32,
 //!     },
@@ -56,7 +55,7 @@
 //!             (
 //!                 "timestamp".to_string(),
 //!                 Value {
-//!                     value_type: Some(ValueType::TimestampValue(Timestamp { seconds: 3_i64, nanos: 4_i32 })),
+//!                     value_type: Some(ValueType::TimestampValue(prost_types::Timestamp { seconds: 3_i64, nanos: 4_i32 })),
 //!                 },
 //!             ),
 //!         ]),

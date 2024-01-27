@@ -1,7 +1,5 @@
 //! (De)serialize `Option<Timestamp>` as `timestampValue` or `nullValue`.
 
-use prost_types::Timestamp;
-
 /// Deserialize `Option<Timestamp>` from `timestampValue` or `nullValue`.
 ///
 /// # Examples
@@ -10,20 +8,19 @@ use prost_types::Timestamp;
 /// # fn main() -> anyhow::Result<()> {
 /// # use std::collections::BTreeMap;
 /// use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value};
-/// use prost_types::Timestamp;
 /// use serde_firestore_value::{from_value, with::option_timestamp};
 ///
 /// #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
-/// struct S(#[serde(deserialize_with = "option_timestamp::deserialize")] Option<Timestamp>);
+/// struct S(#[serde(deserialize_with = "option_timestamp::deserialize")] Option<prost_types::Timestamp>);
 ///
 /// // some
 /// {
-///     let o = S(Some(Timestamp {
+///     let o = S(Some(prost_types::Timestamp {
 ///         seconds: 1_i64,
 ///         nanos: 2_i32,
 ///     }));
 ///     let v = Value {
-///         value_type: Some(ValueType::TimestampValue(Timestamp {
+///         value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
 ///             seconds: 1_i64,
 ///             nanos: 2_i32,
 ///         })),
@@ -45,7 +42,7 @@ use prost_types::Timestamp;
 /// # }
 /// ```
 ///
-pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<Timestamp>, D::Error>
+pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<prost_types::Timestamp>, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
@@ -60,20 +57,19 @@ where
 /// # fn main() -> anyhow::Result<()> {
 /// #     use std::collections::BTreeMap;
 /// use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value};
-/// use prost_types::Timestamp;
 /// use serde_firestore_value::{from_value, to_value, with::option_timestamp};
 ///
 /// #[derive(Debug, Eq, PartialEq, serde::Serialize)]
-/// struct S(#[serde(serialize_with = "option_timestamp::serialize")] Option<Timestamp>);
+/// struct S(#[serde(serialize_with = "option_timestamp::serialize")] Option<prost_types::Timestamp>);
 ///
 /// // some
 /// {
-///     let o = S(Some(Timestamp {
+///     let o = S(Some(prost_types::Timestamp {
 ///         seconds: 1_i64,
 ///         nanos: 2_i32,
 ///     }));
 ///     let v = Value {
-///         value_type: Some(ValueType::TimestampValue(Timestamp {
+///         value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
 ///             seconds: 1_i64,
 ///             nanos: 2_i32,
 ///         })),
@@ -94,7 +90,10 @@ where
 /// #     Ok(())
 /// # }
 /// ```
-pub fn serialize<S>(option_timestamp: &Option<Timestamp>, serializer: S) -> Result<S::Ok, S::Error>
+pub fn serialize<S>(
+    option_timestamp: &Option<prost_types::Timestamp>,
+    serializer: S,
+) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
 {

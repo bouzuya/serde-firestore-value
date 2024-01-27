@@ -1,7 +1,5 @@
 //! (De)serialize `chrono::DateTime<chrono::Utc>` as `timestampValue`.
 
-use prost_types::Timestamp;
-
 /// Deserialize `chrono::DateTime<chrono::Utc>` from `timestampValue`.
 ///
 /// # Examples
@@ -9,7 +7,6 @@ use prost_types::Timestamp;
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
 /// use google_api_proto::google::firestore::v1::{value::ValueType, Value};
-/// use prost_types::Timestamp;
 /// use serde_firestore_value::{from_value, with::chrono_date_time_as_timestamp};
 ///
 /// #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
@@ -23,7 +20,7 @@ use prost_types::Timestamp;
 /// )?
 /// .with_timezone(&chrono::Utc));
 /// let v = Value {
-///     value_type: Some(ValueType::TimestampValue(Timestamp {
+///     value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
 ///         seconds: 1_i64,
 ///         nanos: 2_i32,
 ///     })),
@@ -37,7 +34,8 @@ pub fn deserialize<'de, D>(deserializer: D) -> Result<chrono::DateTime<chrono::U
 where
     D: serde::Deserializer<'de>,
 {
-    let Timestamp { seconds, nanos } = crate::with::timestamp::deserialize(deserializer)?;
+    let prost_types::Timestamp { seconds, nanos } =
+        crate::with::timestamp::deserialize(deserializer)?;
     Ok(chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(
         chrono::NaiveDateTime::from_timestamp_opt(seconds, nanos as u32).expect("timestamp"),
         chrono::Utc,
@@ -51,7 +49,6 @@ where
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
 /// use google_api_proto::google::firestore::v1::{value::ValueType, Value};
-/// use prost_types::Timestamp;
 /// use serde_firestore_value::{to_value, with::chrono_date_time_as_timestamp};
 ///
 /// #[derive(Debug, Eq, PartialEq, serde::Serialize)]
@@ -65,7 +62,7 @@ where
 /// )?
 /// .with_timezone(&chrono::Utc));
 /// let v = Value {
-///     value_type: Some(ValueType::TimestampValue(Timestamp {
+///     value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
 ///         seconds: 1_i64,
 ///         nanos: 2_i32,
 ///     })),
@@ -82,7 +79,7 @@ pub fn serialize<S>(
 where
     S: serde::Serializer,
 {
-    let timestamp = Timestamp {
+    let timestamp = prost_types::Timestamp {
         seconds: date_time.timestamp(),
         nanos: date_time.timestamp_subsec_nanos() as i32,
     };

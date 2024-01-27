@@ -5,7 +5,6 @@ use google_api_proto::google::{
     r#type::LatLng as GoogleApiProtoLatLng,
 };
 use prost::bytes::Bytes;
-use prost_types::Timestamp;
 
 use crate::{error::ErrorCode, value_type_name::ValueTypeName, Error};
 
@@ -18,7 +17,7 @@ pub(crate) trait ValueExt {
     fn from_lat_lng(value: GoogleApiProtoLatLng) -> Self;
     fn from_string(value: String) -> Self;
     fn from_string_as_reference_value(value: String) -> Self;
-    fn from_timestamp(timestamp: Timestamp) -> Self;
+    fn from_timestamp(timestamp: prost_types::Timestamp) -> Self;
     fn from_values(values: Vec<Value>) -> Self;
     fn null() -> Self;
 
@@ -32,7 +31,7 @@ pub(crate) trait ValueExt {
     fn as_null(&self) -> Result<(), Error>;
     fn as_reference_value_as_string(&self) -> Result<&String, Error>;
     fn as_string(&self) -> Result<&String, Error>;
-    fn as_timestamp(&self) -> Result<&Timestamp, Error>;
+    fn as_timestamp(&self) -> Result<&prost_types::Timestamp, Error>;
     fn as_variant_value(&self, variants: &'static [&'static str]) -> Result<&Value, Error>;
     fn value_type(&self) -> Result<&ValueType, Error>;
 }
@@ -80,7 +79,7 @@ impl ValueExt for Value {
         }
     }
 
-    fn from_timestamp(timestamp: Timestamp) -> Self {
+    fn from_timestamp(timestamp: prost_types::Timestamp) -> Self {
         Self {
             value_type: Some(ValueType::TimestampValue(timestamp)),
         }
@@ -186,7 +185,7 @@ impl ValueExt for Value {
         }
     }
 
-    fn as_timestamp(&self) -> Result<&Timestamp, Error> {
+    fn as_timestamp(&self) -> Result<&prost_types::Timestamp, Error> {
         match self.value_type()? {
             ValueType::TimestampValue(value) => Ok(value),
             value_type => Err(Error::invalid_value_type(

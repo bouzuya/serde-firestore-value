@@ -1,7 +1,5 @@
 //! (De)serialize `Timestamp` as `timestampValue`.
 
-use prost_types::Timestamp;
-
 /// Deserialize `Timestamp` from `timestampValue`.
 ///
 /// # Examples
@@ -10,18 +8,17 @@ use prost_types::Timestamp;
 /// # fn main() -> anyhow::Result<()> {
 /// #     use std::collections::BTreeMap;
 /// use google_api_proto::google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
-/// use prost_types::Timestamp;
 /// use serde_firestore_value::{from_value, with::timestamp};
 ///
 /// #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
-/// struct S(#[serde(deserialize_with = "timestamp::deserialize")] Timestamp);
+/// struct S(#[serde(deserialize_with = "timestamp::deserialize")] prost_types::Timestamp);
 ///
-/// let o = S(Timestamp {
+/// let o = S(prost_types::Timestamp {
 ///     seconds: 1_i64,
 ///     nanos: 2_i32,
 /// });
 /// let v = Value {
-///     value_type: Some(ValueType::TimestampValue(Timestamp {
+///     value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
 ///         seconds: 1_i64,
 ///         nanos: 2_i32,
 ///     })),
@@ -31,7 +28,7 @@ use prost_types::Timestamp;
 /// #     Ok(())
 /// # }
 /// ```
-pub fn deserialize<'de, D>(deserializer: D) -> Result<Timestamp, D::Error>
+pub fn deserialize<'de, D>(deserializer: D) -> Result<prost_types::Timestamp, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
@@ -67,7 +64,7 @@ where
 /// #     Ok(())
 /// # }
 /// ```
-pub fn serialize<S>(timestamp: &Timestamp, serializer: S) -> Result<S::Ok, S::Error>
+pub fn serialize<S>(timestamp: &prost_types::Timestamp, serializer: S) -> Result<S::Ok, S::Error>
 where
     S: serde::Serializer,
 {

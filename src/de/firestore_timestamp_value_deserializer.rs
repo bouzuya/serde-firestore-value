@@ -1,12 +1,11 @@
 use google_api_proto::google::firestore::v1::Value;
-use prost_types::Timestamp;
 use serde::de::value::{I64Deserializer, StrDeserializer};
 
 use crate::{value_ext::ValueExt, Error};
 
 pub(super) struct FirestoreTimestampValueDeserializer<'de> {
     index: usize,
-    timestamp: &'de Timestamp,
+    timestamp: &'de prost_types::Timestamp,
 }
 
 impl<'de> FirestoreTimestampValueDeserializer<'de> {

@@ -1,7 +1,6 @@
 #[cfg(feature = "chrono")]
 mod chrono_feature {
     use google_api_proto::google::firestore::v1::{value::ValueType, Value};
-    use prost_types::Timestamp;
     use serde_firestore_value::{from_value, to_value, with::chrono_date_time_as_timestamp};
 
     #[test]
@@ -17,7 +16,7 @@ mod chrono_feature {
         )?
         .with_timezone(&chrono::Utc));
         let v = Value {
-            value_type: Some(ValueType::TimestampValue(Timestamp {
+            value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
                 seconds: 1_i64,
                 nanos: 2_i32,
             })),
@@ -40,7 +39,7 @@ mod chrono_feature {
         )?
         .with_timezone(&chrono::Utc));
         let v = Value {
-            value_type: Some(ValueType::TimestampValue(Timestamp {
+            value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
                 seconds: 1_i64,
                 nanos: 2_i32,
             })),
@@ -60,7 +59,7 @@ mod chrono_feature {
         )?
         .with_timezone(&chrono::Utc));
         let v = Value {
-            value_type: Some(ValueType::TimestampValue(Timestamp {
+            value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
                 seconds: 1_i64,
                 nanos: 2_i32,
             })),

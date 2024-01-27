@@ -1,7 +1,6 @@
 use std::collections::BTreeMap;
 
 use google_api_proto::google::firestore::v1::Value;
-use prost_types::Timestamp;
 
 use super::firestore_value_serializer::FirestoreValueSerializer;
 
@@ -56,7 +55,7 @@ impl serde::ser::SerializeStruct for FirestoreTimestampValueSerializer {
             (None, None) | (None, Some(_)) | (Some(_), None) => {
                 Err(Self::Error::from(ErrorCode::Custom("TODO".to_string())))
             }
-            (Some(seconds), Some(nanos)) => Ok(Timestamp { seconds, nanos }),
+            (Some(seconds), Some(nanos)) => Ok(prost_types::Timestamp { seconds, nanos }),
         }?;
         Ok(match None::<&'static str> {
             Some(name) => Value::from_fields({

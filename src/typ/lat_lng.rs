@@ -5,12 +5,12 @@ use google_api_proto::google::r#type::LatLng as GoogleApiProtoLatLng;
 /// `geoPointValue` inner type.
 ///
 /// <https://firebase.google.com/docs/firestore/reference/rest/Shared.Types/LatLng>
-/// <https://firebase.google.com/docs/firestore/reference/rest/Shared.Types/ArrayValue>
+/// <https://firebase.google.com/docs/firestore/reference/rest/Shared.Types/ArrayValue#Value>
 ///
 /// # Examples
 ///
 /// ```rust
-/// # fn test_lat_lng() -> anyhow::Result<()> {
+/// # fn test_lat_lng() -> Result<(), serde_firestore_value::Error> {
 /// #     use google_api_proto::google::firestore::v1::{value::ValueType, Value};
 /// #     use serde_firestore_value::{from_value, to_value, LatLng};
 /// let o = LatLng {

@@ -7,8 +7,7 @@ pub(crate) fn serialize_string_as_reference<S>(
 where
     S: serde::Serializer,
 {
-    let reference = Reference::from(value.to_string());
-    serde::Serialize::serialize(&reference, serializer)
+    serde::Serialize::serialize(&Reference::from(value.to_string()), serializer)
 }
 
 pub(crate) fn serialize_option_string_as_reference<S>(
@@ -18,10 +17,7 @@ pub(crate) fn serialize_option_string_as_reference<S>(
 where
     S: serde::Serializer,
 {
-    match value {
-        Some(s) => serialize_string_as_reference(s, serializer),
-        None => serializer.serialize_none(),
-    }
+    serde::Serialize::serialize(&value.as_ref().cloned().map(Reference::from), serializer)
 }
 
 pub(crate) fn serialize_vec_string_as_reference<S>(
@@ -31,5 +27,12 @@ pub(crate) fn serialize_vec_string_as_reference<S>(
 where
     S: serde::Serializer,
 {
-    serializer.collect_seq(value.iter().cloned().map(Reference::from))
+    serde::Serialize::serialize(
+        &value
+            .iter()
+            .cloned()
+            .map(Reference::from)
+            .collect::<Vec<Reference>>(),
+        serializer,
+    )
 }

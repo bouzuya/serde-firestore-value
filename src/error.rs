@@ -2,6 +2,9 @@ use google_api_proto::google::firestore::v1::value::ValueType;
 
 use super::{value_type_ext::ValueTypeExt, value_type_name::ValueTypeName};
 
+/// A specialized [`Result`] type for this crate.
+pub type Result<T> = std::result::Result<T, Error>;
+
 /// Represents all possible errors that can occur when serializing or deserializing a Firestore Value.
 #[derive(Debug, thiserror::Error)]
 #[error(transparent)]

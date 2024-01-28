@@ -1,3 +1,5 @@
+use serde::de::Error;
+
 #[test]
 fn test_lat_lng() -> anyhow::Result<()> {
     use google_api_proto::google::firestore::v1::{value::ValueType, Value};
@@ -43,6 +45,15 @@ fn test_reference() -> anyhow::Result<()> {
     let json = serde_json::to_string(&o)?;
     assert_eq!(json, r#""projects/p/databases/d/documents/c/d""#);
     Ok(())
+}
+
+#[test]
+fn test_result() {
+    use serde_firestore_value::{Error, Result};
+    #[derive(serde::Serialize)]
+    struct T;
+    let _ = Result::<T>::Ok(T);
+    let _ = Result::<T>::Err(Error::custom("test"));
 }
 
 #[test]

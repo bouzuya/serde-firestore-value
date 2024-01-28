@@ -13,6 +13,7 @@ use super::{
 };
 
 /// A Deserializer type which implements [`serde::Deserializer`] for [`Value`].
+#[derive(Debug)]
 pub struct FirestoreValueDeserializer<'a> {
     value: &'a Value,
 }
@@ -306,9 +307,11 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
             ValueType::StringValue(s) => visitor.visit_str(s.as_str()),
             ValueType::MapValue(MapValue { fields }) => {
                 if fields.len() != 1 {
-                    todo!()
+                    return Err(<Error as serde::de::Error>::custom(
+                        "deserialize_identifier MapValue must have only one field",
+                    ));
                 }
-                let (variant_name, _) = fields.iter().next().unwrap();
+                let (variant_name, _) = fields.iter().next().expect("fields to have an entry");
                 visitor.visit_str(variant_name.as_str())
             }
             _ => todo!(),

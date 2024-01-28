@@ -395,6 +395,11 @@ mod tests {
                 from_value::<'_, E>(&Value::from_fields([("B", Value::from_i64(2_i64)),]))?,
                 E::B(2_u8)
             );
+            assert!(from_value::<'_, E>(&Value::from_fields([
+                ("A", Value::from_i64(1_i64)),
+                ("B", Value::from_i64(2_i64))
+            ]))
+            .is_err());
         }
 
         {

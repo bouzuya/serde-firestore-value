@@ -1,6 +1,6 @@
 //! (De)serialize `Option<chrono::DateTime<chrono::Utc>>` as `timestampValue`.
 
-/// Deserialize `Option<chrono::DateTime<chrono::Utc>>` from `timestampValue` or `nullValue
+/// Deserialize `Option<chrono::DateTime<chrono::Utc>>` from `timestampValue` or `nullValue`
 ///
 /// # Examples
 ///

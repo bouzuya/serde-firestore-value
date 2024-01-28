@@ -1,6 +1,6 @@
 //! (De)serialize `Option<time::OffsetDateTime>` as `timestampValue`.
 
-/// Deserialize `Option<time::OffsetDateTime>` from `timestampValue` or `nullValue
+/// Deserialize `Option<time::OffsetDateTime>` from `timestampValue` or `nullValue`
 ///
 /// # Examples
 ///

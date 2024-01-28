@@ -50,16 +50,30 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
     where
         T: serde::de::DeserializeSeed<'de>,
     {
-        let value = self.value.as_variant_value(self.variants)?;
-        seed.deserialize(FirestoreValueDeserializer::new(value))
+        let (variant, value) = self.value.as_variant_value()?;
+        if self.variants.contains(&variant.as_str()) {
+            seed.deserialize(FirestoreValueDeserializer::new(value))
+        } else {
+            Err(<Error as serde::de::Error>::unknown_variant(
+                variant,
+                self.variants,
+            ))
+        }
     }
 
     fn tuple_variant<V>(self, _len: usize, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'de>,
     {
-        let value = self.value.as_variant_value(self.variants)?;
-        visitor.visit_seq(FirestoreArrayValueDeserializer::new(value)?)
+        let (variant, value) = self.value.as_variant_value()?;
+        if self.variants.contains(&variant.as_str()) {
+            visitor.visit_seq(FirestoreArrayValueDeserializer::new(value)?)
+        } else {
+            Err(<Error as serde::de::Error>::unknown_variant(
+                variant,
+                self.variants,
+            ))
+        }
     }
 
     fn struct_variant<V>(
@@ -70,7 +84,14 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
     where
         V: serde::de::Visitor<'de>,
     {
-        let value = self.value.as_variant_value(self.variants)?;
-        visitor.visit_map(FirestoreMapValueDeserializer::new(value)?)
+        let (variant, value) = self.value.as_variant_value()?;
+        if self.variants.contains(&variant.as_str()) {
+            visitor.visit_map(FirestoreMapValueDeserializer::new(value)?)
+        } else {
+            Err(<Error as serde::de::Error>::unknown_variant(
+                variant,
+                self.variants,
+            ))
+        }
     }
 }

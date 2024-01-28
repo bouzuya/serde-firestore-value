@@ -166,7 +166,7 @@ fn test_unknown_variant_error() -> anyhow::Result<()> {
         })
         .unwrap_err()
         .to_string(),
-        "deserialize_identifier MapValue must have only one field"
+        "invalid length 2, expected 1"
     );
 
     // FYI

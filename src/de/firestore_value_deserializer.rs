@@ -1,4 +1,4 @@
-use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value};
+use google_api_proto::google::firestore::v1::{value::ValueType, Value};
 
 use crate::{error::ErrorCode, value_ext::ValueExt, Error, LatLng, Reference, Timestamp};
 
@@ -305,14 +305,9 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     {
         match self.value.value_type()? {
             ValueType::StringValue(s) => visitor.visit_str(s.as_str()),
-            ValueType::MapValue(MapValue { fields }) => {
-                if fields.len() != 1 {
-                    return Err(<Error as serde::de::Error>::custom(
-                        "deserialize_identifier MapValue must have only one field",
-                    ));
-                }
-                let (variant_name, _) = fields.iter().next().expect("fields to have an entry");
-                visitor.visit_str(variant_name.as_str())
+            ValueType::MapValue(_) => {
+                let (variant, _) = self.value.as_variant_value()?;
+                visitor.visit_str(variant.as_str())
             }
             _ => todo!(),
         }

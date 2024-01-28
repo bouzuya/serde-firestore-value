@@ -395,11 +395,21 @@ mod tests {
                 from_value::<'_, E>(&Value::from_fields([("B", Value::from_i64(2_i64)),]))?,
                 E::B(2_u8)
             );
-            assert!(from_value::<'_, E>(&Value::from_fields([
-                ("A", Value::from_i64(1_i64)),
-                ("B", Value::from_i64(2_i64))
-            ]))
-            .is_err());
+            assert_eq!(
+                from_value::<'_, E>(&Value::from_fields([("C", Value::from_i64(3_i64))]))
+                    .unwrap_err()
+                    .to_string(),
+                "unknown variant `C`, expected `A` or `B`"
+            );
+            assert_eq!(
+                from_value::<'_, E>(&Value::from_fields([
+                    ("A", Value::from_i64(1_i64)),
+                    ("B", Value::from_i64(2_i64))
+                ]))
+                .unwrap_err()
+                .to_string(),
+                "invalid length 2, expected 1"
+            );
         }
 
         {
@@ -416,6 +426,30 @@ mod tests {
                 )]))?,
                 E::T(1_u8, 2_u8)
             );
+            assert_eq!(
+                from_value::<'_, E>(&Value::from_fields([(
+                    "V",
+                    Value::from_values([5_i64, 6_i64].into_iter().map(Value::from_i64).collect())
+                )]))
+                .unwrap_err()
+                .to_string(),
+                "unknown variant `V`, expected `T` or `U`"
+            );
+            assert_eq!(
+                from_value::<'_, E>(&Value::from_fields([
+                    (
+                        "T",
+                        Value::from_values(vec![Value::from_i64(1_i64), Value::from_i64(2_i64)]),
+                    ),
+                    (
+                        "U",
+                        Value::from_values(vec![Value::from_i64(3_i64), Value::from_i64(4_i64)]),
+                    )
+                ]))
+                .unwrap_err()
+                .to_string(),
+                "invalid length 2, expected 1"
+            );
         }
 
         {
@@ -427,15 +461,49 @@ mod tests {
             assert_eq!(
                 from_value::<'_, E>(&Value::from_fields([(
                     "S",
-                    Value::from_fields({
-                        let mut fields = BTreeMap::new();
-                        fields.insert("r".to_string(), Value::from_i64(1_i64));
-                        fields.insert("g".to_string(), Value::from_i64(2_i64));
-                        fields.insert("b".to_string(), Value::from_i64(3_i64));
-                        fields
-                    }),
+                    Value::from_fields([
+                        ("r", Value::from_i64(1_i64)),
+                        ("g", Value::from_i64(2_i64)),
+                        ("b", Value::from_i64(3_i64)),
+                    ]),
                 )]))?,
                 E::S { r: 1, g: 2, b: 3 },
+            );
+            assert_eq!(
+                from_value::<'_, E>(&Value::from_fields([(
+                    "T",
+                    Value::from_fields([
+                        ("r", Value::from_i64(4_i64)),
+                        ("g", Value::from_i64(5_i64)),
+                        ("b", Value::from_i64(6_i64)),
+                    ]),
+                )]))
+                .unwrap_err()
+                .to_string(),
+                "unknown variant `T`, expected `S`"
+            );
+            assert_eq!(
+                from_value::<'_, E>(&Value::from_fields([
+                    (
+                        "S",
+                        Value::from_fields([
+                            ("r", Value::from_i64(1_i64)),
+                            ("g", Value::from_i64(2_i64)),
+                            ("b", Value::from_i64(3_i64)),
+                        ]),
+                    ),
+                    (
+                        "T",
+                        Value::from_fields([
+                            ("r", Value::from_i64(4_i64)),
+                            ("g", Value::from_i64(5_i64)),
+                            ("b", Value::from_i64(6_i64)),
+                        ]),
+                    )
+                ]))
+                .unwrap_err()
+                .to_string(),
+                "invalid length 2, expected 1"
             );
         }
 

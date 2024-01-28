@@ -35,7 +35,7 @@ pub(crate) trait ValueExt {
     fn as_string(&self) -> Result<&String, Error>;
     fn as_timestamp(&self) -> Result<&prost_types::Timestamp, Error>;
     fn as_values(&self) -> Result<&Vec<Value>, Error>;
-    fn as_variant_value(&self, variants: &'static [&'static str]) -> Result<&Value, Error>;
+    fn as_variant_value(&self) -> Result<(&String, &Value), Error>;
     fn value_type(&self) -> Result<&ValueType, Error>;
 }
 
@@ -207,19 +207,15 @@ impl ValueExt for Value {
         }
     }
 
-    fn as_variant_value(&self, variants: &'static [&'static str]) -> Result<&Value, Error> {
+    fn as_variant_value(&self) -> Result<(&String, &Value), Error> {
         let fields = self.as_fields()?;
         if fields.len() != 1 {
-            todo!()
-        }
-        let (variant, value) = fields.iter().next().expect("fields must have an entry");
-        if !variants.contains(&variant.as_str()) {
-            return Err(<Error as serde::de::Error>::unknown_variant(
-                variant.as_str(),
-                variants,
+            return Err(<Error as serde::de::Error>::invalid_length(
+                fields.len(),
+                &"1",
             ));
         }
-        Ok(value)
+        Ok(fields.first_key_value().expect("fields must have an entry"))
     }
 
     fn value_type(&self) -> Result<&ValueType, Error> {

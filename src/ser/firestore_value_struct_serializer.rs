@@ -1,9 +1,6 @@
 use google_api_proto::google::firestore::v1::Value;
 
-use crate::{
-    ser::Error,
-    typ::{lat_lng::LatLng, timestamp::Timestamp},
-};
+use crate::{ser::Error, LatLng, Timestamp};
 
 use super::{
     firestore_geo_point_value_serializer::FirestoreGeoPointValueSerializer,

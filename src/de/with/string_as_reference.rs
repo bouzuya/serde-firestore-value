@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::typ::reference::Reference;
+use crate::Reference;
 
 pub(crate) fn deserialize_string_as_reference<'de, D>(deserializer: D) -> Result<String, D::Error>
 where

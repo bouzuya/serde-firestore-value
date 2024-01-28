@@ -34,6 +34,4 @@ pub mod with;
 pub use self::de::{from_value, Deserializer};
 pub use self::error::{Error, Result};
 pub use self::ser::{to_value, Serializer};
-pub use self::typ::lat_lng::LatLng;
-pub use self::typ::reference::Reference;
-pub use self::typ::timestamp::Timestamp;
+pub use self::typ::{LatLng, Reference, Timestamp};

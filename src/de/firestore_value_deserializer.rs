@@ -1,11 +1,6 @@
 use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value};
 
-use crate::{
-    error::ErrorCode,
-    typ::{lat_lng::LatLng, reference::Reference, timestamp::Timestamp},
-    value_ext::ValueExt,
-    Error,
-};
+use crate::{error::ErrorCode, value_ext::ValueExt, Error, LatLng, Reference, Timestamp};
 
 use super::{
     firestore_array_value_deserializer::FirestoreArrayValueDeserializer,

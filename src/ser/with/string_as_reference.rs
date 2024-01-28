@@ -1,4 +1,4 @@
-use crate::typ::reference::Reference;
+use crate::Reference;
 
 pub(crate) fn serialize_string_as_reference<S>(
     value: &str,

@@ -1,4 +1,4 @@
-use crate::typ::timestamp::Timestamp;
+use crate::Timestamp;
 
 pub(crate) fn serialize_timestamp<S>(
     timestamp: &prost_types::Timestamp,

@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::typ::timestamp::Timestamp;
+use crate::Timestamp;
 
 pub(crate) fn deserialize_timestamp<'de, D>(
     deserializer: D,

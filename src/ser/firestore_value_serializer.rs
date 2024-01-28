@@ -8,8 +8,8 @@ use crate::{
         firestore_array_value_serializer::FirestoreArrayValueSerializer,
         firestore_map_value_serializer::FirestoreMapValueSerializer,
     },
-    typ::reference::Reference,
     value_ext::ValueExt,
+    Reference,
 };
 
 use super::{

@@ -1,6 +1,6 @@
 //! (De)serialize `Vec<String>` as `arrayValue` of `referenceValue`.
 
-/// Deserialize `Vec<String>` from `arrayValue` of referenceValue`.
+/// Deserialize `Vec<String>` from `arrayValue` of `referenceValue`.
 pub fn deserialize<'de, D>(deserializer: D) -> Result<Vec<String>, D::Error>
 where
     D: serde::Deserializer<'de>,

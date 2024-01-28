@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use google_api_proto::google::firestore::v1::{MapValue, Value};
+use google_api_proto::google::firestore::v1::Value;
 use serde::de::value::{StrDeserializer, UnitDeserializer};
 
 use crate::{value_ext::ValueExt, Error};
@@ -16,12 +16,11 @@ pub(super) struct FirestoreStructMapValueDeserializer<'de> {
 
 impl<'de> FirestoreStructMapValueDeserializer<'de> {
     pub(super) fn new(value: &'de Value, fields: &'static [&'static str]) -> Result<Self, Error> {
-        let MapValue { fields: values } = value.as_map()?;
         Ok(Self {
             fields,
             index: 0,
             next_value: None,
-            values,
+            values: value.as_fields()?,
         })
     }
 }

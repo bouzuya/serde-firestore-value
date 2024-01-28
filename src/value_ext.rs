@@ -28,9 +28,9 @@ pub(crate) trait ValueExt {
     fn as_boolean(&self) -> Result<bool, Error>;
     fn as_bytes(&self) -> Result<&[u8], Error>;
     fn as_double(&self) -> Result<f64, Error>;
+    fn as_fields(&self) -> Result<&BTreeMap<String, Value>, Error>;
     fn as_integer(&self) -> Result<i64, Error>;
     fn as_lat_lng(&self) -> Result<&GoogleApiProtoLatLng, Error>;
-    fn as_map(&self) -> Result<&MapValue, Error>;
     fn as_null(&self) -> Result<(), Error>;
     fn as_reference_value_as_string(&self) -> Result<&String, Error>;
     fn as_string(&self) -> Result<&String, Error>;
@@ -146,6 +146,13 @@ impl ValueExt for Value {
         }
     }
 
+    fn as_fields(&self) -> Result<&BTreeMap<String, Value>, Error> {
+        match self.value_type()? {
+            ValueType::MapValue(MapValue { fields }) => Ok(fields),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Map)),
+        }
+    }
+
     fn as_integer(&self) -> Result<i64, Error> {
         match self.value_type()? {
             ValueType::IntegerValue(value) => Ok(*value),
@@ -163,13 +170,6 @@ impl ValueExt for Value {
                 value_type,
                 ValueTypeName::GeoPoint,
             )),
-        }
-    }
-
-    fn as_map(&self) -> Result<&MapValue, Error> {
-        match self.value_type()? {
-            ValueType::MapValue(value) => Ok(value),
-            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Map)),
         }
     }
 
@@ -208,7 +208,7 @@ impl ValueExt for Value {
     }
 
     fn as_variant_value(&self, variants: &'static [&'static str]) -> Result<&Value, Error> {
-        let MapValue { fields } = self.as_map()?;
+        let fields = self.as_fields()?;
         if fields.len() != 1 {
             todo!()
         }

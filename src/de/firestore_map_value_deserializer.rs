@@ -1,4 +1,4 @@
-use google_api_proto::google::firestore::v1::{MapValue, Value};
+use google_api_proto::google::firestore::v1::Value;
 use serde::de::value::StrDeserializer;
 
 use crate::{value_ext::ValueExt, Error};
@@ -12,7 +12,7 @@ pub(super) struct FirestoreMapValueDeserializer<'de> {
 
 impl<'de> FirestoreMapValueDeserializer<'de> {
     pub(super) fn new(value: &'de Value) -> Result<Self, Error> {
-        let MapValue { fields } = value.as_map()?;
+        let fields = value.as_fields()?;
         Ok(Self {
             iter: fields.iter(),
             next_value: None,

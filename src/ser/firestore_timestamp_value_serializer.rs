@@ -4,7 +4,8 @@ use super::firestore_value_serializer::FirestoreValueSerializer;
 
 use crate::{error::ErrorCode, value_ext::ValueExt, Error};
 
-pub(crate) struct FirestoreTimestampValueSerializer {
+#[doc(hidden)]
+pub struct FirestoreTimestampValueSerializer {
     seconds: Option<i64>,
     nanos: Option<i32>,
 }

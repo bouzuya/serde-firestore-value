@@ -6,7 +6,8 @@ use super::firestore_value_serializer::FirestoreValueSerializer;
 
 use crate::{value_ext::ValueExt, Error};
 
-pub(crate) struct FirestoreGeoPointValueSerializer {
+#[doc(hidden)]
+pub struct FirestoreGeoPointValueSerializer {
     fields: HashMap<&'static str, f64>,
 }
 

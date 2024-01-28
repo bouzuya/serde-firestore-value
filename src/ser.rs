@@ -13,6 +13,8 @@ use serde::Serialize;
 
 use crate::{ser::firestore_value_serializer::FirestoreValueSerializer, Error};
 
+pub use firestore_value_serializer::FirestoreValueSerializer as Serializer;
+
 /// Serialize an instance of type `T` to a Firestore Value.
 ///
 /// # Examples

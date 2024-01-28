@@ -1,4 +1,4 @@
-use serde::de::Error;
+use serde::{de::Error, Serialize};
 
 #[test]
 fn test_lat_lng() -> anyhow::Result<()> {
@@ -44,6 +44,17 @@ fn test_reference() -> anyhow::Result<()> {
 
     let json = serde_json::to_string(&o)?;
     assert_eq!(json, r#""projects/p/databases/d/documents/c/d""#);
+    Ok(())
+}
+
+#[test]
+fn test_serializer() -> serde_firestore_value::Result<()> {
+    use serde_firestore_value::{to_value, Serializer};
+    #[derive(serde::Serialize)]
+    struct T;
+
+    let o = T;
+    assert_eq!(o.serialize(Serializer)?, to_value(&o)?);
     Ok(())
 }
 

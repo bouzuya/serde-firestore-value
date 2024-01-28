@@ -11,7 +11,8 @@ use super::{
     firestore_timestamp_value_serializer::FirestoreTimestampValueSerializer,
 };
 
-pub(crate) enum FirestoreValueStructSerializer {
+#[doc(hidden)]
+pub enum FirestoreValueStructSerializer {
     GeoPoint(FirestoreGeoPointValueSerializer),
     Map(FirestoreMapValueSerializer),
     Timestamp(FirestoreTimestampValueSerializer),

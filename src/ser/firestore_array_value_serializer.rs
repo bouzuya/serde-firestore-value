@@ -4,7 +4,8 @@ use crate::{ser::Error, value_ext::ValueExt};
 
 use super::firestore_value_serializer::FirestoreValueSerializer;
 
-pub(crate) struct FirestoreArrayValueSerializer {
+#[doc(hidden)]
+pub struct FirestoreArrayValueSerializer {
     values: Vec<Value>,
 }
 

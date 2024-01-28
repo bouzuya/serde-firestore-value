@@ -6,7 +6,8 @@ use crate::{error::ErrorCode, value_ext::ValueExt, Error};
 
 use super::firestore_value_serializer::FirestoreValueSerializer;
 
-pub(crate) struct FirestoreMapValueSerializer {
+#[doc(hidden)]
+pub struct FirestoreMapValueSerializer {
     fields: BTreeMap<String, Value>,
     key: Option<String>,
 }

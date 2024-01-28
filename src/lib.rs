@@ -33,7 +33,7 @@ pub mod with;
 
 pub use self::de::from_value;
 pub use self::error::{Error, Result};
-pub use self::ser::to_value;
+pub use self::ser::{to_value, Serializer};
 pub use self::typ::lat_lng::LatLng;
 pub use self::typ::reference::Reference;
 pub use self::typ::timestamp::Timestamp;

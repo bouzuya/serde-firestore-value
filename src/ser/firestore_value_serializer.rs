@@ -18,8 +18,9 @@ use super::{
     name_map_value_serializer::NameMapValueSerializer, Error,
 };
 
-#[derive(Debug, Default)]
-pub(crate) struct FirestoreValueSerializer;
+/// A Serializer type which implements [`serde::Serializer`] for [`Value`].
+#[derive(Debug)]
+pub struct FirestoreValueSerializer;
 
 // 1,048,487 bytes = 1MiB - 89 bytes
 const MAX_BYTE_LEN: usize = 1_048_487;

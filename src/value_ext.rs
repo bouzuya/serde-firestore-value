@@ -12,7 +12,10 @@ pub(crate) trait ValueExt {
     fn from_bool(value: bool) -> Self;
     fn from_bytes(value: Bytes) -> Self;
     fn from_f64(value: f64) -> Self;
-    fn from_fields(fields: BTreeMap<String, Value>) -> Self;
+    fn from_fields<I, S>(fields: I) -> Self
+    where
+        I: IntoIterator<Item = (S, Value)>,
+        S: Into<String>;
     fn from_i64(value: i64) -> Self;
     fn from_lat_lng(value: GoogleApiProtoLatLng) -> Self;
     fn from_string(value: String) -> Self;
@@ -55,9 +58,18 @@ impl ValueExt for Value {
         }
     }
 
-    fn from_fields(fields: BTreeMap<String, Value>) -> Self {
+    fn from_fields<I, S>(fields: I) -> Self
+    where
+        I: IntoIterator<Item = (S, Value)>,
+        S: Into<String>,
+    {
         Self {
-            value_type: Some(ValueType::MapValue(MapValue { fields })),
+            value_type: Some(ValueType::MapValue(MapValue {
+                fields: fields
+                    .into_iter()
+                    .map(|(s, v)| (s.into(), v))
+                    .collect::<BTreeMap<String, Value>>(),
+            })),
         }
     }
 

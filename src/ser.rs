@@ -295,11 +295,7 @@ mod tests {
         }
         assert_eq!(
             to_value(&E::N(u8::MAX))?,
-            Value::from_fields({
-                let mut fields = BTreeMap::new();
-                fields.insert("N".to_string(), Value::from_i64(i64::from(u8::MAX)));
-                fields
-            })
+            Value::from_fields([("N", Value::from_i64(i64::from(u8::MAX)))])
         );
         Ok(())
     }
@@ -357,14 +353,10 @@ mod tests {
         }
         assert_eq!(
             to_value(&E::T(1, 2))?,
-            Value::from_fields({
-                let mut fields = BTreeMap::new();
-                fields.insert(
-                    "T".to_string(),
-                    Value::from_values(vec![Value::from_i64(1), Value::from_i64(2)]),
-                );
-                fields
-            })
+            Value::from_fields([(
+                "T",
+                Value::from_values(vec![Value::from_i64(1), Value::from_i64(2)]),
+            )])
         );
         Ok(())
     }
@@ -378,12 +370,7 @@ mod tests {
                 map.insert("k2", 2_i64);
                 map
             })?,
-            Value::from_fields({
-                let mut fields = BTreeMap::new();
-                fields.insert("k1".to_string(), Value::from_i64(1));
-                fields.insert("k2".to_string(), Value::from_i64(2));
-                fields
-            })
+            Value::from_fields([("k1", Value::from_i64(1)), ("k2", Value::from_i64(2))])
         );
         Ok(())
     }
@@ -398,13 +385,11 @@ mod tests {
         }
         assert_eq!(
             to_value(&S { r: 1, g: 2, b: 3 })?,
-            Value::from_fields({
-                let mut fields = BTreeMap::new();
-                fields.insert("r".to_string(), Value::from_i64(1));
-                fields.insert("g".to_string(), Value::from_i64(2));
-                fields.insert("b".to_string(), Value::from_i64(3));
-                fields
-            })
+            Value::from_fields([
+                ("r", Value::from_i64(1)),
+                ("g", Value::from_i64(2)),
+                ("b", Value::from_i64(3)),
+            ])
         );
         Ok(())
     }
@@ -417,20 +402,14 @@ mod tests {
         }
         assert_eq!(
             to_value(&E::S { r: 1, g: 2, b: 3 })?,
-            Value::from_fields({
-                let mut fields = BTreeMap::new();
-                fields.insert(
-                    "S".to_string(),
-                    Value::from_fields({
-                        let mut fields = BTreeMap::new();
-                        fields.insert("r".to_string(), Value::from_i64(1));
-                        fields.insert("g".to_string(), Value::from_i64(2));
-                        fields.insert("b".to_string(), Value::from_i64(3));
-                        fields
-                    }),
-                );
-                fields
-            })
+            Value::from_fields([(
+                "S",
+                Value::from_fields([
+                    ("r", Value::from_i64(1)),
+                    ("g", Value::from_i64(2)),
+                    ("b", Value::from_i64(3)),
+                ]),
+            )])
         );
         Ok(())
     }
@@ -453,11 +432,7 @@ mod tests {
                 map.insert('a', 1_u8);
                 map
             })?,
-            Value::from_fields({
-                let mut fields = BTreeMap::new();
-                fields.insert("a".to_string(), Value::from_i64(1));
-                fields
-            })
+            Value::from_fields([("a", Value::from_i64(1))])
         );
         Ok(())
     }

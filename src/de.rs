@@ -322,12 +322,10 @@ mod tests {
     #[test]
     fn test_deserialize_map() -> anyhow::Result<()> {
         assert_eq!(
-            from_value::<'_, BTreeMap<String, i64>>(&Value::from_fields({
-                let mut fields = BTreeMap::new();
-                fields.insert("k1".to_string(), Value::from_i64(1_i64));
-                fields.insert("k2".to_string(), Value::from_i64(2_i64));
-                fields
-            }))?,
+            from_value::<'_, BTreeMap<String, i64>>(&Value::from_fields([
+                ("k1", Value::from_i64(1_i64)),
+                ("k2", Value::from_i64(2_i64)),
+            ]))?,
             {
                 let mut map = BTreeMap::new();
                 map.insert("k1".to_string(), 1_i64);
@@ -347,13 +345,11 @@ mod tests {
             b: u8,
         }
         assert_eq!(
-            from_value::<'_, S>(&Value::from_fields({
-                let mut fields = BTreeMap::new();
-                fields.insert("r".to_string(), Value::from_i64(1_i64));
-                fields.insert("g".to_string(), Value::from_i64(2_i64));
-                fields.insert("b".to_string(), Value::from_i64(3_i64));
-                fields
-            }))?,
+            from_value::<'_, S>(&Value::from_fields([
+                ("r", Value::from_i64(1_i64)),
+                ("g", Value::from_i64(2_i64)),
+                ("b", Value::from_i64(3_i64)),
+            ]))?,
             S {
                 r: 1_u8,
                 g: 2_u8,
@@ -390,19 +386,11 @@ mod tests {
                 B(u8),
             }
             assert_eq!(
-                from_value::<'_, E>(&Value::from_fields({
-                    let mut fields = BTreeMap::new();
-                    fields.insert("A".to_string(), Value::from_i64(1_i64));
-                    fields
-                }))?,
+                from_value::<'_, E>(&Value::from_fields([("A", Value::from_i64(1_i64)),]))?,
                 E::A(1_u8)
             );
             assert_eq!(
-                from_value::<'_, E>(&Value::from_fields({
-                    let mut fields = BTreeMap::new();
-                    fields.insert("B".to_string(), Value::from_i64(2_i64));
-                    fields
-                }))?,
+                from_value::<'_, E>(&Value::from_fields([("B", Value::from_i64(2_i64)),]))?,
                 E::B(2_u8)
             );
         }
@@ -415,14 +403,10 @@ mod tests {
                 U(u8, u8),
             }
             assert_eq!(
-                from_value::<'_, E>(&Value::from_fields({
-                    let mut fields = BTreeMap::new();
-                    fields.insert(
-                        "T".to_string(),
-                        Value::from_values(vec![Value::from_i64(1_i64), Value::from_i64(2_i64)]),
-                    );
-                    fields
-                }))?,
+                from_value::<'_, E>(&Value::from_fields([(
+                    "T",
+                    Value::from_values(vec![Value::from_i64(1_i64), Value::from_i64(2_i64)]),
+                )]))?,
                 E::T(1_u8, 2_u8)
             );
         }
@@ -434,20 +418,16 @@ mod tests {
                 S { r: u8, g: u8, b: u8 },
             }
             assert_eq!(
-                from_value::<'_, E>(&Value::from_fields({
-                    let mut fields = BTreeMap::new();
-                    fields.insert(
-                        "S".to_string(),
-                        Value::from_fields({
-                            let mut fields = BTreeMap::new();
-                            fields.insert("r".to_string(), Value::from_i64(1_i64));
-                            fields.insert("g".to_string(), Value::from_i64(2_i64));
-                            fields.insert("b".to_string(), Value::from_i64(3_i64));
-                            fields
-                        }),
-                    );
-                    fields
-                }))?,
+                from_value::<'_, E>(&Value::from_fields([(
+                    "S",
+                    Value::from_fields({
+                        let mut fields = BTreeMap::new();
+                        fields.insert("r".to_string(), Value::from_i64(1_i64));
+                        fields.insert("g".to_string(), Value::from_i64(2_i64));
+                        fields.insert("b".to_string(), Value::from_i64(3_i64));
+                        fields
+                    }),
+                )]))?,
                 E::S { r: 1, g: 2, b: 3 },
             );
         }

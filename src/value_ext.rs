@@ -24,7 +24,6 @@ pub(crate) trait ValueExt {
     fn from_values(values: Vec<Value>) -> Self;
     fn null() -> Self;
 
-    fn as_array(&self) -> Result<&ArrayValue, Error>;
     fn as_boolean(&self) -> Result<bool, Error>;
     fn as_bytes(&self) -> Result<&[u8], Error>;
     fn as_double(&self) -> Result<f64, Error>;
@@ -35,6 +34,7 @@ pub(crate) trait ValueExt {
     fn as_reference_value_as_string(&self) -> Result<&String, Error>;
     fn as_string(&self) -> Result<&String, Error>;
     fn as_timestamp(&self) -> Result<&prost_types::Timestamp, Error>;
+    fn as_values(&self) -> Result<&Vec<Value>, Error>;
     fn as_variant_value(&self, variants: &'static [&'static str]) -> Result<&Value, Error>;
     fn value_type(&self) -> Result<&ValueType, Error>;
 }
@@ -112,13 +112,6 @@ impl ValueExt for Value {
     fn null() -> Self {
         Self {
             value_type: Some(ValueType::NullValue(0_i32)),
-        }
-    }
-
-    fn as_array(&self) -> Result<&ArrayValue, Error> {
-        match self.value_type()? {
-            ValueType::ArrayValue(value) => Ok(value),
-            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Array)),
         }
     }
 
@@ -204,6 +197,13 @@ impl ValueExt for Value {
                 value_type,
                 ValueTypeName::Timestamp,
             )),
+        }
+    }
+
+    fn as_values(&self) -> Result<&Vec<Value>, Error> {
+        match self.value_type()? {
+            ValueType::ArrayValue(ArrayValue { values }) => Ok(values),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Array)),
         }
     }
 

@@ -13,7 +13,7 @@ pub(super) struct FirestoreArrayValueDeserializer<'de> {
 impl<'de> FirestoreArrayValueDeserializer<'de> {
     pub(super) fn new(value: &'de Value) -> Result<Self, Error> {
         Ok(Self {
-            iter: value.as_array()?.values.iter(),
+            iter: value.as_values()?.iter(),
         })
     }
 }

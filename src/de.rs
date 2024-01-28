@@ -14,6 +14,8 @@ use self::firestore_value_deserializer::FirestoreValueDeserializer;
 
 use google_api_proto::google::firestore::v1::Value;
 
+pub use self::firestore_value_deserializer::FirestoreValueDeserializer as Deserializer;
+
 /// Deserialize an instance of type `T` from a Firestore Value.
 ///
 /// # Examples

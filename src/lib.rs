@@ -31,7 +31,7 @@ mod value_type_ext;
 mod value_type_name;
 pub mod with;
 
-pub use self::de::from_value;
+pub use self::de::{from_value, Deserializer};
 pub use self::error::{Error, Result};
 pub use self::ser::{to_value, Serializer};
 pub use self::typ::lat_lng::LatLng;

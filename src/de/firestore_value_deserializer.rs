@@ -17,12 +17,14 @@ use super::{
     firestore_timestamp_value_deserializer::FirestoreTimestampValueDeserializer,
 };
 
-pub(super) struct FirestoreValueDeserializer<'a> {
+/// A Deserializer type which implements [`serde::Deserializer`] for [`Value`].
+pub struct FirestoreValueDeserializer<'a> {
     value: &'a Value,
 }
 
 impl<'de> FirestoreValueDeserializer<'de> {
-    pub(super) fn new(value: &'de Value) -> Self {
+    /// Creates a new [`FirestoreValueDeserializer`].
+    pub fn new(value: &'de Value) -> Self {
         Self { value }
     }
 }

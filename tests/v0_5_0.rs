@@ -1,4 +1,22 @@
-use serde::{de::Error, Serialize};
+#[test]
+fn test_deserializer() -> serde_firestore_value::Result<()> {
+    use google_api_proto::google::firestore::v1::{value::ValueType, Value};
+    use serde::Deserialize;
+    use serde_firestore_value::{from_value, Deserializer};
+
+    #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
+    struct T;
+
+    let value = Value {
+        value_type: Some(ValueType::NullValue(0)),
+    };
+
+    assert_eq!(
+        T::deserialize(Deserializer::new(&value))?,
+        from_value(&value)?
+    );
+    Ok(())
+}
 
 #[test]
 fn test_lat_lng() -> anyhow::Result<()> {
@@ -48,7 +66,18 @@ fn test_reference() -> anyhow::Result<()> {
 }
 
 #[test]
+fn test_result() {
+    use serde::de::Error as _;
+    use serde_firestore_value::{Error, Result};
+    #[derive(serde::Serialize)]
+    struct T;
+    let _ = Result::<T>::Ok(T);
+    let _ = Result::<T>::Err(Error::custom("test"));
+}
+
+#[test]
 fn test_serializer() -> serde_firestore_value::Result<()> {
+    use serde::Serialize;
     use serde_firestore_value::{to_value, Serializer};
     #[derive(serde::Serialize)]
     struct T;
@@ -56,15 +85,6 @@ fn test_serializer() -> serde_firestore_value::Result<()> {
     let o = T;
     assert_eq!(o.serialize(Serializer)?, to_value(&o)?);
     Ok(())
-}
-
-#[test]
-fn test_result() {
-    use serde_firestore_value::{Error, Result};
-    #[derive(serde::Serialize)]
-    struct T;
-    let _ = Result::<T>::Ok(T);
-    let _ = Result::<T>::Err(Error::custom("test"));
 }
 
 #[test]

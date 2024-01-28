@@ -1,4 +1,4 @@
-use crate::typ::my_timestamp::MyTimestamp;
+use crate::typ::timestamp::Timestamp;
 
 pub(crate) fn serialize_timestamp<S>(
     timestamp: &prost_types::Timestamp,
@@ -7,7 +7,7 @@ pub(crate) fn serialize_timestamp<S>(
 where
     S: serde::Serializer,
 {
-    let timestamp = MyTimestamp::from(timestamp.clone());
+    let timestamp = Timestamp::from(timestamp.clone());
     serde::Serialize::serialize(&timestamp, serializer)
 }
 

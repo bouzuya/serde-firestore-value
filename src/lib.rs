@@ -36,3 +36,4 @@ pub use self::error::Error;
 pub use self::ser::to_value;
 pub use self::typ::lat_lng::LatLng;
 pub use self::typ::reference::Reference;
+pub use self::typ::timestamp::Timestamp;

@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::typ::my_timestamp::MyTimestamp;
+use crate::typ::timestamp::Timestamp;
 
 pub(crate) fn deserialize_timestamp<'de, D>(
     deserializer: D,
@@ -8,7 +8,7 @@ pub(crate) fn deserialize_timestamp<'de, D>(
 where
     D: serde::Deserializer<'de>,
 {
-    MyTimestamp::deserialize(deserializer).map(prost_types::Timestamp::from)
+    Timestamp::deserialize(deserializer).map(prost_types::Timestamp::from)
 }
 
 pub(crate) fn deserialize_option_timestamp<'de, D>(
@@ -17,5 +17,5 @@ pub(crate) fn deserialize_option_timestamp<'de, D>(
 where
     D: serde::Deserializer<'de>,
 {
-    Option::<MyTimestamp>::deserialize(deserializer).map(|o| o.map(prost_types::Timestamp::from))
+    Option::<Timestamp>::deserialize(deserializer).map(|o| o.map(prost_types::Timestamp::from))
 }

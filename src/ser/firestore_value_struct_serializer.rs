@@ -2,7 +2,7 @@ use google_api_proto::google::firestore::v1::Value;
 
 use crate::{
     ser::Error,
-    typ::{lat_lng::LatLng, my_timestamp::MyTimestamp},
+    typ::{lat_lng::LatLng, timestamp::Timestamp},
 };
 
 use super::{
@@ -21,7 +21,7 @@ impl FirestoreValueStructSerializer {
     pub(crate) fn new(name: &'static str, len: usize) -> Self {
         if name == LatLng::NAME {
             FirestoreValueStructSerializer::GeoPoint(FirestoreGeoPointValueSerializer::new())
-        } else if name == MyTimestamp::NAME {
+        } else if name == Timestamp::NAME {
             FirestoreValueStructSerializer::Timestamp(FirestoreTimestampValueSerializer::new())
         } else {
             FirestoreValueStructSerializer::Map(FirestoreMapValueSerializer::new(Some(len)))

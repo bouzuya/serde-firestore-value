@@ -2,7 +2,7 @@ use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value}
 
 use crate::{
     error::ErrorCode,
-    typ::{lat_lng::LatLng, my_timestamp::MyTimestamp, reference::Reference},
+    typ::{lat_lng::LatLng, reference::Reference, timestamp::Timestamp},
     value_ext::ValueExt,
     Error,
 };
@@ -280,7 +280,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     {
         if name == LatLng::NAME {
             visitor.visit_map(FirestoreGeoPointValueDeserializer::new(self.value)?)
-        } else if name == MyTimestamp::NAME {
+        } else if name == Timestamp::NAME {
             visitor.visit_map(FirestoreTimestampValueDeserializer::new(self.value)?)
         } else {
             visitor.visit_map(FirestoreStructMapValueDeserializer::new(

@@ -1,23 +1,39 @@
-use google_api_proto::google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
-
 #[test]
 fn test() -> anyhow::Result<()> {
-    #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
+    use google_api_proto::google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
+    use serde_firestore_value::{LatLng, Reference, Timestamp};
+    use std::collections::BTreeMap;
+
+    #[derive(Debug, PartialEq, serde::Deserialize, serde::Serialize)]
     struct T {
         b: bool,
         i: i64,
+        d: f64,
+        t: Timestamp,
         s: String,
+        r: Reference,
+        g: LatLng,
         a: Vec<Option<i64>>,
-        m: std::collections::BTreeMap<String, bool>,
+        m: BTreeMap<String, bool>,
     }
 
     let t = T {
         b: true,
-        i: 1,
+        i: 1_i64,
+        d: 2_f64,
+        t: Timestamp {
+            seconds: 3_i64,
+            nanos: 4_i32,
+        },
         s: "s".to_string(),
+        r: Reference("projects/p/databases/d/documents/n".to_string()),
+        g: LatLng {
+            latitude: 5_f64,
+            longitude: 6_f64,
+        },
         a: vec![Some(1), Some(2), None],
         m: {
-            let mut m = std::collections::BTreeMap::new();
+            let mut m = BTreeMap::new();
             m.insert("a".to_string(), false);
             m.insert("b".to_string(), true);
             m
@@ -40,9 +56,43 @@ fn test() -> anyhow::Result<()> {
                     },
                 );
                 fields.insert(
+                    "d".to_string(),
+                    Value {
+                        value_type: Some(ValueType::DoubleValue(2_f64)),
+                    },
+                );
+                fields.insert(
+                    "t".to_string(),
+                    Value {
+                        value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
+                            seconds: 3_i64,
+                            nanos: 4_i32,
+                        })),
+                    },
+                );
+                fields.insert(
                     "s".to_string(),
                     Value {
                         value_type: Some(ValueType::StringValue("s".to_string())),
+                    },
+                );
+                fields.insert(
+                    "r".to_string(),
+                    Value {
+                        value_type: Some(ValueType::ReferenceValue(
+                            "projects/p/databases/d/documents/n".to_string(),
+                        )),
+                    },
+                );
+                fields.insert(
+                    "g".to_string(),
+                    Value {
+                        value_type: Some(ValueType::GeoPointValue(
+                            google_api_proto::google::r#type::LatLng {
+                                latitude: 5_f64,
+                                longitude: 6_f64,
+                            },
+                        )),
                     },
                 );
                 fields.insert(

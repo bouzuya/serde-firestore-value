@@ -281,9 +281,9 @@ checksum = "4271d37baee1b8c7e4b708028c57d816cf9d2434acb33a549475f78c181f6253"
 
 [[package]]
 name = "google-api-proto"
-version = "1.512.0"
+version = "1.515.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "675c37262d76e4a69f7b59263e961f772797461418f50af16df60c0480f2892a"
+checksum = "74e9f6765e5fc5f567117508980380d22e98091878868acab2d7051c9aeb4228"
 dependencies = [
  "prost",
  "prost-types",

@@ -155,3 +155,12 @@ assert_eq!(serialized, value);
 let deserialized = serde_firestore_value::from_value::<T>(&serialized)?;
 assert_eq!(deserialized, t);
 ```
+
+## Version matrices
+
+| serde-firestore-value | [google-api-proto] | tonic     |
+|-----------------------|--------------------|-----------|
+| <0.6.0                | (unknown)          | (unknown) |
+| >=0.6.0               | >=1.516.0          | 0.11.x    |
+
+[google-api-proto]: https://github.com/mechiru/google-api-proto

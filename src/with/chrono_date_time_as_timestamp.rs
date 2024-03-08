@@ -36,10 +36,7 @@ where
 {
     let prost_types::Timestamp { seconds, nanos } =
         crate::with::timestamp::deserialize(deserializer)?;
-    Ok(chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(
-        chrono::NaiveDateTime::from_timestamp_opt(seconds, nanos as u32).expect("timestamp"),
-        chrono::Utc,
-    ))
+    Ok(chrono::DateTime::<chrono::Utc>::from_timestamp(seconds, nanos as u32).expect("timestamp"))
 }
 
 /// Serialize `chrono::DateTime<chrono::Utc>` as `timestampValue`.

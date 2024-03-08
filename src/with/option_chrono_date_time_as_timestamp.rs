@@ -48,11 +48,10 @@ where
     let option_timestamp = crate::with::option_timestamp::deserialize(deserializer)?;
     option_timestamp
         .map(|prost_types::Timestamp { seconds, nanos }| {
-            Ok(chrono::DateTime::<chrono::Utc>::from_naive_utc_and_offset(
-                chrono::NaiveDateTime::from_timestamp_opt(seconds, nanos as u32)
+            Ok(
+                chrono::DateTime::<chrono::Utc>::from_timestamp(seconds, nanos as u32)
                     .expect("timestamp"),
-                chrono::Utc,
-            ))
+            )
         })
         .transpose()
 }

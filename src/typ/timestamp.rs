@@ -52,3 +52,40 @@ impl From<prost_types::Timestamp> for Timestamp {
         Self { seconds, nanos }
     }
 }
+
+#[cfg(feature = "chrono")]
+impl std::convert::TryFrom<Timestamp> for chrono::DateTime<chrono::Utc> {
+    type Error = crate::Error;
+
+    fn try_from(Timestamp { seconds, nanos }: Timestamp) -> Result<Self, Self::Error> {
+        let nanos = u32::try_from(nanos).map_err(|_| {
+            crate::Error::from(crate::error::ErrorCode::Custom(format!(
+                "chrono::DateTime::<chrono::Utc>::try_from(Timestamp) / u32::try_from({})",
+                nanos
+            )))
+        })?;
+        Self::from_timestamp(seconds, nanos).ok_or_else(|| {
+            crate::Error::from(crate::error::ErrorCode::Custom(format!(
+                "chrono::DateTime::<chrono::Utc>::try_from(Timestamp) / chrono::DateTime::<chrono::Utc>::from_timestamp({}, {})",
+                seconds, nanos
+            )))
+        })
+    }
+}
+
+#[cfg(feature = "chrono")]
+impl std::convert::TryFrom<chrono::DateTime<chrono::Utc>> for Timestamp {
+    type Error = crate::Error;
+
+    fn try_from(date_time: chrono::DateTime<chrono::Utc>) -> Result<Self, Self::Error> {
+        let seconds = date_time.timestamp();
+        let nanos = date_time.timestamp_subsec_nanos();
+        let nanos = i32::try_from(nanos).map_err(|_| {
+            crate::Error::from(crate::error::ErrorCode::Custom(format!(
+                "Timestamp::try_from(chrono::DateTime::<chrono::Utc>) / i32::try_from({})",
+                nanos
+            )))
+        })?;
+        Ok(Self { seconds, nanos })
+    }
+}

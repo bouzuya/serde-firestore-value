@@ -73,6 +73,22 @@ impl std::convert::TryFrom<Timestamp> for chrono::DateTime<chrono::Utc> {
     }
 }
 
+#[cfg(feature = "time")]
+impl std::convert::TryFrom<Timestamp> for time::OffsetDateTime {
+    type Error = crate::Error;
+
+    fn try_from(Timestamp { seconds, nanos }: Timestamp) -> Result<Self, Self::Error> {
+        let timestamp_nanos = i128::from(seconds) * 1_000_000_000_i128 + i128::from(nanos);
+        Self::from_unix_timestamp_nanos(timestamp_nanos).map_err(|e| {
+            crate::Error::from(crate::error::ErrorCode::Custom(format!(
+                "time::OffsetDateTime::try_from(Tiemstamp) / time::OffsetDateTime::from_unix_timestamp_nanos({}) : {}",
+                timestamp_nanos,
+                e
+            )))
+        })
+    }
+}
+
 #[cfg(feature = "chrono")]
 impl std::convert::TryFrom<chrono::DateTime<chrono::Utc>> for Timestamp {
     type Error = crate::Error;
@@ -80,6 +96,23 @@ impl std::convert::TryFrom<chrono::DateTime<chrono::Utc>> for Timestamp {
     fn try_from(date_time: chrono::DateTime<chrono::Utc>) -> Result<Self, Self::Error> {
         let seconds = date_time.timestamp();
         let nanos = date_time.timestamp_subsec_nanos();
+        let nanos = i32::try_from(nanos).map_err(|_| {
+            crate::Error::from(crate::error::ErrorCode::Custom(format!(
+                "Timestamp::try_from(chrono::DateTime::<chrono::Utc>) / i32::try_from({})",
+                nanos
+            )))
+        })?;
+        Ok(Self { seconds, nanos })
+    }
+}
+
+#[cfg(feature = "time")]
+impl std::convert::TryFrom<time::OffsetDateTime> for Timestamp {
+    type Error = crate::Error;
+
+    fn try_from(offset_date_time: time::OffsetDateTime) -> Result<Self, Self::Error> {
+        let seconds = offset_date_time.unix_timestamp();
+        let nanos = offset_date_time.unix_timestamp_nanos() % 1_000_000_000_i128;
         let nanos = i32::try_from(nanos).map_err(|_| {
             crate::Error::from(crate::error::ErrorCode::Custom(format!(
                 "Timestamp::try_from(chrono::DateTime::<chrono::Utc>) / i32::try_from({})",

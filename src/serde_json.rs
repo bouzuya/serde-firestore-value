@@ -153,6 +153,7 @@ mod tests {
 
     #[test]
     fn test_serde_json_error2() -> anyhow::Result<()> {
+        #[allow(dead_code)]
         #[derive(Debug, serde::Deserialize)]
         enum T {
             A(i64),

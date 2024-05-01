@@ -119,6 +119,7 @@ fn test_unknown_variant_error() -> anyhow::Result<()> {
     use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value};
     use serde_firestore_value::from_value;
 
+    #[allow(dead_code)]
     #[derive(Debug, serde::Deserialize)]
     enum T {
         A(i64),

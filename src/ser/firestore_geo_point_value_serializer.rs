@@ -32,13 +32,9 @@ impl serde::ser::SerializeStruct for FirestoreGeoPointValueSerializer {
 
     type Error = Error;
 
-    fn serialize_field<T: ?Sized>(
-        &mut self,
-        key: &'static str,
-        value: &T,
-    ) -> Result<(), Self::Error>
+    fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> Result<(), Self::Error>
     where
-        T: serde::Serialize,
+        T: ?Sized + serde::Serialize,
     {
         if !Self::FIELDS.contains(&key) {
             return Err(<Self::Error as serde::ser::Error>::custom(format!(

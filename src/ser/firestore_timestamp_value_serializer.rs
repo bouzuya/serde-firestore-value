@@ -24,13 +24,9 @@ impl serde::ser::SerializeStruct for FirestoreTimestampValueSerializer {
 
     type Error = Error;
 
-    fn serialize_field<T: ?Sized>(
-        &mut self,
-        key: &'static str,
-        value: &T,
-    ) -> Result<(), Self::Error>
+    fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> Result<(), Self::Error>
     where
-        T: serde::Serialize,
+        T: ?Sized + serde::Serialize,
     {
         if key == "seconds" {
             let value = value.serialize(FirestoreValueSerializer)?;

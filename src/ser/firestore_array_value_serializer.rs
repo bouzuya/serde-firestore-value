@@ -22,9 +22,9 @@ impl serde::ser::SerializeSeq for FirestoreArrayValueSerializer {
 
     type Error = Error;
 
-    fn serialize_element<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
+    fn serialize_element<T>(&mut self, value: &T) -> Result<(), Self::Error>
     where
-        T: serde::Serialize,
+        T: ?Sized + serde::Serialize,
     {
         self.values.push(value.serialize(FirestoreValueSerializer)?);
         Ok(())
@@ -40,9 +40,9 @@ impl serde::ser::SerializeTuple for FirestoreArrayValueSerializer {
 
     type Error = Error;
 
-    fn serialize_element<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
+    fn serialize_element<T>(&mut self, value: &T) -> Result<(), Self::Error>
     where
-        T: serde::Serialize,
+        T: ?Sized + serde::Serialize,
     {
         serde::ser::SerializeSeq::serialize_element(self, value)
     }
@@ -57,9 +57,9 @@ impl serde::ser::SerializeTupleStruct for FirestoreArrayValueSerializer {
 
     type Error = Error;
 
-    fn serialize_field<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
+    fn serialize_field<T>(&mut self, value: &T) -> Result<(), Self::Error>
     where
-        T: serde::Serialize,
+        T: ?Sized + serde::Serialize,
     {
         serde::ser::SerializeSeq::serialize_element(self, value)
     }
@@ -73,9 +73,9 @@ impl serde::ser::SerializeTupleVariant for FirestoreArrayValueSerializer {
 
     type Error = Error;
 
-    fn serialize_field<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
+    fn serialize_field<T>(&mut self, value: &T) -> Result<(), Self::Error>
     where
-        T: serde::Serialize,
+        T: ?Sized + serde::Serialize,
     {
         serde::ser::SerializeSeq::serialize_element(self, value)
     }

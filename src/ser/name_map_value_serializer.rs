@@ -21,9 +21,9 @@ impl<S: serde::ser::SerializeTupleVariant<Ok = Value>> serde::ser::SerializeTupl
 
     type Error = S::Error;
 
-    fn serialize_field<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
+    fn serialize_field<T>(&mut self, value: &T) -> Result<(), Self::Error>
     where
-        T: serde::Serialize,
+        T: ?Sized + serde::Serialize,
     {
         self.serializer.serialize_field(value)
     }
@@ -41,13 +41,9 @@ impl<S: serde::ser::SerializeStructVariant<Ok = Value>> serde::ser::SerializeStr
 
     type Error = S::Error;
 
-    fn serialize_field<T: ?Sized>(
-        &mut self,
-        key: &'static str,
-        value: &T,
-    ) -> Result<(), Self::Error>
+    fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> Result<(), Self::Error>
     where
-        T: serde::Serialize,
+        T: ?Sized + serde::Serialize,
     {
         self.serializer.serialize_field(key, value)
     }

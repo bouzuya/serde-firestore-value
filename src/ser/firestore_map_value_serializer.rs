@@ -26,9 +26,9 @@ impl serde::ser::SerializeMap for FirestoreMapValueSerializer {
 
     type Error = Error;
 
-    fn serialize_key<T: ?Sized>(&mut self, key: &T) -> Result<(), Self::Error>
+    fn serialize_key<T>(&mut self, key: &T) -> Result<(), Self::Error>
     where
-        T: serde::Serialize,
+        T: ?Sized + serde::Serialize,
     {
         if let Value {
             value_type: Some(ValueType::StringValue(key_string)),
@@ -45,9 +45,9 @@ impl serde::ser::SerializeMap for FirestoreMapValueSerializer {
         }
     }
 
-    fn serialize_value<T: ?Sized>(&mut self, value: &T) -> Result<(), Self::Error>
+    fn serialize_value<T>(&mut self, value: &T) -> Result<(), Self::Error>
     where
-        T: serde::Serialize,
+        T: ?Sized + serde::Serialize,
     {
         if let Some(k) = self.key.take() {
             let v = value.serialize(FirestoreValueSerializer)?;
@@ -68,13 +68,9 @@ impl serde::ser::SerializeStruct for FirestoreMapValueSerializer {
 
     type Error = Error;
 
-    fn serialize_field<T: ?Sized>(
-        &mut self,
-        key: &'static str,
-        value: &T,
-    ) -> Result<(), Self::Error>
+    fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> Result<(), Self::Error>
     where
-        T: serde::Serialize,
+        T: ?Sized + serde::Serialize,
     {
         serde::ser::SerializeMap::serialize_entry(self, key, value)
     }
@@ -88,13 +84,9 @@ impl serde::ser::SerializeStructVariant for FirestoreMapValueSerializer {
 
     type Error = Error;
 
-    fn serialize_field<T: ?Sized>(
-        &mut self,
-        key: &'static str,
-        value: &T,
-    ) -> Result<(), Self::Error>
+    fn serialize_field<T>(&mut self, key: &'static str, value: &T) -> Result<(), Self::Error>
     where
-        T: serde::Serialize,
+        T: ?Sized + serde::Serialize,
     {
         serde::ser::SerializeMap::serialize_entry(self, key, value)
     }

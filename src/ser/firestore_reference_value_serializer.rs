@@ -87,9 +87,9 @@ impl Serializer for FirestoreReferenceValueSerializer {
         Err(Error::from(ErrorCode::ReferenceValueMustBeAString))
     }
 
-    fn serialize_some<T: ?Sized>(self, _: &T) -> Result<Self::Ok, Self::Error>
+    fn serialize_some<T>(self, _: &T) -> Result<Self::Ok, Self::Error>
     where
-        T: Serialize,
+        T: ?Sized + Serialize,
     {
         Err(Error::from(ErrorCode::ReferenceValueMustBeAString))
     }
@@ -111,18 +111,18 @@ impl Serializer for FirestoreReferenceValueSerializer {
         Err(Error::from(ErrorCode::ReferenceValueMustBeAString))
     }
 
-    fn serialize_newtype_struct<T: ?Sized>(
+    fn serialize_newtype_struct<T>(
         self,
         _name: &'static str,
         _value: &T,
     ) -> Result<Self::Ok, Self::Error>
     where
-        T: Serialize,
+        T: ?Sized + Serialize,
     {
         Err(Error::from(ErrorCode::ReferenceValueMustBeAString))
     }
 
-    fn serialize_newtype_variant<T: ?Sized>(
+    fn serialize_newtype_variant<T>(
         self,
         _name: &'static str,
         _variant_index: u32,
@@ -130,7 +130,7 @@ impl Serializer for FirestoreReferenceValueSerializer {
         _value: &T,
     ) -> Result<Self::Ok, Self::Error>
     where
-        T: Serialize,
+        T: ?Sized + Serialize,
     {
         Err(Error::from(ErrorCode::ReferenceValueMustBeAString))
     }

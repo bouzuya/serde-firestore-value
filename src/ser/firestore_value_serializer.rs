@@ -111,9 +111,9 @@ impl Serializer for FirestoreValueSerializer {
         Ok(Value::null())
     }
 
-    fn serialize_some<T: ?Sized>(self, value: &T) -> Result<Self::Ok, Self::Error>
+    fn serialize_some<T>(self, value: &T) -> Result<Self::Ok, Self::Error>
     where
-        T: Serialize,
+        T: ?Sized + Serialize,
     {
         value.serialize(self)
     }
@@ -135,13 +135,13 @@ impl Serializer for FirestoreValueSerializer {
         self.serialize_str(variant)
     }
 
-    fn serialize_newtype_struct<T: ?Sized>(
+    fn serialize_newtype_struct<T>(
         self,
         name: &'static str,
         value: &T,
     ) -> Result<Self::Ok, Self::Error>
     where
-        T: Serialize,
+        T: ?Sized + Serialize,
     {
         if name == Reference::NAME {
             value.serialize(FirestoreReferenceValueSerializer)
@@ -150,7 +150,7 @@ impl Serializer for FirestoreValueSerializer {
         }
     }
 
-    fn serialize_newtype_variant<T: ?Sized>(
+    fn serialize_newtype_variant<T>(
         self,
         _name: &'static str,
         _variant_index: u32,
@@ -158,7 +158,7 @@ impl Serializer for FirestoreValueSerializer {
         value: &T,
     ) -> Result<Self::Ok, Self::Error>
     where
-        T: Serialize,
+        T: ?Sized + Serialize,
     {
         let mut map = self.serialize_map(Some(1))?;
         serde::ser::SerializeMap::serialize_entry(&mut map, variant, value)?;

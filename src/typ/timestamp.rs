@@ -28,7 +28,9 @@
 /// #     Ok(())
 /// # }
 /// ```
-#[derive(Clone, Copy, Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
+#[derive(
+    Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd, serde::Deserialize, serde::Serialize,
+)]
 #[serde(rename = "$__serde-firestore-value_private_timestamp")]
 pub struct Timestamp {
     /// seconds

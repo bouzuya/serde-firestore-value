@@ -18,5 +18,7 @@ fn test_impl_ord_for_timestamp() -> serde_firestore_value::Result<()> {
     assert_eq!(timestamp2.cmp(&timestamp1), std::cmp::Ordering::Greater);
     assert_eq!(timestamp2.cmp(&timestamp3), std::cmp::Ordering::Less);
     assert_eq!(timestamp1.cmp(&timestamp3), std::cmp::Ordering::Less);
+    fn assert_fn<T: std::cmp::Ord>() {}
+    assert_fn::<Timestamp>();
     Ok(())
 }

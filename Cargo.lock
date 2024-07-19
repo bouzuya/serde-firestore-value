@@ -694,7 +694,7 @@ dependencies = [
 
 [[package]]
 name = "serde-firestore-value"
-version = "0.8.5"
+version = "0.8.6"
 dependencies = [
  "anyhow",
  "chrono",

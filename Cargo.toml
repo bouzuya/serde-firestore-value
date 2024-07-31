@@ -1,6 +1,6 @@
 [package]
 name = "serde-firestore-value"
-version = "0.8.7"
+version = "0.8.8"
 authors = ["bouzuya <m@bouzuya.net>"]
 description = "A serde (de)serializer using Firestore Value as its data format"
 edition = "2021"

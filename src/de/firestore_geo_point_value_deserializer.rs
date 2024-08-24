@@ -1,6 +1,6 @@
-use google_api_proto::google::{firestore::v1::Value, r#type::LatLng as GoogleApiProtoLatLng};
 use serde::de::value::{F64Deserializer, StrDeserializer};
 
+use crate::google::{firestore::v1::Value, r#type::LatLng as GoogleApiProtoLatLng};
 use crate::value_ext::ValueExt;
 
 use super::Error;

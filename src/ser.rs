@@ -8,9 +8,9 @@ mod firestore_value_struct_serializer;
 mod name_map_value_serializer;
 pub(crate) mod with;
 
-use google_api_proto::google::firestore::v1::Value;
 use serde::Serialize;
 
+use crate::google::firestore::v1::Value;
 use crate::{ser::firestore_value_serializer::FirestoreValueSerializer, Error};
 
 pub use firestore_value_serializer::FirestoreValueSerializer as Serializer;

@@ -1,6 +1,6 @@
-use google_api_proto::google::firestore::v1::Value;
 use serde::forward_to_deserialize_any;
 
+use crate::google::firestore::v1::Value;
 use crate::value_ext::ValueExt;
 
 use super::Error;

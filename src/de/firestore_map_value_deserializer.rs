@@ -1,12 +1,15 @@
-use google_api_proto::google::firestore::v1::Value;
 use serde::de::value::StrDeserializer;
 
+use crate::google::firestore::v1::Value;
 use crate::{value_ext::ValueExt, Error};
 
 use super::FirestoreValueDeserializer;
 
 pub(super) struct FirestoreMapValueDeserializer<'de> {
+    #[cfg(feature = "btree-map")]
     iter: std::collections::btree_map::Iter<'de, String, Value>,
+    #[cfg(feature = "hash-map")]
+    iter: std::collections::hash_map::Iter<'de, String, Value>,
     next_value: Option<&'de Value>,
 }
 

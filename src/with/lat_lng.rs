@@ -1,6 +1,6 @@
 //! (De)serialize `LatLng` as `geoPointValue`.
 
-use google_api_proto::google::r#type::LatLng;
+use crate::google::r#type::LatLng;
 
 /// Deserialize `LatLng` from `geoPointValue`.
 ///

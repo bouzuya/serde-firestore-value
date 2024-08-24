@@ -11,9 +11,9 @@ repository = "https://github.com/bouzuya/serde-firestore-value"
 
 [dependencies]
 chrono = { version = "0.4", optional = true }
-google-api-proto = { version = "1.516", features = ["google-firestore-v1"] }
-prost = "0.12"
-prost-types = "0.12"
+googleapis-tonic-google-firestore-v1 = { version = "0.6.0", default-features = false }
+prost = "0.13"
+prost-types = "0.13"
 serde = { version = "1", features = ["derive"] }
 thiserror = "1"
 time = { version = "0.3", optional = true }
@@ -23,9 +23,13 @@ anyhow = "1.0.79"
 serde_json = "1.0.110"
 
 [features]
-default = []
+default = ["vec-u8", "hash-map"]
+btree-map = ["googleapis-tonic-google-firestore-v1/btree-map"]
+bytes = ["googleapis-tonic-google-firestore-v1/bytes"]
 chrono = ["dep:chrono"]
+hash-map = ["googleapis-tonic-google-firestore-v1/hash-map"]
 time = ["dep:time"]
+vec-u8 = ["googleapis-tonic-google-firestore-v1/vec-u8"]
 
 [lints.rust]
 missing_docs = "deny"

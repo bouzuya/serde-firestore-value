@@ -8,7 +8,7 @@ A serde (de)serializer using Firestore Value as its data format.
 ![license](https://img.shields.io/crates/l/serde-firestore-value)
 
 ```rust
-use google_api_proto::google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
+use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
 use serde_firestore_value::{LatLng, Reference, Timestamp};
 use std::collections::BTreeMap;
 
@@ -96,7 +96,7 @@ let value = Value {
                 "g".to_string(),
                 Value {
                     value_type: Some(ValueType::GeoPointValue(
-                        google_api_proto::google::r#type::LatLng {
+                        googleapis_tonic_google_firestore_v1::google::r#type::LatLng {
                             latitude: 5_f64,
                             longitude: 6_f64,
                         },

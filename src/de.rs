@@ -8,11 +8,10 @@ mod firestore_timestamp_value_deserializer;
 mod firestore_value_deserializer;
 pub(crate) mod with;
 
+use crate::google::firestore::v1::Value;
 use crate::Error;
 
 use self::firestore_value_deserializer::FirestoreValueDeserializer;
-
-use google_api_proto::google::firestore::v1::Value;
 
 pub use self::firestore_value_deserializer::FirestoreValueDeserializer as Deserializer;
 
@@ -22,7 +21,7 @@ pub use self::firestore_value_deserializer::FirestoreValueDeserializer as Deseri
 ///
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
-/// #     use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value};
+/// #     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, MapValue, Value};
 /// #     use serde_firestore_value::from_value;
 /// #     use std::collections::BTreeMap;
 /// #[derive(Debug, PartialEq, serde::Deserialize)]
@@ -88,7 +87,7 @@ where
 mod tests {
     use std::collections::BTreeMap;
 
-    use google_api_proto::google::firestore::v1::Value;
+    use googleapis_tonic_google_firestore_v1::google::firestore::v1::Value;
 
     use crate::value_ext::ValueExt;
 

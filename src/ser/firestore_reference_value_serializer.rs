@@ -1,6 +1,6 @@
-use google_api_proto::google::firestore::v1::Value;
 use serde::{ser::Impossible, Serialize, Serializer};
 
+use crate::google::firestore::v1::Value;
 use crate::{error::ErrorCode, value_ext::ValueExt};
 
 use super::Error;

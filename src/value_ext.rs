@@ -1,16 +1,20 @@
+#[cfg(feature = "btree-map")]
 use std::collections::BTreeMap;
+#[cfg(feature = "hash-map")]
+use std::collections::HashMap;
 
-use google_api_proto::google::{
+#[cfg(feature = "bytes")]
+use prost::bytes::Bytes;
+
+use crate::google::{
     firestore::v1::{value::ValueType, ArrayValue, MapValue, Value},
     r#type::LatLng as GoogleApiProtoLatLng,
 };
-use prost::bytes::Bytes;
-
 use crate::{error::ErrorCode, value_type_name::ValueTypeName, Error};
 
 pub(crate) trait ValueExt {
     fn from_bool(value: bool) -> Self;
-    fn from_bytes(value: Bytes) -> Self;
+    fn from_bytes(value: Vec<u8>) -> Self;
     fn from_f64(value: f64) -> Self;
     fn from_fields<I, S>(fields: I) -> Self
     where
@@ -27,7 +31,10 @@ pub(crate) trait ValueExt {
     fn as_boolean(&self) -> Result<bool, Error>;
     fn as_bytes(&self) -> Result<&[u8], Error>;
     fn as_double(&self) -> Result<f64, Error>;
+    #[cfg(feature = "btree-map")]
     fn as_fields(&self) -> Result<&BTreeMap<String, Value>, Error>;
+    #[cfg(feature = "hash-map")]
+    fn as_fields(&self) -> Result<&HashMap<String, Value>, Error>;
     fn as_integer(&self) -> Result<i64, Error>;
     fn as_lat_lng(&self) -> Result<&GoogleApiProtoLatLng, Error>;
     fn as_null(&self) -> Result<(), Error>;
@@ -46,9 +53,17 @@ impl ValueExt for Value {
         }
     }
 
-    fn from_bytes(value: Bytes) -> Self {
+    #[cfg(feature = "vec-u8")]
+    fn from_bytes(value: Vec<u8>) -> Self {
         Self {
             value_type: Some(ValueType::BytesValue(value)),
+        }
+    }
+
+    #[cfg(feature = "bytes")]
+    fn from_bytes(value: Vec<u8>) -> Self {
+        Self {
+            value_type: Some(ValueType::BytesValue(Bytes::from(value))),
         }
     }
 
@@ -58,6 +73,7 @@ impl ValueExt for Value {
         }
     }
 
+    #[cfg(feature = "btree-map")]
     fn from_fields<I, S>(fields: I) -> Self
     where
         I: IntoIterator<Item = (S, Value)>,
@@ -69,6 +85,22 @@ impl ValueExt for Value {
                     .into_iter()
                     .map(|(s, v)| (s.into(), v))
                     .collect::<BTreeMap<String, Value>>(),
+            })),
+        }
+    }
+
+    #[cfg(feature = "hash-map")]
+    fn from_fields<I, S>(fields: I) -> Self
+    where
+        I: IntoIterator<Item = (S, Value)>,
+        S: Into<String>,
+    {
+        Self {
+            value_type: Some(ValueType::MapValue(MapValue {
+                fields: fields
+                    .into_iter()
+                    .map(|(s, v)| (s.into(), v))
+                    .collect::<HashMap<String, Value>>(),
             })),
         }
     }
@@ -139,7 +171,16 @@ impl ValueExt for Value {
         }
     }
 
+    #[cfg(feature = "btree-map")]
     fn as_fields(&self) -> Result<&BTreeMap<String, Value>, Error> {
+        match self.value_type()? {
+            ValueType::MapValue(MapValue { fields }) => Ok(fields),
+            value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Map)),
+        }
+    }
+
+    #[cfg(feature = "hash-map")]
+    fn as_fields(&self) -> Result<&HashMap<String, Value>, Error> {
         match self.value_type()? {
             ValueType::MapValue(MapValue { fields }) => Ok(fields),
             value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Map)),
@@ -215,7 +256,7 @@ impl ValueExt for Value {
                 &"1",
             ));
         }
-        Ok(fields.first_key_value().expect("fields must have an entry"))
+        Ok(fields.iter().next().expect("fields must have an entry"))
     }
 
     fn value_type(&self) -> Result<&ValueType, Error> {

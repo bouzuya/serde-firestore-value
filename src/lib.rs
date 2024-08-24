@@ -189,3 +189,5 @@ pub use self::de::{from_value, Deserializer};
 pub use self::error::{Error, Result};
 pub use self::ser::{to_value, Serializer};
 pub use self::typ::{LatLng, Reference, Timestamp};
+
+pub(crate) use googleapis_tonic_google_firestore_v1::google;

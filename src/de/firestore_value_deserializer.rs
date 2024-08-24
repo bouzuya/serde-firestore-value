@@ -1,5 +1,4 @@
-use google_api_proto::google::firestore::v1::{value::ValueType, Value};
-
+use crate::google::firestore::v1::{value::ValueType, Value};
 use crate::{error::ErrorCode, value_ext::ValueExt, Error, LatLng, Reference, Timestamp};
 
 use super::{

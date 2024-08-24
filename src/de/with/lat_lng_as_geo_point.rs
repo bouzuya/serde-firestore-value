@@ -1,6 +1,6 @@
-use google_api_proto::google::r#type::LatLng as GoogleApiProtoLatLng;
 use serde::Deserialize;
 
+use crate::google::r#type::LatLng as GoogleApiProtoLatLng;
 use crate::LatLng;
 
 pub(crate) fn deserialize_lat_lng<'de, D>(deserializer: D) -> Result<GoogleApiProtoLatLng, D::Error>

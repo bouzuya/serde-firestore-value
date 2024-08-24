@@ -1,7 +1,6 @@
-use google_api_proto::google::firestore::v1::Value;
-use prost::bytes::Bytes;
 use serde::{Serialize, Serializer};
 
+use crate::google::firestore::v1::Value;
 use crate::{
     error::ErrorCode,
     ser::{
@@ -104,7 +103,7 @@ impl Serializer for FirestoreValueSerializer {
         if v.len() > MAX_BYTE_LEN {
             return Err(Error::from(ErrorCode::MaximumByteLengthExceeded));
         }
-        Ok(Value::from_bytes(Bytes::from(v.to_vec())))
+        Ok(Value::from_bytes(v.to_vec()))
     }
 
     fn serialize_none(self) -> Result<Self::Ok, Self::Error> {

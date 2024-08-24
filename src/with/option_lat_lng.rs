@@ -1,6 +1,6 @@
 //! (De)serialize `Option<LatLng>` as `geoPointValue` or `nullValue`.
 
-use google_api_proto::google::r#type::LatLng as GoogleApiProtoLatLng;
+use crate::google::r#type::LatLng as GoogleApiProtoLatLng;
 
 /// Deserialize `Option<LatLng>` from `geoPointValue` or `nullValue`.
 ///

@@ -1,4 +1,4 @@
-use google_api_proto::google::r#type::LatLng as GoogleApiProtoLatLng;
+use crate::google::r#type::LatLng as GoogleApiProtoLatLng;
 
 /// LatLng
 ///

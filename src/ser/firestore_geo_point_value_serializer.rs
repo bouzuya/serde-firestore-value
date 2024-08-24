@@ -1,9 +1,8 @@
 use std::collections::HashMap;
 
-use google_api_proto::google::{firestore::v1::Value, r#type::LatLng as GoogleApiProtoLatLng};
-
 use super::firestore_value_serializer::FirestoreValueSerializer;
 
+use crate::google::{firestore::v1::Value, r#type::LatLng as GoogleApiProtoLatLng};
 use crate::{value_ext::ValueExt, Error};
 
 #[doc(hidden)]

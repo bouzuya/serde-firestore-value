@@ -1,8 +1,11 @@
+#[cfg(feature = "btree-map")]
 use std::collections::BTreeMap;
+#[cfg(feature = "hash-map")]
+use std::collections::HashMap;
 
-use google_api_proto::google::firestore::v1::Value;
 use serde::de::value::{StrDeserializer, UnitDeserializer};
 
+use crate::google::firestore::v1::Value;
 use crate::{value_ext::ValueExt, Error};
 
 use super::FirestoreValueDeserializer;
@@ -11,7 +14,10 @@ pub(super) struct FirestoreStructMapValueDeserializer<'de> {
     fields: &'static [&'static str],
     index: usize,
     next_value: Option<&'de Value>,
+    #[cfg(feature = "btree-map")]
     values: &'de BTreeMap<String, Value>,
+    #[cfg(feature = "hash-map")]
+    values: &'de HashMap<String, Value>,
 }
 
 impl<'de> FirestoreStructMapValueDeserializer<'de> {

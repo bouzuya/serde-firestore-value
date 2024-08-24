@@ -1,4 +1,4 @@
-use google_api_proto::google::firestore::v1::value::ValueType;
+use crate::google::firestore::v1::value::ValueType;
 
 use super::{value_type_ext::ValueTypeExt, value_type_name::ValueTypeName};
 

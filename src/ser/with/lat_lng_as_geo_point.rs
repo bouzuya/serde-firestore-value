@@ -1,5 +1,4 @@
-use google_api_proto::google::r#type::LatLng as GoogleApiProtoLatLng;
-
+use crate::google::r#type::LatLng as GoogleApiProtoLatLng;
 use crate::LatLng;
 
 pub(crate) fn serialize_lat_lng<S>(

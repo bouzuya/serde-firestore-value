@@ -9,7 +9,7 @@
 ///
 /// ```rust
 /// # fn test_timestamp() -> anyhow::Result<()> {
-/// #     use google_api_proto::google::firestore::v1::{value::ValueType, Value};
+/// #     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, Value};
 /// #     use serde_firestore_value::{from_value, to_value, Timestamp};
 /// let o = Timestamp {
 ///     seconds: 1_i64,

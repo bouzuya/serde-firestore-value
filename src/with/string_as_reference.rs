@@ -6,9 +6,8 @@
 ///
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
-/// #     use std::collections::BTreeMap;
 ///
-/// use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value};
+/// use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, MapValue, Value};
 /// use serde_firestore_value::{from_value, with::string_as_reference};
 ///
 /// #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
@@ -25,7 +24,7 @@
 /// let v = Value {
 ///     value_type: Some(ValueType::MapValue(MapValue {
 ///         fields: {
-///             let mut fields = BTreeMap::new();
+///             let mut fields = std::collections::HashMap::new();
 ///             fields.insert(
 ///                 "r".to_string(),
 ///                 Value {
@@ -62,8 +61,7 @@ where
 ///
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
-/// #     use std::collections::BTreeMap;
-/// use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value};
+/// use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, MapValue, Value};
 /// use serde_firestore_value::{to_value, with::string_as_reference};
 ///
 /// #[derive(Debug, Eq, PartialEq, serde::Serialize)]
@@ -80,7 +78,7 @@ where
 /// let v = Value {
 ///     value_type: Some(ValueType::MapValue(MapValue {
 ///         fields: {
-///             let mut fields = BTreeMap::new();
+///             let mut fields = std::collections::HashMap::new();
 ///             fields.insert(
 ///                 "r".to_string(),
 ///                 Value {

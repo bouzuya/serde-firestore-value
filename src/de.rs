@@ -23,7 +23,6 @@ pub use self::firestore_value_deserializer::FirestoreValueDeserializer as Deseri
 /// # fn main() -> anyhow::Result<()> {
 /// #     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, MapValue, Value};
 /// #     use serde_firestore_value::from_value;
-/// #     use std::collections::BTreeMap;
 /// #[derive(Debug, PartialEq, serde::Deserialize)]
 /// struct T {
 ///     b: bool,
@@ -32,7 +31,7 @@ pub use self::firestore_value_deserializer::FirestoreValueDeserializer as Deseri
 /// assert_eq!(
 ///     from_value::<'_, T>(&Value {
 ///         value_type: Some(ValueType::MapValue(MapValue {
-///             fields: BTreeMap::from([
+///             fields: std::collections::HashMap::from([
 ///                 (
 ///                     "b".to_string(),
 ///                     Value {
@@ -85,8 +84,6 @@ where
 
 #[cfg(test)]
 mod tests {
-    use std::collections::BTreeMap;
-
     use googleapis_tonic_google_firestore_v1::google::firestore::v1::Value;
 
     use crate::value_ext::ValueExt;
@@ -323,12 +320,12 @@ mod tests {
     #[test]
     fn test_deserialize_map() -> anyhow::Result<()> {
         assert_eq!(
-            from_value::<'_, BTreeMap<String, i64>>(&Value::from_fields([
+            from_value::<'_, std::collections::HashMap<String, i64>>(&Value::from_fields([
                 ("k1", Value::from_i64(1_i64)),
                 ("k2", Value::from_i64(2_i64)),
             ]))?,
             {
-                let mut map = BTreeMap::new();
+                let mut map = std::collections::HashMap::new();
                 map.insert("k1".to_string(), 1_i64);
                 map.insert("k2".to_string(), 2_i64);
                 map

@@ -8,7 +8,7 @@
 ///
 /// ```rust
 /// # fn test_reference() -> Result<(), serde_firestore_value::Error> {
-/// #     use google_api_proto::google::firestore::v1::{value::ValueType, Value};
+/// #     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, Value};
 /// #     use serde_firestore_value::{from_value, to_value, Reference};
 ///  let inner = "projects/p/databases/d/documents/c/d";
 ///  let o = Reference(inner.to_string());

@@ -21,9 +21,8 @@ pub use firestore_value_serializer::FirestoreValueSerializer as Serializer;
 ///
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
-/// #     use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value};
+/// #     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, MapValue, Value};
 /// #     use serde_firestore_value::to_value;
-/// #     use std::collections::BTreeMap;
 /// #[derive(serde::Serialize)]
 /// struct T {
 ///     b: bool,
@@ -33,7 +32,7 @@ pub use firestore_value_serializer::FirestoreValueSerializer as Serializer;
 ///     to_value(&T { b: true, n: 1 })?,
 ///     Value {
 ///         value_type: Some(ValueType::MapValue(MapValue {
-///             fields: BTreeMap::from([
+///             fields: std::collections::HashMap::from([
 ///                 (
 ///                     "b".to_string(),
 ///                     Value {
@@ -367,7 +366,7 @@ mod tests {
     fn test_map() -> anyhow::Result<()> {
         assert_eq!(
             to_value(&{
-                let mut map = BTreeMap::new();
+                let mut map = std::collections::HashMap::new();
                 map.insert("k1", 1_i64);
                 map.insert("k2", 2_i64);
                 map

@@ -11,7 +11,7 @@ use crate::google::r#type::LatLng as GoogleApiProtoLatLng;
 ///
 /// ```rust
 /// # fn test_lat_lng() -> Result<(), serde_firestore_value::Error> {
-/// #     use google_api_proto::google::firestore::v1::{value::ValueType, Value};
+/// #     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, Value};
 /// #     use serde_firestore_value::{from_value, to_value, LatLng};
 /// let o = LatLng {
 ///     latitude: 1_f64,
@@ -19,7 +19,7 @@ use crate::google::r#type::LatLng as GoogleApiProtoLatLng;
 /// };
 /// let v = Value {
 ///     value_type: Some(ValueType::GeoPointValue(
-///         google_api_proto::google::r#type::LatLng {
+///         googleapis_tonic_google_firestore_v1::google::r#type::LatLng {
 ///             latitude: 1_f64,
 ///             longitude: 2_f64,
 ///         },

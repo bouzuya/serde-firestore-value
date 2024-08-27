@@ -1,6 +1,8 @@
 #[test]
 fn test() -> anyhow::Result<()> {
-    use google_api_proto::google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
+    use googleapis_tonic_google_firestore_v1::google::firestore::v1::{
+        value::ValueType, ArrayValue, MapValue, Value,
+    };
     use serde_firestore_value::{LatLng, Reference, Timestamp};
     use std::collections::BTreeMap;
 
@@ -42,7 +44,8 @@ fn test() -> anyhow::Result<()> {
     let value = Value {
         value_type: Some(ValueType::MapValue(MapValue {
             fields: {
-                let mut fields = std::collections::BTreeMap::new();
+                // You can use `btree-map` feature instead of `hash-map` feature.
+                let mut fields = std::collections::HashMap::new();
                 fields.insert(
                     "b".to_string(),
                     Value {
@@ -88,7 +91,7 @@ fn test() -> anyhow::Result<()> {
                     "g".to_string(),
                     Value {
                         value_type: Some(ValueType::GeoPointValue(
-                            google_api_proto::google::r#type::LatLng {
+                            googleapis_tonic_google_firestore_v1::google::r#type::LatLng {
                                 latitude: 5_f64,
                                 longitude: 6_f64,
                             },
@@ -118,7 +121,7 @@ fn test() -> anyhow::Result<()> {
                     Value {
                         value_type: Some(ValueType::MapValue(MapValue {
                             fields: {
-                                let mut fields = std::collections::BTreeMap::new();
+                                let mut fields = std::collections::HashMap::new();
                                 fields.insert(
                                     "a".to_string(),
                                     Value {

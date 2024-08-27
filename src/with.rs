@@ -5,7 +5,7 @@
 //!
 //! ```rust
 //! # fn main() -> anyhow::Result<()> {
-//! use google_api_proto::google::{
+//! use googleapis_tonic_google_firestore_v1::google::{
 //!     firestore::v1::{value::ValueType, MapValue, Value},
 //!     r#type::LatLng,
 //! };
@@ -13,7 +13,6 @@
 //!     from_value, to_value,
 //!     with::{lat_lng, string_as_reference, timestamp},
 //! };
-//! use std::collections::BTreeMap;
 //!
 //! #[derive(Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 //! struct T {
@@ -37,7 +36,7 @@
 //! };
 //! let v = Value {
 //!     value_type: Some(ValueType::MapValue(MapValue {
-//!         fields: BTreeMap::from([
+//!         fields: std::collections::HashMap::from([
 //!             (
 //!                 "lat_lng".to_string(),
 //!                 Value {

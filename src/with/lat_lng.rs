@@ -8,7 +8,7 @@ use crate::google::r#type::LatLng;
 ///
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
-/// use google_api_proto::google::{
+/// use googleapis_tonic_google_firestore_v1::google::{
 ///     firestore::v1::{value::ValueType, Value},
 ///     r#type::LatLng,
 /// };
@@ -44,7 +44,7 @@ where
 ///
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
-/// use google_api_proto::google::{
+/// use googleapis_tonic_google_firestore_v1::google::{
 ///     firestore::v1::{value::ValueType, Value},
 ///     r#type::LatLng,
 /// };

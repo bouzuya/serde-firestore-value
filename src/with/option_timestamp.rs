@@ -7,7 +7,7 @@
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
 /// # use std::collections::BTreeMap;
-/// use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value};
+/// use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, MapValue, Value};
 /// use serde_firestore_value::{from_value, with::option_timestamp};
 ///
 /// #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
@@ -56,7 +56,7 @@ where
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
 /// #     use std::collections::BTreeMap;
-/// use google_api_proto::google::firestore::v1::{value::ValueType, MapValue, Value};
+/// use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, MapValue, Value};
 /// use serde_firestore_value::{from_value, to_value, with::option_timestamp};
 ///
 /// #[derive(Debug, Eq, PartialEq, serde::Serialize)]

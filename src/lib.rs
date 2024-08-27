@@ -4,7 +4,7 @@
 //!
 //! ```rust
 //! # fn main() -> anyhow::Result<()> {
-//! use google_api_proto::google::firestore::v1::{value::ValueType, Value};
+//! use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, Value};
 //! use serde_firestore_value::{from_value, to_value};
 //!
 //! let t = 1_i64; // T: Serialize
@@ -22,9 +22,8 @@
 //!
 //! ```rust
 //! # fn test() -> anyhow::Result<()> {
-//! use google_api_proto::google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
+//! use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
 //! use serde_firestore_value::{LatLng, Reference, Timestamp};
-//! use std::collections::BTreeMap;
 //!
 //! #[derive(Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 //! struct T {
@@ -36,7 +35,7 @@
 //!     r: Reference,
 //!     g: LatLng,
 //!     a: Vec<Option<i64>>,
-//!     m: BTreeMap<String, bool>,
+//!     m: std::collections::HashMap<String, bool>,
 //! }
 //!
 //! let t = T {
@@ -55,7 +54,7 @@
 //!     },
 //!     a: vec![Some(1), Some(2), None],
 //!     m: {
-//!         let mut m = BTreeMap::new();
+//!         let mut m = std::collections::HashMap::new();
 //!         m.insert("a".to_string(), false);
 //!         m.insert("b".to_string(), true);
 //!         m
@@ -64,7 +63,7 @@
 //! let value = Value {
 //!     value_type: Some(ValueType::MapValue(MapValue {
 //!         fields: {
-//!             let mut fields = std::collections::BTreeMap::new();
+//!             let mut fields = std::collections::HashMap::new();
 //!             fields.insert(
 //!                 "b".to_string(),
 //!                 Value {
@@ -110,7 +109,7 @@
 //!                 "g".to_string(),
 //!                 Value {
 //!                     value_type: Some(ValueType::GeoPointValue(
-//!                         google_api_proto::google::r#type::LatLng {
+//!                         googleapis_tonic_google_firestore_v1::google::r#type::LatLng {
 //!                             latitude: 5_f64,
 //!                             longitude: 6_f64,
 //!                         },
@@ -140,7 +139,7 @@
 //!                 Value {
 //!                     value_type: Some(ValueType::MapValue(MapValue {
 //!                         fields: {
-//!                             let mut fields = std::collections::BTreeMap::new();
+//!                             let mut fields = std::collections::HashMap::new();
 //!                             fields.insert(
 //!                                 "a".to_string(),
 //!                                 Value {

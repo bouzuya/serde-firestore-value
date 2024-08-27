@@ -22,8 +22,14 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - run: cargo fmt -- --check
       - run: cargo clippy -- --deny warnings
-      - run: cargo clippy --all-features -- --deny warnings
+      - run: cargo clippy --no-default-features --features vec-u8,hash-map -- --deny warnings
+      - run: cargo clippy --no-default-features --features bytes,hash-map -- --deny warnings
+      - run: cargo clippy --no-default-features --features vec-u8,btree-map -- --deny warnings
+      - run: cargo clippy --no-default-features --features bytes,btree-map -- --deny warnings
       - run: cargo test
-      - run: cargo test --all-features
+      - run: cargo test --no-default-features --features vec-u8,hash-map
+      - run: cargo test --no-default-features --features bytes,hash-map
+      - run: cargo test --no-default-features --features vec-u8,btree-map
+      - run: cargo test --no-default-features --features bytes,btree-map
       - run: cargo test --features chrono
       - run: cargo test --features time

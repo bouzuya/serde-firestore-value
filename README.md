@@ -10,7 +10,6 @@ A serde (de)serializer using Firestore Value as its data format.
 ```rust
 use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
 use serde_firestore_value::{LatLng, Reference, Timestamp};
-use std::collections::BTreeMap;
 
 #[derive(Debug, PartialEq, serde::Deserialize, serde::Serialize)]
 struct T {
@@ -22,7 +21,8 @@ struct T {
     r: Reference,
     g: LatLng,
     a: Vec<Option<i64>>,
-    m: BTreeMap<String, bool>,
+    // You can use `btree-map` feature instead of `hash-map` feature.
+    m: std::collections::HashMap<String, bool>,
 }
 
 let t = T {
@@ -41,7 +41,7 @@ let t = T {
     },
     a: vec![Some(1), Some(2), None],
     m: {
-        let mut m = BTreeMap::new();
+        let mut m = std::collection::Map::new();
         m.insert("a".to_string(), false);
         m.insert("b".to_string(), true);
         m
@@ -50,7 +50,7 @@ let t = T {
 let value = Value {
     value_type: Some(ValueType::MapValue(MapValue {
         fields: {
-            let mut fields = std::collections::BTreeMap::new();
+            let mut fields = std::collections::HashMap::new();
             fields.insert(
                 "b".to_string(),
                 Value {
@@ -126,7 +126,7 @@ let value = Value {
                 Value {
                     value_type: Some(ValueType::MapValue(MapValue {
                         fields: {
-                            let mut fields = std::collections::BTreeMap::new();
+                            let mut fields = std::collections::HashMap::new();
                             fields.insert(
                                 "a".to_string(),
                                 Value {
@@ -155,12 +155,3 @@ assert_eq!(serialized, value);
 let deserialized = serde_firestore_value::from_value::<T>(&serialized)?;
 assert_eq!(deserialized, t);
 ```
-
-## Version matrices
-
-| serde-firestore-value | [google-api-proto] | tonic     |
-|-----------------------|--------------------|-----------|
-| <0.6.0                | (unknown)          | (unknown) |
-| >=0.6.0               | >=1.516.0          | 0.11.x    |
-
-[google-api-proto]: https://github.com/mechiru/google-api-proto

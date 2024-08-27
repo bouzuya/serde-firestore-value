@@ -16,7 +16,7 @@ fn test() -> anyhow::Result<()> {
                     (
                         k,
                         Value {
-                            value_type: Some(ValueType::IntegerValue(i64::from(v))),
+                            value_type: Some(ValueType::IntegerValue(v)),
                         },
                     )
                 })

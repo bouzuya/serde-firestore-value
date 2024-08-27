@@ -7,7 +7,7 @@ pub(crate) fn serialize_timestamp<S>(
 where
     S: serde::Serializer,
 {
-    let timestamp = Timestamp::from(timestamp.clone());
+    let timestamp = Timestamp::from(*timestamp);
     serde::Serialize::serialize(&timestamp, serializer)
 }
 

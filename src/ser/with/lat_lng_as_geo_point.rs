@@ -8,7 +8,7 @@ pub(crate) fn serialize_lat_lng<S>(
 where
     S: serde::Serializer,
 {
-    let lat_lng = LatLng::from(lat_lng.clone());
+    let lat_lng = LatLng::from(*lat_lng);
     serde::Serialize::serialize(&lat_lng, serializer)
 }
 

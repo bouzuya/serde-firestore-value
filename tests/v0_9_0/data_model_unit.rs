@@ -1,3 +1,5 @@
+#[allow(clippy::let_unit_value)]
+#[allow(clippy::unit_cmp)]
 #[test]
 fn test() -> anyhow::Result<()> {
     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, Value};

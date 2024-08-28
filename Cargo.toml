@@ -31,6 +31,9 @@ hash-map = ["googleapis-tonic-google-firestore-v1/hash-map"]
 time = ["dep:time"]
 vec-u8 = ["googleapis-tonic-google-firestore-v1/vec-u8"]
 
+[lib]
+doctest = false
+
 [lints.rust]
 missing_docs = "deny"
 

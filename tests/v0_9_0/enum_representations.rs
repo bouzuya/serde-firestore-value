@@ -1,5 +1,6 @@
 // <https://serde.rs/enum-representations.html>
 
+#[cfg(feature = "hash-map")]
 #[test]
 fn test_externally_tagged() -> anyhow::Result<()> {
     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{
@@ -52,6 +53,7 @@ fn test_externally_tagged() -> anyhow::Result<()> {
     Ok(())
 }
 
+#[cfg(feature = "hash-map")]
 #[test]
 fn test_internally_tagged() -> anyhow::Result<()> {
     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{
@@ -100,6 +102,7 @@ fn test_internally_tagged() -> anyhow::Result<()> {
     Ok(())
 }
 
+#[cfg(feature = "hash-map")]
 #[test]
 fn test_adjacently_tagged() -> anyhow::Result<()> {
     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{
@@ -159,6 +162,7 @@ fn test_adjacently_tagged() -> anyhow::Result<()> {
     Ok(())
 }
 
+#[cfg(feature = "hash-map")]
 #[test]
 fn test_untagged() -> anyhow::Result<()> {
     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{

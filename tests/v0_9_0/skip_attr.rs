@@ -1,3 +1,4 @@
+#[cfg(feature = "hash-map")]
 #[test]
 fn test_skip() -> anyhow::Result<()> {
     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{
@@ -34,6 +35,7 @@ fn test_skip() -> anyhow::Result<()> {
     Ok(())
 }
 
+#[cfg(feature = "hash-map")]
 #[test]
 fn test_skip_serializing_if_is_none() -> anyhow::Result<()> {
     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{

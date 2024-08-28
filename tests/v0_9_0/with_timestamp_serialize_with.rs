@@ -1,3 +1,4 @@
+#[cfg(feature = "hash-map")]
 #[test]
 fn test() -> anyhow::Result<()> {
     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, Value};

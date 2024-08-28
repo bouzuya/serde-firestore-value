@@ -1,3 +1,4 @@
+#[cfg(feature = "hash-map")]
 #[test]
 fn test_rename() -> anyhow::Result<()> {
     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{
@@ -59,6 +60,7 @@ fn test_rename() -> anyhow::Result<()> {
     Ok(())
 }
 
+#[cfg(feature = "hash-map")]
 #[test]
 fn test_rename_all_camel_case() -> anyhow::Result<()> {
     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{

@@ -2,9 +2,7 @@
 #[test]
 fn test() -> anyhow::Result<()> {
     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, Value};
-    use serde_firestore_value::{
-        from_value, to_value, with::option_time_offset_date_time_as_timestamp,
-    };
+    use serde_firestore_value::{to_value, with::option_time_offset_date_time_as_timestamp};
 
     #[derive(Debug, Eq, PartialEq, serde::Serialize)]
     struct S(

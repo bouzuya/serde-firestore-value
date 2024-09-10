@@ -176,9 +176,9 @@ checksum = "40ecd4077b5ae9fd2e9e169b102c6c330d0605168eb0e8bf79952b256dbefffd"
 
 [[package]]
 name = "googleapis-tonic-google-api"
-version = "0.7.0"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eef3c53f085d69803b5c3368f4fa4e648308f6b29625929606db96de2cc3be19"
+checksum = "24210b195e67bcc5e9e5fd23e3b550e61c0d93cf957b4ef43ad3f72f80707fad"
 dependencies = [
  "prost",
  "prost-types",
@@ -187,9 +187,9 @@ dependencies = [
 
 [[package]]
 name = "googleapis-tonic-google-firestore-v1"
-version = "0.7.0"
+version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bd1bfa8a285b96233f8228ebbeb95dbed232cda44a2791ce6e7d164e508a78d4"
+checksum = "16bf3628cedd966146539965e2a6b00136492f300831af5962e08f7f9a37bb2e"
 dependencies = [
  "googleapis-tonic-google-api",
  "googleapis-tonic-google-rpc",
@@ -201,9 +201,9 @@ dependencies = [
 
 [[package]]
 name = "googleapis-tonic-google-rpc"
-version = "0.6.0"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "556c697cb356b359471e4ab11e28f2d8891bcb7f4e6ab7a89cc4953df6ac05e2"
+checksum = "4ae65220a1864e138b4929f6e14710dbd7b4234015f9bf8e71dd9a1c25dcb76f"
 dependencies = [
  "prost",
  "prost-types",
@@ -212,9 +212,9 @@ dependencies = [
 
 [[package]]
 name = "googleapis-tonic-google-type"
-version = "0.6.0"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "50486652446761ff664fad38b392a45421cd934d36c0e64888d142f337dd1152"
+checksum = "b063f96ab9415f1ad66fe82b192264549f572bf5cef1b3a074d7302af86a780d"
 dependencies = [
  "prost",
  "prost-types",

@@ -21,7 +21,7 @@ pub use firestore_value_serializer::FirestoreValueSerializer as Serializer;
 ///
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
-/// #     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, MapValue, Value};
+/// #     use serde_firestore_value::google::firestore::v1::{value::ValueType, MapValue, Value};
 /// #     use serde_firestore_value::to_value;
 /// #[derive(serde::Serialize)]
 /// struct T {

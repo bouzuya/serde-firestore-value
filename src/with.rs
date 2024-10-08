@@ -5,7 +5,7 @@
 //!
 //! ```rust
 //! # fn main() -> anyhow::Result<()> {
-//! use googleapis_tonic_google_firestore_v1::google::{
+//! use serde_firestore_value::google::{
 //!     firestore::v1::{value::ValueType, MapValue, Value},
 //!     r#type::LatLng,
 //! };

@@ -21,7 +21,7 @@ pub use self::firestore_value_deserializer::FirestoreValueDeserializer as Deseri
 ///
 /// ```rust
 /// # fn main() -> anyhow::Result<()> {
-/// #     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, MapValue, Value};
+/// #     use serde_firestore_value::google::firestore::v1::{value::ValueType, MapValue, Value};
 /// #     use serde_firestore_value::from_value;
 /// #[derive(Debug, PartialEq, serde::Deserialize)]
 /// struct T {
@@ -84,8 +84,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use googleapis_tonic_google_firestore_v1::google::firestore::v1::Value;
-
+    use crate::google::firestore::v1::Value;
     use crate::value_ext::ValueExt;
 
     use super::*;

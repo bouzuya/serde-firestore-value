@@ -4,7 +4,7 @@
 //!
 //! ```rust
 //! # fn main() -> anyhow::Result<()> {
-//! use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, Value};
+//! use serde_firestore_value::google::firestore::v1::{value::ValueType, Value};
 //! use serde_firestore_value::{from_value, to_value};
 //!
 //! let t = 1_i64; // T: Serialize
@@ -22,7 +22,7 @@
 //!
 //! ```rust
 //! # fn test() -> anyhow::Result<()> {
-//! use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, ArrayValue, MapValue, Value};
+//! use serde_firestore_value::google::{firestore::v1::{value::ValueType, ArrayValue, MapValue, Value}, self};
 //! use serde_firestore_value::{LatLng, Reference, Timestamp};
 //!
 //! #[derive(Debug, PartialEq, serde::Deserialize, serde::Serialize)]
@@ -109,7 +109,7 @@
 //!                 "g".to_string(),
 //!                 Value {
 //!                     value_type: Some(ValueType::GeoPointValue(
-//!                         googleapis_tonic_google_firestore_v1::google::r#type::LatLng {
+//!                         google::r#type::LatLng {
 //!                             latitude: 5_f64,
 //!                             longitude: 6_f64,
 //!                         },
@@ -189,4 +189,4 @@ pub use self::error::{Error, Result};
 pub use self::ser::{to_value, Serializer};
 pub use self::typ::{LatLng, Reference, Timestamp};
 
-pub(crate) use googleapis_tonic_google_firestore_v1::google;
+pub use googleapis_tonic_google_firestore_v1::google;

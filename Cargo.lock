@@ -90,9 +90,9 @@ checksum = "9ac0150caa2ae65ca5bd83f25c7de183dea78d4d366469f148435e2acfbad0da"
 
 [[package]]
 name = "cc"
-version = "1.1.36"
+version = "1.1.37"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "baee610e9452a8f6f0a1b6194ec09ff9e2d85dea54432acdae41aa0761c95d70"
+checksum = "40545c26d092346d8a8dab71ee48e7685a7a9cba76e634790c215b41a4a7b4cf"
 dependencies = [
  "shlex",
 ]
@@ -176,9 +176,9 @@ checksum = "07e28edb80900c19c28f1072f2e8aeca7fa06b23cd4169cefe1af5aa3260783f"
 
 [[package]]
 name = "googleapis-tonic-google-api"
-version = "0.9.0"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "afc43693b86cce6e0531bfa94c93d8c36ffde90cce939d87c55545238a6a9d64"
+checksum = "4c52e786a776f3400b69946dc5b854e33a9cfdac29301c171fba9c84234cf56b"
 dependencies = [
  "prost",
  "prost-types",
@@ -187,9 +187,9 @@ dependencies = [
 
 [[package]]
 name = "googleapis-tonic-google-firestore-v1"
-version = "0.9.0"
+version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fa9b18283459577f15f86dda4820b63072a8ee557eb66f842e07677530d2ab40"
+checksum = "3ed991801dd15dc87292b9a3530e0c524b3fb2505662484554f186e6f9791975"
 dependencies = [
  "googleapis-tonic-google-api",
  "googleapis-tonic-google-rpc",
@@ -531,18 +531,18 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "1.0.68"
+version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "02dd99dc800bbb97186339685293e1cc5d9df1f8fae2d0aecd9ff1c77efea892"
+checksum = "07c1e40dd48a282ae8edc36c732cbc219144b87fb6a4c7316d611c6b1f06ec0c"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.68"
+version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a7c61ec9a6f64d2793d8a45faba21efbe3ced62a886d44c36a009b2b519b4c7e"
+checksum = "874aa7e446f1da8d9c3a5c95b1c5eb41d800045252121dc7f8e0ba370cee55f5"
 dependencies = [
  "proc-macro2",
  "quote",

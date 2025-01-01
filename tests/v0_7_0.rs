@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 #[cfg(feature = "chrono")]
 #[test]
 fn test_try_from_timestamp_for_chrono_date_time() -> serde_firestore_value::Result<()> {

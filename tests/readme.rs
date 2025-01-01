@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 #[cfg(feature = "hash-map")]
 #[test]
 fn test() -> anyhow::Result<()> {

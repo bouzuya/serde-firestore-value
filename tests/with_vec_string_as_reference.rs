@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 // BREAKING CHANGE 0.9.0: Change to stop using google_api_proto
 //
 // use std::collections::BTreeMap;

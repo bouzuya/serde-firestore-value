@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 mod data_model_bool;
 mod data_model_byte_array;
 mod data_model_char;

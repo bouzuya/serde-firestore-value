@@ -1,3 +1,5 @@
+#![allow(missing_docs)]
+
 #[test]
 fn test_impl_ord_for_timestamp() -> serde_firestore_value::Result<()> {
     use serde_firestore_value::Timestamp;

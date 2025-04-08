@@ -158,9 +158,9 @@ checksum = "07e28edb80900c19c28f1072f2e8aeca7fa06b23cd4169cefe1af5aa3260783f"
 
 [[package]]
 name = "googleapis-tonic-google-api"
-version = "0.16.0"
+version = "0.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "27a58cc17029b0cb5adad700cec89cd1f0a9555280357a83de707f90566d8869"
+checksum = "05452a6056dec297e3c153a82f384efc18ceceea66d042e48cac923e2b4c1130"
 dependencies = [
  "prost",
  "prost-types",
@@ -169,9 +169,9 @@ dependencies = [
 
 [[package]]
 name = "googleapis-tonic-google-firestore-v1"
-version = "0.17.0"
+version = "0.19.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec23700122955c3063c39feec2268c67a5c9b9997f312b65a60139f6b31c83bd"
+checksum = "3962e62018e066f503b37360b7a4730195b7c8c546e03b585d8f5627afe3fc7f"
 dependencies = [
  "googleapis-tonic-google-api",
  "googleapis-tonic-google-rpc",
@@ -183,9 +183,9 @@ dependencies = [
 
 [[package]]
 name = "googleapis-tonic-google-rpc"
-version = "0.11.0"
+version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57a1acd59550061903676f85ca63a7cec755fcb8e71d1c8a38132f2e77929cf3"
+checksum = "5524ca70cafa6625f98aad65058ad9f55de9ad7476dc8c530198006c3d5f9558"
 dependencies = [
  "prost",
  "prost-types",
@@ -194,9 +194,9 @@ dependencies = [
 
 [[package]]
 name = "googleapis-tonic-google-type"
-version = "0.10.0"
+version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0d765a92ea50f9f856ff6b6fb75e27da8e549e4e437ea424508221bb5a6e7d93"
+checksum = "b490cfde6529d62f7408101d6101c411b2ef869440e10fbbb8011cb1848cf55e"
 dependencies = [
  "prost",
  "prost-types",
@@ -575,9 +575,9 @@ dependencies = [
 
 [[package]]
 name = "tonic"
-version = "0.12.3"
+version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "877c5b330756d856ffcc4553ab34a5684481ade925ecc54bcd1bf02b1d0d4d52"
+checksum = "85839f0b32fd242bb3209262371d07feda6d780d16ee9d2bc88581b89da1549b"
 dependencies = [
  "async-trait",
  "base64",

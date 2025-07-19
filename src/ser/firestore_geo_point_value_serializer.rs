@@ -20,9 +20,10 @@ impl FirestoreGeoPointValueSerializer {
     }
 
     fn get(&self, field: &'static str) -> Result<f64, Error> {
-        self.fields.get(field).copied().ok_or_else(|| {
-            <Error as serde::ser::Error>::custom(format!("missing field `{}`", field))
-        })
+        self.fields
+            .get(field)
+            .copied()
+            .ok_or_else(|| <Error as serde::ser::Error>::custom(format!("missing field `{field}`")))
     }
 }
 

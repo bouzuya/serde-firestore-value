@@ -52,6 +52,9 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
                 ValueType::MapValue(_) => {
                     visitor.visit_map(FirestoreMapValueDeserializer::new(self.value)?)
                 }
+                ValueType::FieldReferenceValue(_) => todo!(),
+                ValueType::FunctionValue(_) => todo!(),
+                ValueType::PipelineValue(_) => todo!(),
             },
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
         }

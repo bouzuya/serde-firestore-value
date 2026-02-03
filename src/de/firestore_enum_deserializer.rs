@@ -1,9 +1,10 @@
 use crate::google::firestore::v1::Value;
-use crate::{value_ext::ValueExt, Error};
+use crate::{Error, value_ext::ValueExt};
 
 use super::{
+    FirestoreValueDeserializer,
     firestore_array_value_deserializer::FirestoreArrayValueDeserializer,
-    firestore_map_value_deserializer::FirestoreMapValueDeserializer, FirestoreValueDeserializer,
+    firestore_map_value_deserializer::FirestoreMapValueDeserializer,
 };
 
 pub(super) struct FirestoreEnumDeserializer<'de> {

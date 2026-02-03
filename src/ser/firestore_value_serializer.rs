@@ -2,19 +2,19 @@ use serde::{Serialize, Serializer};
 
 use crate::google::firestore::v1::Value;
 use crate::{
+    Reference,
     error::ErrorCode,
     ser::{
         firestore_array_value_serializer::FirestoreArrayValueSerializer,
         firestore_map_value_serializer::FirestoreMapValueSerializer,
     },
     value_ext::ValueExt,
-    Reference,
 };
 
 use super::{
-    firestore_reference_value_serializer::FirestoreReferenceValueSerializer,
+    Error, firestore_reference_value_serializer::FirestoreReferenceValueSerializer,
     firestore_value_struct_serializer::FirestoreValueStructSerializer,
-    name_map_value_serializer::NameMapValueSerializer, Error,
+    name_map_value_serializer::NameMapValueSerializer,
 };
 
 /// A Serializer type which implements [`serde::Serializer`] for [`Value`].

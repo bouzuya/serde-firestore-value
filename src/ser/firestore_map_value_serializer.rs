@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
-use crate::google::firestore::v1::{value::ValueType, Value};
-use crate::{error::ErrorCode, value_ext::ValueExt, Error};
+use crate::google::firestore::v1::{Value, value::ValueType};
+use crate::{Error, error::ErrorCode, value_ext::ValueExt};
 
 use super::firestore_value_serializer::FirestoreValueSerializer;
 

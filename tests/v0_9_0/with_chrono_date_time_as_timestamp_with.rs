@@ -1,7 +1,7 @@
 #[cfg(feature = "chrono")]
 #[test]
 fn test() -> anyhow::Result<()> {
-    use googleapis_tonic_google_firestore_v1::google::firestore::v1::{value::ValueType, Value};
+    use googleapis_tonic_google_firestore_v1::google::firestore::v1::{Value, value::ValueType};
     use serde_firestore_value::{from_value, to_value, with::chrono_date_time_as_timestamp};
 
     #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]

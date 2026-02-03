@@ -1,5 +1,5 @@
 use crate::google::firestore::v1::Value;
-use crate::{ser::Error, LatLng, Timestamp};
+use crate::{LatLng, Timestamp, ser::Error};
 
 use super::{
     firestore_geo_point_value_serializer::FirestoreGeoPointValueSerializer,

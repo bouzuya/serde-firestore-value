@@ -1,7 +1,7 @@
 use std::slice::Iter;
 
 use crate::google::firestore::v1::Value;
-use crate::{value_ext::ValueExt, Error};
+use crate::{Error, value_ext::ValueExt};
 
 use super::FirestoreValueDeserializer;
 

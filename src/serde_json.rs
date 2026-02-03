@@ -158,10 +158,12 @@ mod tests {
         enum T {
             A(i64),
         }
-        assert!(serde_json::from_str::<'_, T>(r#"{"B":1}"#)
-            .unwrap_err()
-            .to_string()
-            .starts_with("unknown variant `B`, expected `A`"));
+        assert!(
+            serde_json::from_str::<'_, T>(r#"{"B":1}"#)
+                .unwrap_err()
+                .to_string()
+                .starts_with("unknown variant `B`, expected `A`")
+        );
         Ok(())
     }
 }

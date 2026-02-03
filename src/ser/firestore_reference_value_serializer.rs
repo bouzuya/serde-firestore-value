@@ -1,4 +1,4 @@
-use serde::{ser::Impossible, Serialize, Serializer};
+use serde::{Serialize, Serializer, ser::Impossible};
 
 use crate::google::firestore::v1::Value;
 use crate::{error::ErrorCode, value_ext::ValueExt};

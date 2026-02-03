@@ -1,7 +1,7 @@
 #[test]
 fn test() -> anyhow::Result<()> {
     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{
-        value::ValueType, ArrayValue, Value,
+        ArrayValue, Value, value::ValueType,
     };
     use serde_firestore_value::{from_value, to_value};
 

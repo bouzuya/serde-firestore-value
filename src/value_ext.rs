@@ -7,10 +7,10 @@ use std::collections::HashMap;
 use prost::bytes::Bytes;
 
 use crate::google::{
-    firestore::v1::{value::ValueType, ArrayValue, MapValue, Value},
+    firestore::v1::{ArrayValue, MapValue, Value, value::ValueType},
     r#type::LatLng as GoogleApiProtoLatLng,
 };
-use crate::{error::ErrorCode, value_type_name::ValueTypeName, Error};
+use crate::{Error, error::ErrorCode, value_type_name::ValueTypeName};
 
 pub(crate) trait ValueExt {
     fn from_bool(value: bool) -> Self;

@@ -2,7 +2,7 @@
 #[test]
 fn test() -> anyhow::Result<()> {
     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{
-        value::ValueType, MapValue, Value,
+        MapValue, Value, value::ValueType,
     };
     use serde_firestore_value::from_value;
 
@@ -58,17 +58,23 @@ fn test() -> anyhow::Result<()> {
     );
 
     // FYI
-    assert!(serde_json::from_str::<'_, T>(r#"{"B":2}"#)
-        .unwrap_err()
-        .to_string()
-        .starts_with("unknown variant `B`, expected `A`"));
-    assert!(serde_json::from_str::<'_, T>(r#"{"B":2,"A":1}"#)
-        .unwrap_err()
-        .to_string()
-        .starts_with("unknown variant `B`, expected `A`"));
-    assert!(serde_json::from_str::<'_, T>(r#"{"A":1,"B":2}"#)
-        .unwrap_err()
-        .to_string()
-        .starts_with("expected value at "));
+    assert!(
+        serde_json::from_str::<'_, T>(r#"{"B":2}"#)
+            .unwrap_err()
+            .to_string()
+            .starts_with("unknown variant `B`, expected `A`")
+    );
+    assert!(
+        serde_json::from_str::<'_, T>(r#"{"B":2,"A":1}"#)
+            .unwrap_err()
+            .to_string()
+            .starts_with("unknown variant `B`, expected `A`")
+    );
+    assert!(
+        serde_json::from_str::<'_, T>(r#"{"A":1,"B":2}"#)
+            .unwrap_err()
+            .to_string()
+            .starts_with("expected value at ")
+    );
     Ok(())
 }

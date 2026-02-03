@@ -1,7 +1,7 @@
 use super::firestore_value_serializer::FirestoreValueSerializer;
 
 use crate::google::firestore::v1::Value;
-use crate::{error::ErrorCode, value_ext::ValueExt, Error};
+use crate::{Error, error::ErrorCode, value_ext::ValueExt};
 
 #[doc(hidden)]
 pub struct FirestoreTimestampValueSerializer {

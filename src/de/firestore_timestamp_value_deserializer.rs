@@ -1,7 +1,7 @@
 use serde::de::value::{I64Deserializer, StrDeserializer};
 
 use crate::google::firestore::v1::Value;
-use crate::{value_ext::ValueExt, Error};
+use crate::{Error, value_ext::ValueExt};
 
 pub(super) struct FirestoreTimestampValueDeserializer<'de> {
     index: usize,

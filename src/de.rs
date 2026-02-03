@@ -8,8 +8,8 @@ mod firestore_timestamp_value_deserializer;
 mod firestore_value_deserializer;
 pub(crate) mod with;
 
-use crate::google::firestore::v1::Value;
 use crate::Error;
+use crate::google::firestore::v1::Value;
 
 use self::firestore_value_deserializer::FirestoreValueDeserializer;
 

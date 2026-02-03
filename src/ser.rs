@@ -11,7 +11,7 @@ pub(crate) mod with;
 use serde::Serialize;
 
 use crate::google::firestore::v1::Value;
-use crate::{ser::firestore_value_serializer::FirestoreValueSerializer, Error};
+use crate::{Error, ser::firestore_value_serializer::FirestoreValueSerializer};
 
 pub use firestore_value_serializer::FirestoreValueSerializer as Serializer;
 

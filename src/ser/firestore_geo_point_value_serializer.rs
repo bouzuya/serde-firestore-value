@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use super::firestore_value_serializer::FirestoreValueSerializer;
 
 use crate::google::{firestore::v1::Value, r#type::LatLng as GoogleApiProtoLatLng};
-use crate::{value_ext::ValueExt, Error};
+use crate::{Error, value_ext::ValueExt};
 
 #[doc(hidden)]
 pub struct FirestoreGeoPointValueSerializer {

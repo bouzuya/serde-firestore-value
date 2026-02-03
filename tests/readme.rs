@@ -4,7 +4,7 @@
 #[test]
 fn test() -> anyhow::Result<()> {
     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{
-        value::ValueType, ArrayValue, MapValue, Value,
+        ArrayValue, MapValue, Value, value::ValueType,
     };
     use serde_firestore_value::{LatLng, Reference, Timestamp};
     use std::collections::BTreeMap;

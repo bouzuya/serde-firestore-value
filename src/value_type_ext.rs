@@ -20,9 +20,9 @@ impl ValueTypeExt for ValueType {
             ValueType::GeoPointValue(_) => ValueTypeName::GeoPoint,
             ValueType::ArrayValue(_) => ValueTypeName::Array,
             ValueType::MapValue(_) => ValueTypeName::Map,
-            ValueType::FieldReferenceValue(_) => todo!(),
-            ValueType::FunctionValue(_) => todo!(),
-            ValueType::PipelineValue(_) => todo!(),
+            ValueType::FieldReferenceValue(_) => ValueTypeName::FieldReference,
+            ValueType::FunctionValue(_) => ValueTypeName::Function,
+            ValueType::PipelineValue(_) => ValueTypeName::Pipeline,
         }
     }
 }

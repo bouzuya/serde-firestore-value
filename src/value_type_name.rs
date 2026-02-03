@@ -11,6 +11,9 @@ pub(super) enum ValueTypeName {
     GeoPoint,
     Array,
     Map,
+    FieldReference,
+    Function,
+    Pipeline,
 }
 
 impl ValueTypeName {
@@ -27,6 +30,9 @@ impl ValueTypeName {
             ValueTypeName::GeoPoint => "geo point value",
             ValueTypeName::Array => "array value",
             ValueTypeName::Map => "map value",
+            ValueTypeName::FieldReference => "field reference value",
+            ValueTypeName::Function => "function value",
+            ValueTypeName::Pipeline => "pipeline value",
         }
     }
 }

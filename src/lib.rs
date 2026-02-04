@@ -187,6 +187,6 @@ pub mod with;
 pub use self::de::{Deserializer, from_value};
 pub use self::error::{Error, Result};
 pub use self::ser::{Serializer, to_value};
-pub use self::typ::{LatLng, Reference, Timestamp};
+pub use self::typ::{FieldReference, LatLng, Reference, Timestamp};
 
 pub use googleapis_tonic_google_firestore_v1::google;

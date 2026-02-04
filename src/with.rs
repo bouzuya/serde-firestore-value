@@ -79,6 +79,7 @@ pub mod option_string_as_reference;
 #[cfg(feature = "time")]
 pub mod option_time_offset_date_time_as_timestamp;
 pub mod option_timestamp;
+pub mod string_as_field_reference;
 pub mod string_as_reference;
 #[cfg(feature = "time")]
 pub mod time_offset_date_time_as_timestamp;

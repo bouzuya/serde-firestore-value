@@ -1,5 +1,7 @@
 use crate::google::firestore::v1::{Value, value::ValueType};
-use crate::{Error, FieldReference, LatLng, Reference, Timestamp, error::ErrorCode, value_ext::ValueExt};
+use crate::{
+    Error, FieldReference, LatLng, Reference, Timestamp, error::ErrorCode, value_ext::ValueExt,
+};
 
 use super::{
     firestore_array_value_deserializer::FirestoreArrayValueDeserializer,

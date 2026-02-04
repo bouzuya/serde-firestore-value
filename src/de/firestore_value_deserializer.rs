@@ -1,9 +1,10 @@
 use crate::google::firestore::v1::{Value, value::ValueType};
-use crate::{Error, LatLng, Reference, Timestamp, error::ErrorCode, value_ext::ValueExt};
+use crate::{Error, FieldReference, LatLng, Reference, Timestamp, error::ErrorCode, value_ext::ValueExt};
 
 use super::{
     firestore_array_value_deserializer::FirestoreArrayValueDeserializer,
     firestore_enum_deserializer::FirestoreEnumDeserializer,
+    firestore_field_reference_value_deserializer::FirestoreFieldReferenceValueDeserializer,
     firestore_geo_point_value_deserializer::FirestoreGeoPointValueDeserializer,
     firestore_map_value_deserializer::FirestoreMapValueDeserializer,
     firestore_reference_value_deserializer::FirestoreReferenceValueDeserializer,
@@ -52,7 +53,7 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
                 ValueType::MapValue(_) => {
                     visitor.visit_map(FirestoreMapValueDeserializer::new(self.value)?)
                 }
-                ValueType::FieldReferenceValue(_) => todo!(),
+                ValueType::FieldReferenceValue(v) => visitor.visit_str(v),
                 ValueType::FunctionValue(_) => todo!(),
                 ValueType::PipelineValue(_) => todo!(),
             },
@@ -229,7 +230,9 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        if name == Reference::NAME {
+        if name == FieldReference::NAME {
+            visitor.visit_newtype_struct(FirestoreFieldReferenceValueDeserializer::new(self.value))
+        } else if name == Reference::NAME {
             visitor.visit_newtype_struct(FirestoreReferenceValueDeserializer::new(self.value))
         } else {
             visitor.visit_newtype_struct(self)

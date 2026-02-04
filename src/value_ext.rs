@@ -31,6 +31,7 @@ pub(crate) trait ValueExt {
     fn as_boolean(&self) -> Result<bool, Error>;
     fn as_bytes(&self) -> Result<&[u8], Error>;
     fn as_double(&self) -> Result<f64, Error>;
+    fn as_field_reference_value_as_string(&self) -> Result<&String, Error>;
     #[cfg(feature = "btree-map")]
     fn as_fields(&self) -> Result<&BTreeMap<String, Value>, Error>;
     #[cfg(feature = "hash-map")]
@@ -168,6 +169,16 @@ impl ValueExt for Value {
         match self.value_type()? {
             ValueType::DoubleValue(value) => Ok(*value),
             value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Double)),
+        }
+    }
+
+    fn as_field_reference_value_as_string(&self) -> Result<&String, Error> {
+        match self.value_type()? {
+            ValueType::FieldReferenceValue(value) => Ok(value),
+            value_type => Err(Error::invalid_value_type(
+                value_type,
+                ValueTypeName::FieldReference,
+            )),
         }
     }
 

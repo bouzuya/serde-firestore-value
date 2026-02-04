@@ -23,6 +23,7 @@ pub(crate) trait ValueExt {
     fn from_i64(value: i64) -> Self;
     fn from_lat_lng(value: GoogleApiProtoLatLng) -> Self;
     fn from_string(value: String) -> Self;
+    fn from_string_as_field_reference_value(value: String) -> Self;
     fn from_string_as_reference_value(value: String) -> Self;
     fn from_timestamp(timestamp: prost_types::Timestamp) -> Self;
     fn from_values(values: Vec<Value>) -> Self;
@@ -127,6 +128,12 @@ impl ValueExt for Value {
     fn from_timestamp(timestamp: prost_types::Timestamp) -> Self {
         Self {
             value_type: Some(ValueType::TimestampValue(timestamp)),
+        }
+    }
+
+    fn from_string_as_field_reference_value(value: String) -> Self {
+        Self {
+            value_type: Some(ValueType::FieldReferenceValue(value)),
         }
     }
 

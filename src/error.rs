@@ -38,6 +38,8 @@ impl serde::ser::Error for Error {
 pub(crate) enum ErrorCode {
     #[error("{0}")]
     Custom(String),
+    #[error("field reference value must be a string")]
+    FieldReferenceValueMustBeAString,
     #[error("i16 out of range")]
     I16OutOfRange,
     #[error("i32 out of range")]

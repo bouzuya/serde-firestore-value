@@ -1,29 +1,39 @@
 #[test]
-fn test_deserialize_field_reference_value_as_field_reference() -> anyhow::Result<()> {
+fn test_field_reference() -> anyhow::Result<()> {
     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{Value, value::ValueType};
-    use serde_firestore_value::{FieldReference, from_value};
+    use serde_firestore_value::{FieldReference, from_value, to_value};
 
+    let inner = "field_name";
+    let o = FieldReference(inner.to_string());
     let v = Value {
-        value_type: Some(ValueType::FieldReferenceValue("field_name".to_string())),
+        value_type: Some(ValueType::FieldReferenceValue(inner.to_string())),
     };
-    let d = from_value::<'_, FieldReference>(&v)?;
-    assert_eq!(d, FieldReference("field_name".to_string()));
+    let s = to_value(&o)?;
+    let d = from_value::<'_, FieldReference>(&s)?;
+    assert_eq!(s, v);
+    assert_eq!(d, o);
+
+    let json = serde_json::to_string(&o)?;
+    assert_eq!(json, r#""field_name""#);
     Ok(())
 }
 
 #[test]
-fn test_deserialize_field_reference_value_in_struct() -> anyhow::Result<()> {
+fn test_field_reference_value_in_struct() -> anyhow::Result<()> {
     use googleapis_tonic_google_firestore_v1::google::firestore::v1::{
         MapValue, Value, value::ValueType,
     };
-    use serde_firestore_value::{FieldReference, from_value};
+    use serde_firestore_value::{FieldReference, from_value, to_value};
     use std::collections::HashMap;
 
-    #[derive(Debug, Eq, PartialEq, serde::Deserialize)]
+    #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
     struct S {
         field_ref: FieldReference,
     }
 
+    let o = S {
+        field_ref: FieldReference("some_field.nested".to_string()),
+    };
     let v = Value {
         value_type: Some(ValueType::MapValue(MapValue {
             fields: {
@@ -40,12 +50,9 @@ fn test_deserialize_field_reference_value_in_struct() -> anyhow::Result<()> {
             },
         })),
     };
-    let d = from_value::<'_, S>(&v)?;
-    assert_eq!(
-        d,
-        S {
-            field_ref: FieldReference("some_field.nested".to_string())
-        }
-    );
+    let s = to_value(&o)?;
+    let d = from_value::<'_, S>(&s)?;
+    assert_eq!(s, v);
+    assert_eq!(d, o);
     Ok(())
 }

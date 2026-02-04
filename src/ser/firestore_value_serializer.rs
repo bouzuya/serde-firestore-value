@@ -1,5 +1,6 @@
 use serde::{Serialize, Serializer};
 
+use crate::FieldReference;
 use crate::google::firestore::v1::Value;
 use crate::{
     Reference,
@@ -12,7 +13,8 @@ use crate::{
 };
 
 use super::{
-    Error, firestore_reference_value_serializer::FirestoreReferenceValueSerializer,
+    Error, firestore_field_reference_value_serializer::FirestoreFieldReferenceValueSerializer,
+    firestore_reference_value_serializer::FirestoreReferenceValueSerializer,
     firestore_value_struct_serializer::FirestoreValueStructSerializer,
     name_map_value_serializer::NameMapValueSerializer,
 };
@@ -144,6 +146,8 @@ impl Serializer for FirestoreValueSerializer {
     {
         if name == Reference::NAME {
             value.serialize(FirestoreReferenceValueSerializer)
+        } else if name == FieldReference::NAME {
+            value.serialize(FirestoreFieldReferenceValueSerializer)
         } else {
             value.serialize(FirestoreValueSerializer)
         }

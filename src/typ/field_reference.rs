@@ -20,7 +20,9 @@
 /// #     Ok(())
 /// # }
 /// ```
-#[derive(Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, serde::Deserialize)]
+#[derive(
+    Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd, serde::Deserialize, serde::Serialize,
+)]
 #[serde(rename = "$__serde-firestore-value_private_field_reference")]
 pub struct FieldReference(pub String);
 

@@ -24,9 +24,7 @@ fn test() -> anyhow::Result<()> {
                 fields.insert(
                     "r".to_string(),
                     Value {
-                        value_type: Some(ValueType::FieldReferenceValue(
-                            "field_name".to_string(),
-                        )),
+                        value_type: Some(ValueType::FieldReferenceValue("field_name".to_string())),
                     },
                 );
                 fields.insert(

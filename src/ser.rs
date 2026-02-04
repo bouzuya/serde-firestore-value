@@ -1,4 +1,5 @@
 mod firestore_array_value_serializer;
+mod firestore_field_reference_value_serializer;
 mod firestore_geo_point_value_serializer;
 mod firestore_map_value_serializer;
 mod firestore_reference_value_serializer;

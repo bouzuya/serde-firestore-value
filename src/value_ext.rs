@@ -7,7 +7,9 @@ use std::collections::HashMap;
 use prost::bytes::Bytes;
 
 use crate::google::{
-    firestore::v1::{ArrayValue, MapValue, Value, value::ValueType},
+    firestore::v1::{
+        ArrayValue, Function as GoogleFirestoreFunction, MapValue, Value, value::ValueType,
+    },
     r#type::LatLng as GoogleApiProtoLatLng,
 };
 use crate::{Error, error::ErrorCode, value_type_name::ValueTypeName};
@@ -20,6 +22,7 @@ pub(crate) trait ValueExt {
     where
         I: IntoIterator<Item = (S, Value)>,
         S: Into<String>;
+    fn from_function(function: GoogleFirestoreFunction) -> Self;
     fn from_i64(value: i64) -> Self;
     fn from_lat_lng(value: GoogleApiProtoLatLng) -> Self;
     fn from_string(value: String) -> Self;
@@ -104,6 +107,12 @@ impl ValueExt for Value {
                     .map(|(s, v)| (s.into(), v))
                     .collect::<HashMap<String, Value>>(),
             })),
+        }
+    }
+
+    fn from_function(function: GoogleFirestoreFunction) -> Self {
+        Self {
+            value_type: Some(ValueType::FunctionValue(function)),
         }
     }
 

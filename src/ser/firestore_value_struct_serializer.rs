@@ -1,7 +1,9 @@
 use crate::google::firestore::v1::Value;
+use crate::typ::Function;
 use crate::{LatLng, Timestamp, ser::Error};
 
 use super::{
+    firestore_function_value_serializer::FirestoreFunctionValueSerializer,
     firestore_geo_point_value_serializer::FirestoreGeoPointValueSerializer,
     firestore_map_value_serializer::FirestoreMapValueSerializer,
     firestore_timestamp_value_serializer::FirestoreTimestampValueSerializer,
@@ -9,6 +11,7 @@ use super::{
 
 #[doc(hidden)]
 pub enum FirestoreValueStructSerializer {
+    Function(FirestoreFunctionValueSerializer),
     GeoPoint(FirestoreGeoPointValueSerializer),
     Map(FirestoreMapValueSerializer),
     Timestamp(FirestoreTimestampValueSerializer),
@@ -16,7 +19,9 @@ pub enum FirestoreValueStructSerializer {
 
 impl FirestoreValueStructSerializer {
     pub(crate) fn new(name: &'static str, len: usize) -> Self {
-        if name == LatLng::NAME {
+        if name == Function::NAME {
+            FirestoreValueStructSerializer::Function(FirestoreFunctionValueSerializer::new())
+        } else if name == LatLng::NAME {
             FirestoreValueStructSerializer::GeoPoint(FirestoreGeoPointValueSerializer::new())
         } else if name == Timestamp::NAME {
             FirestoreValueStructSerializer::Timestamp(FirestoreTimestampValueSerializer::new())
@@ -36,6 +41,7 @@ impl serde::ser::SerializeStruct for FirestoreValueStructSerializer {
         T: ?Sized + serde::Serialize,
     {
         match self {
+            Self::Function(s) => serde::ser::SerializeStruct::serialize_field(s, key, value),
             Self::GeoPoint(s) => serde::ser::SerializeStruct::serialize_field(s, key, value),
             Self::Map(s) => serde::ser::SerializeStruct::serialize_field(s, key, value),
             Self::Timestamp(s) => serde::ser::SerializeStruct::serialize_field(s, key, value),
@@ -44,6 +50,7 @@ impl serde::ser::SerializeStruct for FirestoreValueStructSerializer {
 
     fn end(self) -> Result<Self::Ok, Self::Error> {
         match self {
+            Self::Function(s) => serde::ser::SerializeStruct::end(s),
             Self::GeoPoint(s) => serde::ser::SerializeStruct::end(s),
             Self::Map(s) => serde::ser::SerializeStruct::end(s),
             Self::Timestamp(s) => serde::ser::SerializeStruct::end(s),

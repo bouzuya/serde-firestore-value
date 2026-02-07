@@ -40,6 +40,7 @@ impl serde::Serialize for Function {
 }
 
 impl Function {
+    pub(crate) const FIELDS: &'static [&'static str] = &["name", "args", "options"];
     pub(crate) const NAME: &'static str = "$__serde-firestore-value_private_function";
 }
 
@@ -50,7 +51,7 @@ impl serde::Serialize for ValueWrapper<'_> {
     where
         S: serde::Serializer,
     {
-        use serde::ser::{SerializeMap, SerializeSeq};
+        use serde::ser::{SerializeMap, SerializeSeq, SerializeStruct};
 
         use crate::google::firestore::v1::value::ValueType;
 
@@ -61,7 +62,6 @@ impl serde::Serialize for ValueWrapper<'_> {
             Some(ValueType::IntegerValue(v)) => serializer.serialize_i64(*v),
             Some(ValueType::DoubleValue(v)) => serializer.serialize_f64(*v),
             Some(ValueType::TimestampValue(v)) => {
-                use serde::ser::SerializeStruct;
                 let mut state = serializer.serialize_struct(crate::Timestamp::NAME, 2)?;
                 state.serialize_field("seconds", &v.seconds)?;
                 state.serialize_field("nanos", &v.nanos)?;
@@ -73,7 +73,6 @@ impl serde::Serialize for ValueWrapper<'_> {
                 serializer.serialize_newtype_struct(crate::Reference::NAME, v)
             }
             Some(ValueType::GeoPointValue(v)) => {
-                use serde::ser::SerializeStruct;
                 let mut state = serializer.serialize_struct(crate::LatLng::NAME, 2)?;
                 state.serialize_field("latitude", &v.latitude)?;
                 state.serialize_field("longitude", &v.longitude)?;
@@ -97,16 +96,10 @@ impl serde::Serialize for ValueWrapper<'_> {
                 serializer.serialize_newtype_struct(crate::FieldReference::NAME, v)
             }
             Some(ValueType::FunctionValue(v)) => {
-                use serde::ser::SerializeStruct;
                 let mut state = serializer.serialize_struct(Function::NAME, 3)?;
                 state.serialize_field("name", &v.name)?;
-                let args: Vec<Value> = v.args.clone();
-                state.serialize_field("args", &ValueVecWrapper(&args))?;
-                #[cfg(feature = "btree-map")]
-                let options: BTreeMap<String, Value> = v.options.clone();
-                #[cfg(feature = "hash-map")]
-                let options: HashMap<String, Value> = v.options.clone();
-                state.serialize_field("options", &ValueMapWrapper(&options))?;
+                state.serialize_field("args", &ValueVecWrapper(&v.args))?;
+                state.serialize_field("options", &ValueMapWrapper(&v.options))?;
                 state.end()
             }
             Some(ValueType::PipelineValue(_)) => {

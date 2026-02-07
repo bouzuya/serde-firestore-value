@@ -31,7 +31,7 @@ impl serde::ser::SerializeMap for FirestoreMapValueSerializer {
     {
         if let Value {
             value_type: Some(ValueType::StringValue(key_string)),
-        } = key.serialize(FirestoreValueSerializer)?
+        } = key.serialize(FirestoreValueSerializer::new())?
         {
             if self.key.is_none() {
                 self.key = Some(key_string);
@@ -49,7 +49,7 @@ impl serde::ser::SerializeMap for FirestoreMapValueSerializer {
         T: ?Sized + serde::Serialize,
     {
         if let Some(k) = self.key.take() {
-            let v = value.serialize(FirestoreValueSerializer)?;
+            let v = value.serialize(FirestoreValueSerializer::new())?;
             self.fields.insert(k, v);
             Ok(())
         } else {

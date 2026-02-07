@@ -44,7 +44,7 @@ impl serde::ser::SerializeStruct for FirestoreGeoPointValueSerializer {
                 Self::FIELDS[1]
             )));
         }
-        let value = value.serialize(FirestoreValueSerializer)?;
+        let value = value.serialize(FirestoreValueSerializer::new())?;
         let value = value.as_double()?;
         self.fields.insert(key, value);
         Ok(())

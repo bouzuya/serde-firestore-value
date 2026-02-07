@@ -21,7 +21,16 @@ use super::{
 
 /// A Serializer type which implements [`serde::Serializer`] for [`Value`].
 #[derive(Debug)]
-pub struct FirestoreValueSerializer;
+pub struct FirestoreValueSerializer {
+    _private: (),
+}
+
+impl FirestoreValueSerializer {
+    /// Creates a new `FirestoreValueSerializer`.
+    pub fn new() -> Self {
+        Self { _private: () }
+    }
+}
 
 // 1,048,487 bytes = 1MiB - 89 bytes
 const MAX_BYTE_LEN: usize = 1_048_487;
@@ -149,7 +158,7 @@ impl Serializer for FirestoreValueSerializer {
         } else if name == FieldReference::NAME {
             value.serialize(FirestoreFieldReferenceValueSerializer)
         } else {
-            value.serialize(FirestoreValueSerializer)
+            value.serialize(FirestoreValueSerializer::new())
         }
     }
 

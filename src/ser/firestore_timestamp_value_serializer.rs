@@ -28,11 +28,11 @@ impl serde::ser::SerializeStruct for FirestoreTimestampValueSerializer {
         T: ?Sized + serde::Serialize,
     {
         if key == "seconds" {
-            let value = value.serialize(FirestoreValueSerializer)?;
+            let value = value.serialize(FirestoreValueSerializer::new())?;
             let value = value.as_integer()?;
             self.seconds = Some(value);
         } else if key == "nanos" {
-            let value = value.serialize(FirestoreValueSerializer)?;
+            let value = value.serialize(FirestoreValueSerializer::new())?;
             let value = value.as_integer()?;
             let value =
                 i32::try_from(value).map_err(|_| Self::Error::from(ErrorCode::I32OutOfRange))?;

@@ -155,3 +155,7 @@ assert_eq!(serialized, value);
 let deserialized = serde_firestore_value::from_value::<T>(&serialized)?;
 assert_eq!(deserialized, t);
 ```
+
+## TODOs
+
+- PipelineValue support

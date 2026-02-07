@@ -25,7 +25,8 @@ impl serde::ser::SerializeSeq for FirestoreArrayValueSerializer {
     where
         T: ?Sized + serde::Serialize,
     {
-        self.values.push(value.serialize(FirestoreValueSerializer)?);
+        self.values
+            .push(value.serialize(FirestoreValueSerializer::new())?);
         Ok(())
     }
 

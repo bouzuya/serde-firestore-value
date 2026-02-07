@@ -38,15 +38,15 @@ impl serde::ser::SerializeStruct for FirestoreFunctionValueSerializer {
         T: ?Sized + serde::Serialize,
     {
         if key == "name" {
-            let value = value.serialize(FirestoreValueSerializer)?;
+            let value = value.serialize(FirestoreValueSerializer::new())?;
             let value = value.as_string()?;
             self.name = Some(value.clone());
         } else if key == "args" {
-            let value = value.serialize(FirestoreValueSerializer)?;
+            let value = value.serialize(FirestoreValueSerializer::new())?;
             let values = value.as_values()?;
             self.args = Some(values.clone());
         } else if key == "options" {
-            let value = value.serialize(FirestoreValueSerializer)?;
+            let value = value.serialize(FirestoreValueSerializer::new())?;
             let fields = value.as_fields()?;
             self.options = Some(fields.clone());
         } else {

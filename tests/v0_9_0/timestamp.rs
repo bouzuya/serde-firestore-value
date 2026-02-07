@@ -1,7 +1,7 @@
 #[test]
 fn test() -> anyhow::Result<()> {
-    use google_api_proto::google::firestore::v1::{value::ValueType, Value};
-    use serde_firestore_value::{from_value, to_value, Timestamp};
+    use serde_firestore_value::google::firestore::v1::{Value, value::ValueType};
+    use serde_firestore_value::{Timestamp, from_value, to_value};
 
     let o = Timestamp {
         seconds: 1_i64,

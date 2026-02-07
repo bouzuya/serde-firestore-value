@@ -36,6 +36,7 @@ mod rename_attr;
 mod result;
 mod serializer;
 mod skip_attr;
+mod timestamp;
 mod unknown_variant_error;
 mod with_chrono_date_time_as_timestamp_deserialize_with;
 mod with_chrono_date_time_as_timestamp_serialize_with;

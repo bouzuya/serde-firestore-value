@@ -2,8 +2,7 @@ use crate::google::firestore::v1::Value;
 use crate::{Error, value_ext::ValueExt};
 
 use super::{
-    FirestoreValueDeserializer,
-    firestore_array_value_deserializer::FirestoreArrayValueDeserializer,
+    Deserializer, firestore_array_value_deserializer::FirestoreArrayValueDeserializer,
     firestore_map_value_deserializer::FirestoreMapValueDeserializer,
 };
 
@@ -26,7 +25,7 @@ impl<'de> serde::de::EnumAccess<'de> for FirestoreEnumDeserializer<'de> {
     where
         V: serde::de::DeserializeSeed<'de>,
     {
-        seed.deserialize(FirestoreValueDeserializer::new(self.value))
+        seed.deserialize(Deserializer::new(self.value))
             .map(|v| (v, self))
     }
 }
@@ -52,7 +51,7 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
     {
         let (variant, value) = self.value.as_variant_value()?;
         if self.variants.contains(&variant.as_str()) {
-            seed.deserialize(FirestoreValueDeserializer::new(value))
+            seed.deserialize(Deserializer::new(value))
         } else {
             Err(<Error as serde::de::Error>::unknown_variant(
                 variant,

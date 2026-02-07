@@ -8,7 +8,7 @@ use serde::de::value::{StrDeserializer, UnitDeserializer};
 use crate::google::firestore::v1::Value;
 use crate::{Error, value_ext::ValueExt};
 
-use super::FirestoreValueDeserializer;
+use super::Deserializer;
 
 pub(super) struct FirestoreStructMapValueDeserializer<'de> {
     fields: &'static [&'static str],
@@ -57,7 +57,7 @@ impl<'de> serde::de::MapAccess<'de> for FirestoreStructMapValueDeserializer<'de>
         V: serde::de::DeserializeSeed<'de>,
     {
         if let Some(value) = self.next_value.take() {
-            seed.deserialize(FirestoreValueDeserializer::new(value))
+            seed.deserialize(Deserializer::new(value))
         } else {
             seed.deserialize(UnitDeserializer::new())
         }

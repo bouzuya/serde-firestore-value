@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use super::firestore_value_serializer::FirestoreValueSerializer;
+use super::firestore_value_serializer::Serializer;
 
 use crate::google::{firestore::v1::Value, r#type::LatLng as GoogleApiProtoLatLng};
 use crate::{Error, value_ext::ValueExt};
@@ -44,7 +44,7 @@ impl serde::ser::SerializeStruct for FirestoreGeoPointValueSerializer {
                 Self::FIELDS[1]
             )));
         }
-        let value = value.serialize(FirestoreValueSerializer::new())?;
+        let value = value.serialize(Serializer::new())?;
         let value = value.as_double()?;
         self.fields.insert(key, value);
         Ok(())

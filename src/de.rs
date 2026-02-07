@@ -13,9 +13,7 @@ pub(crate) mod with;
 use crate::Error;
 use crate::google::firestore::v1::Value;
 
-use self::firestore_value_deserializer::FirestoreValueDeserializer;
-
-pub use self::firestore_value_deserializer::FirestoreValueDeserializer as Deserializer;
+pub use self::firestore_value_deserializer::Deserializer;
 
 /// Deserialize an instance of type `T` from a Firestore Value.
 ///
@@ -81,7 +79,7 @@ pub fn from_value<'a, T>(value: &'a Value) -> Result<T, Error>
 where
     T: serde::Deserialize<'a>,
 {
-    T::deserialize(FirestoreValueDeserializer::new(value))
+    T::deserialize(Deserializer::new(value))
 }
 
 #[cfg(test)]

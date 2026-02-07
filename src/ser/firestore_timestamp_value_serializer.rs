@@ -1,4 +1,4 @@
-use super::firestore_value_serializer::FirestoreValueSerializer;
+use super::firestore_value_serializer::Serializer;
 
 use crate::google::firestore::v1::Value;
 use crate::{Error, error::ErrorCode, value_ext::ValueExt};
@@ -28,11 +28,11 @@ impl serde::ser::SerializeStruct for FirestoreTimestampValueSerializer {
         T: ?Sized + serde::Serialize,
     {
         if key == "seconds" {
-            let value = value.serialize(FirestoreValueSerializer::new())?;
+            let value = value.serialize(Serializer::new())?;
             let value = value.as_integer()?;
             self.seconds = Some(value);
         } else if key == "nanos" {
-            let value = value.serialize(FirestoreValueSerializer::new())?;
+            let value = value.serialize(Serializer::new())?;
             let value = value.as_integer()?;
             let value =
                 i32::try_from(value).map_err(|_| Self::Error::from(ErrorCode::I32OutOfRange))?;

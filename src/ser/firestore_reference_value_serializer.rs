@@ -1,4 +1,4 @@
-use serde::{Serialize, Serializer, ser::Impossible};
+use serde::{Serialize, ser::Impossible};
 
 use crate::google::firestore::v1::Value;
 use crate::{error::ErrorCode, value_ext::ValueExt};
@@ -8,7 +8,7 @@ use super::Error;
 #[derive(Debug, Default)]
 pub(super) struct FirestoreReferenceValueSerializer;
 
-impl Serializer for FirestoreReferenceValueSerializer {
+impl serde::Serializer for FirestoreReferenceValueSerializer {
     type Ok = Value;
 
     type Error = Error;

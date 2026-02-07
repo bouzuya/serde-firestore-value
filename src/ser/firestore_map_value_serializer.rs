@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use crate::google::firestore::v1::{Value, value::ValueType};
 use crate::{Error, error::ErrorCode, value_ext::ValueExt};
 
-use super::firestore_value_serializer::FirestoreValueSerializer;
+use super::firestore_value_serializer::Serializer;
 
 #[doc(hidden)]
 pub struct FirestoreMapValueSerializer {
@@ -31,7 +31,7 @@ impl serde::ser::SerializeMap for FirestoreMapValueSerializer {
     {
         if let Value {
             value_type: Some(ValueType::StringValue(key_string)),
-        } = key.serialize(FirestoreValueSerializer::new())?
+        } = key.serialize(Serializer::new())?
         {
             if self.key.is_none() {
                 self.key = Some(key_string);
@@ -49,7 +49,7 @@ impl serde::ser::SerializeMap for FirestoreMapValueSerializer {
         T: ?Sized + serde::Serialize,
     {
         if let Some(k) = self.key.take() {
-            let v = value.serialize(FirestoreValueSerializer::new())?;
+            let v = value.serialize(Serializer::new())?;
             self.fields.insert(k, v);
             Ok(())
         } else {

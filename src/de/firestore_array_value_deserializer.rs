@@ -3,7 +3,7 @@ use std::slice::Iter;
 use crate::google::firestore::v1::Value;
 use crate::{Error, value_ext::ValueExt};
 
-use super::FirestoreValueDeserializer;
+use super::Deserializer;
 
 pub(super) struct FirestoreArrayValueDeserializer<'de> {
     iter: Iter<'de, Value>,
@@ -26,7 +26,7 @@ impl<'de> serde::de::SeqAccess<'de> for FirestoreArrayValueDeserializer<'de> {
     {
         self.iter
             .next()
-            .map(|value| seed.deserialize(FirestoreValueDeserializer::new(value)))
+            .map(|value| seed.deserialize(Deserializer::new(value)))
             .transpose()
     }
 }

@@ -3,7 +3,7 @@ use serde::de::value::StrDeserializer;
 use crate::google::firestore::v1::Value;
 use crate::{Error, value_ext::ValueExt};
 
-use super::FirestoreValueDeserializer;
+use super::Deserializer;
 
 pub(super) struct FirestoreMapValueDeserializer<'de> {
     #[cfg(feature = "btree-map")]
@@ -48,7 +48,7 @@ impl<'de> serde::de::MapAccess<'de> for FirestoreMapValueDeserializer<'de> {
         V: serde::de::DeserializeSeed<'de>,
     {
         if let Some(value) = self.next_value.take() {
-            seed.deserialize(FirestoreValueDeserializer::new(value))
+            seed.deserialize(Deserializer::new(value))
         } else {
             unreachable!()
         }

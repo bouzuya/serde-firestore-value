@@ -1,7 +1,7 @@
 use crate::google::firestore::v1::Value;
 use crate::{ser::Error, value_ext::ValueExt};
 
-use super::firestore_value_serializer::FirestoreValueSerializer;
+use super::firestore_value_serializer::Serializer;
 
 #[doc(hidden)]
 pub struct FirestoreArrayValueSerializer {
@@ -25,8 +25,7 @@ impl serde::ser::SerializeSeq for FirestoreArrayValueSerializer {
     where
         T: ?Sized + serde::Serialize,
     {
-        self.values
-            .push(value.serialize(FirestoreValueSerializer::new())?);
+        self.values.push(value.serialize(Serializer::new())?);
         Ok(())
     }
 

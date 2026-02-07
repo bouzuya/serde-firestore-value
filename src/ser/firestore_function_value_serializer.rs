@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 #[cfg(feature = "hash-map")]
 use std::collections::HashMap;
 
-use super::firestore_value_serializer::FirestoreValueSerializer;
+use super::firestore_value_serializer::Serializer;
 
 use crate::google::firestore::v1::Value;
 use crate::{Error, error::ErrorCode, value_ext::ValueExt};
@@ -38,15 +38,15 @@ impl serde::ser::SerializeStruct for FirestoreFunctionValueSerializer {
         T: ?Sized + serde::Serialize,
     {
         if key == "name" {
-            let value = value.serialize(FirestoreValueSerializer::new())?;
+            let value = value.serialize(Serializer::new())?;
             let value = value.as_string()?;
             self.name = Some(value.clone());
         } else if key == "args" {
-            let value = value.serialize(FirestoreValueSerializer::new())?;
+            let value = value.serialize(Serializer::new())?;
             let values = value.as_values()?;
             self.args = Some(values.clone());
         } else if key == "options" {
-            let value = value.serialize(FirestoreValueSerializer::new())?;
+            let value = value.serialize(Serializer::new())?;
             let fields = value.as_fields()?;
             self.options = Some(fields.clone());
         } else {

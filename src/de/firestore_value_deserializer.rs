@@ -18,18 +18,18 @@ use super::{
 
 /// A Deserializer type which implements [`serde::Deserializer`] for [`Value`].
 #[derive(Debug)]
-pub struct FirestoreValueDeserializer<'a> {
+pub struct Deserializer<'a> {
     value: &'a Value,
 }
 
-impl<'de> FirestoreValueDeserializer<'de> {
-    /// Creates a new [`FirestoreValueDeserializer`].
+impl<'de> Deserializer<'de> {
+    /// Creates a new [`Deserializer`].
     pub fn new(value: &'de Value) -> Self {
         Self { value }
     }
 }
 
-impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
+impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
     type Error = Error;
 
     fn deserialize_any<V>(self, visitor: V) -> Result<V::Value, Self::Error>

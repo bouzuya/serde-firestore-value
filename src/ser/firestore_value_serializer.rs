@@ -1,5 +1,3 @@
-use serde::{Serialize, Serializer};
-
 use crate::FieldReference;
 use crate::google::firestore::v1::Value;
 use crate::{
@@ -21,11 +19,11 @@ use super::{
 
 /// A Serializer type which implements [`serde::Serializer`] for [`Value`].
 #[derive(Debug)]
-pub struct FirestoreValueSerializer {
+pub struct Serializer {
     _private: (),
 }
 
-impl FirestoreValueSerializer {
+impl Serializer {
     /// Creates a new `FirestoreValueSerializer`.
     pub fn new() -> Self {
         Self { _private: () }
@@ -35,7 +33,7 @@ impl FirestoreValueSerializer {
 // 1,048,487 bytes = 1MiB - 89 bytes
 const MAX_BYTE_LEN: usize = 1_048_487;
 
-impl Serializer for FirestoreValueSerializer {
+impl serde::Serializer for Serializer {
     type Ok = Value;
 
     type Error = Error;
@@ -123,7 +121,7 @@ impl Serializer for FirestoreValueSerializer {
 
     fn serialize_some<T>(self, value: &T) -> Result<Self::Ok, Self::Error>
     where
-        T: ?Sized + Serialize,
+        T: ?Sized + serde::Serialize,
     {
         value.serialize(self)
     }
@@ -151,14 +149,14 @@ impl Serializer for FirestoreValueSerializer {
         value: &T,
     ) -> Result<Self::Ok, Self::Error>
     where
-        T: ?Sized + Serialize,
+        T: ?Sized + serde::Serialize,
     {
         if name == Reference::NAME {
             value.serialize(FirestoreReferenceValueSerializer)
         } else if name == FieldReference::NAME {
             value.serialize(FirestoreFieldReferenceValueSerializer)
         } else {
-            value.serialize(FirestoreValueSerializer::new())
+            value.serialize(Serializer::new())
         }
     }
 
@@ -170,7 +168,7 @@ impl Serializer for FirestoreValueSerializer {
         value: &T,
     ) -> Result<Self::Ok, Self::Error>
     where
-        T: ?Sized + Serialize,
+        T: ?Sized + serde::Serialize,
     {
         let mut map = self.serialize_map(Some(1))?;
         serde::ser::SerializeMap::serialize_entry(&mut map, variant, value)?;

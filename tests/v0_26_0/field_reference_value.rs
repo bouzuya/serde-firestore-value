@@ -1,7 +1,10 @@
 #[test]
 fn test_field_reference() -> anyhow::Result<()> {
-    use googleapis_tonic_google_firestore_v1::google::firestore::v1::{Value, value::ValueType};
-    use serde_firestore_value::{FieldReference, from_value, to_value};
+    use serde_firestore_value::{
+        FieldReference, from_value,
+        google::firestore::v1::{Value, value::ValueType},
+        to_value,
+    };
 
     let inner = "field_name";
     let o = FieldReference(inner.to_string());
@@ -20,10 +23,11 @@ fn test_field_reference() -> anyhow::Result<()> {
 
 #[test]
 fn test_field_reference_value_in_struct() -> anyhow::Result<()> {
-    use googleapis_tonic_google_firestore_v1::google::firestore::v1::{
-        MapValue, Value, value::ValueType,
+    use serde_firestore_value::{
+        FieldReference, from_value,
+        google::firestore::v1::{MapValue, Value, value::ValueType},
+        to_value,
     };
-    use serde_firestore_value::{FieldReference, from_value, to_value};
     use std::collections::HashMap;
 
     #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]

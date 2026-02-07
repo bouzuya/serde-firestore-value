@@ -10,12 +10,10 @@ mod firestore_value_struct_serializer;
 mod name_map_value_serializer;
 pub(crate) mod with;
 
-use serde::Serialize;
-
+use crate::Error;
 use crate::google::firestore::v1::Value;
-use crate::{Error, ser::firestore_value_serializer::FirestoreValueSerializer};
 
-pub use firestore_value_serializer::FirestoreValueSerializer as Serializer;
+pub use self::firestore_value_serializer::Serializer;
 
 /// Serialize an instance of type `T` to a Firestore Value.
 ///
@@ -100,9 +98,9 @@ pub use firestore_value_serializer::FirestoreValueSerializer as Serializer;
 /// [serde data model]: https://serde.rs/data-model.html
 pub fn to_value<T>(value: &T) -> Result<Value, Error>
 where
-    T: Serialize,
+    T: serde::Serialize,
 {
-    value.serialize(FirestoreValueSerializer::new())
+    value.serialize(Serializer::new())
 }
 
 #[cfg(test)]

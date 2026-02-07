@@ -1,4 +1,4 @@
-use super::firestore_value_serializer::Serializer;
+use super::serializer::Serializer;
 
 use crate::google::firestore::v1::Value;
 use crate::{Error, error::ErrorCode, value_ext::ValueExt};

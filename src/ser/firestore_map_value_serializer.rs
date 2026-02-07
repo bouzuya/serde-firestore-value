@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use crate::google::firestore::v1::{Value, value::ValueType};
 use crate::{Error, error::ErrorCode, value_ext::ValueExt};
 
-use super::firestore_value_serializer::Serializer;
+use super::serializer::Serializer;
 
 #[doc(hidden)]
 pub struct FirestoreMapValueSerializer {

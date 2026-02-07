@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use super::firestore_value_serializer::Serializer;
+use super::serializer::Serializer;
 
 use crate::google::{firestore::v1::Value, r#type::LatLng as GoogleApiProtoLatLng};
 use crate::{Error, value_ext::ValueExt};

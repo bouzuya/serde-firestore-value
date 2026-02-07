@@ -5,15 +5,15 @@ mod firestore_geo_point_value_serializer;
 mod firestore_map_value_serializer;
 mod firestore_reference_value_serializer;
 mod firestore_timestamp_value_serializer;
-mod firestore_value_serializer;
 mod firestore_value_struct_serializer;
 mod name_map_value_serializer;
+mod serializer;
 pub(crate) mod with;
 
 use crate::Error;
 use crate::google::firestore::v1::Value;
 
-pub use self::firestore_value_serializer::Serializer;
+pub use self::serializer::Serializer;
 
 /// Serialize an instance of type `T` to a Firestore Value.
 ///

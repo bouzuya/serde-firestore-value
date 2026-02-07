@@ -1,12 +1,14 @@
 use crate::google::firestore::v1::{Value, value::ValueType};
 use crate::{
-    Error, FieldReference, LatLng, Reference, Timestamp, error::ErrorCode, value_ext::ValueExt,
+    Error, FieldReference, Function, LatLng, Reference, Timestamp, error::ErrorCode,
+    value_ext::ValueExt,
 };
 
 use super::{
     firestore_array_value_deserializer::FirestoreArrayValueDeserializer,
     firestore_enum_deserializer::FirestoreEnumDeserializer,
     firestore_field_reference_value_deserializer::FirestoreFieldReferenceValueDeserializer,
+    firestore_function_value_deserializer::FirestoreFunctionValueDeserializer,
     firestore_geo_point_value_deserializer::FirestoreGeoPointValueDeserializer,
     firestore_map_value_deserializer::FirestoreMapValueDeserializer,
     firestore_reference_value_deserializer::FirestoreReferenceValueDeserializer,
@@ -56,7 +58,9 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
                     visitor.visit_map(FirestoreMapValueDeserializer::new(self.value)?)
                 }
                 ValueType::FieldReferenceValue(v) => visitor.visit_str(v),
-                ValueType::FunctionValue(_) => todo!(),
+                ValueType::FunctionValue(_) => {
+                    visitor.visit_map(FirestoreFunctionValueDeserializer::new(self.value)?)
+                }
                 ValueType::PipelineValue(_) => todo!(),
             },
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
@@ -283,7 +287,9 @@ impl<'a> serde::Deserializer<'a> for FirestoreValueDeserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        if name == LatLng::NAME {
+        if name == Function::NAME {
+            visitor.visit_map(FirestoreFunctionValueDeserializer::new(self.value)?)
+        } else if name == LatLng::NAME {
             visitor.visit_map(FirestoreGeoPointValueDeserializer::new(self.value)?)
         } else if name == Timestamp::NAME {
             visitor.visit_map(FirestoreTimestampValueDeserializer::new(self.value)?)

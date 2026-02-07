@@ -40,6 +40,7 @@ pub(crate) trait ValueExt {
     fn as_fields(&self) -> Result<&BTreeMap<String, Value>, Error>;
     #[cfg(feature = "hash-map")]
     fn as_fields(&self) -> Result<&HashMap<String, Value>, Error>;
+    fn as_function(&self) -> Result<&GoogleFirestoreFunction, Error>;
     fn as_integer(&self) -> Result<i64, Error>;
     fn as_lat_lng(&self) -> Result<&GoogleApiProtoLatLng, Error>;
     fn as_null(&self) -> Result<(), Error>;
@@ -238,6 +239,16 @@ impl ValueExt for Value {
         match self.value_type()? {
             ValueType::NullValue(_) => Ok(()),
             value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Null)),
+        }
+    }
+
+    fn as_function(&self) -> Result<&GoogleFirestoreFunction, Error> {
+        match self.value_type()? {
+            ValueType::FunctionValue(value) => Ok(value),
+            value_type => Err(Error::invalid_value_type(
+                value_type,
+                ValueTypeName::Function,
+            )),
         }
     }
 

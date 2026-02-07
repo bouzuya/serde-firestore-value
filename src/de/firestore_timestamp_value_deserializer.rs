@@ -1,4 +1,4 @@
-use serde::de::value::{I64Deserializer, StrDeserializer};
+use serde::de::value::{I32Deserializer, I64Deserializer, StrDeserializer};
 
 use crate::google::firestore::v1::Value;
 use crate::{Error, value_ext::ValueExt};
@@ -43,7 +43,7 @@ impl<'de> serde::de::MapAccess<'de> for FirestoreTimestampValueDeserializer<'de>
     {
         match self.index {
             1 => seed.deserialize(I64Deserializer::new(self.timestamp.seconds)),
-            2 => seed.deserialize(I64Deserializer::new(i64::from(self.timestamp.nanos))),
+            2 => seed.deserialize(I32Deserializer::new(self.timestamp.nanos)),
             _ => unreachable!(),
         }
     }

@@ -8,7 +8,8 @@ use prost::bytes::Bytes;
 
 use crate::google::{
     firestore::v1::{
-        ArrayValue, Function as GoogleFirestoreFunction, MapValue, Value, value::ValueType,
+        ArrayValue, Function as GoogleFirestoreFunction, MapValue,
+        Pipeline as GoogleFirestorePipeline, Value, value::ValueType,
     },
     r#type::LatLng as GoogleApiProtoLatLng,
 };
@@ -25,6 +26,7 @@ pub(crate) trait ValueExt {
     fn from_function(function: GoogleFirestoreFunction) -> Self;
     fn from_i64(value: i64) -> Self;
     fn from_lat_lng(value: GoogleApiProtoLatLng) -> Self;
+    fn from_pipeline(pipeline: GoogleFirestorePipeline) -> Self;
     fn from_string(value: String) -> Self;
     fn from_string_as_field_reference_value(value: String) -> Self;
     fn from_string_as_reference_value(value: String) -> Self;
@@ -44,6 +46,7 @@ pub(crate) trait ValueExt {
     fn as_integer(&self) -> Result<i64, Error>;
     fn as_lat_lng(&self) -> Result<&GoogleApiProtoLatLng, Error>;
     fn as_null(&self) -> Result<(), Error>;
+    fn as_pipeline(&self) -> Result<&GoogleFirestorePipeline, Error>;
     fn as_reference_value_as_string(&self) -> Result<&String, Error>;
     fn as_string(&self) -> Result<&String, Error>;
     fn as_timestamp(&self) -> Result<&prost_types::Timestamp, Error>;
@@ -126,6 +129,12 @@ impl ValueExt for Value {
     fn from_lat_lng(value: GoogleApiProtoLatLng) -> Self {
         Self {
             value_type: Some(ValueType::GeoPointValue(value)),
+        }
+    }
+
+    fn from_pipeline(pipeline: GoogleFirestorePipeline) -> Self {
+        Self {
+            value_type: Some(ValueType::PipelineValue(pipeline)),
         }
     }
 
@@ -248,6 +257,16 @@ impl ValueExt for Value {
             value_type => Err(Error::invalid_value_type(
                 value_type,
                 ValueTypeName::Function,
+            )),
+        }
+    }
+
+    fn as_pipeline(&self) -> Result<&GoogleFirestorePipeline, Error> {
+        match self.value_type()? {
+            ValueType::PipelineValue(value) => Ok(value),
+            value_type => Err(Error::invalid_value_type(
+                value_type,
+                ValueTypeName::Pipeline,
             )),
         }
     }

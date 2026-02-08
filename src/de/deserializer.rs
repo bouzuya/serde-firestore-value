@@ -1,6 +1,6 @@
 use crate::google::firestore::v1::{Value, value::ValueType};
 use crate::{
-    Error, FieldReference, Function, LatLng, Reference, Timestamp, error::ErrorCode,
+    Error, FieldReference, Function, LatLng, Pipeline, Reference, Timestamp, error::ErrorCode,
     value_ext::ValueExt,
 };
 
@@ -11,6 +11,7 @@ use super::{
     firestore_function_value_deserializer::FirestoreFunctionValueDeserializer,
     firestore_geo_point_value_deserializer::FirestoreGeoPointValueDeserializer,
     firestore_map_value_deserializer::FirestoreMapValueDeserializer,
+    firestore_pipeline_value_deserializer::FirestorePipelineValueDeserializer,
     firestore_reference_value_deserializer::FirestoreReferenceValueDeserializer,
     firestore_struct_map_value_deserializer::FirestoreStructMapValueDeserializer,
     firestore_timestamp_value_deserializer::FirestoreTimestampValueDeserializer,
@@ -61,7 +62,9 @@ impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
                 ValueType::FunctionValue(_) => {
                     visitor.visit_map(FirestoreFunctionValueDeserializer::new(self.value)?)
                 }
-                ValueType::PipelineValue(_) => todo!(),
+                ValueType::PipelineValue(_) => {
+                    visitor.visit_map(FirestorePipelineValueDeserializer::new(self.value)?)
+                }
             },
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
         }
@@ -291,6 +294,8 @@ impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
             visitor.visit_map(FirestoreFunctionValueDeserializer::new(self.value)?)
         } else if name == LatLng::NAME {
             visitor.visit_map(FirestoreGeoPointValueDeserializer::new(self.value)?)
+        } else if name == Pipeline::NAME {
+            visitor.visit_map(FirestorePipelineValueDeserializer::new(self.value)?)
         } else if name == Timestamp::NAME {
             visitor.visit_map(FirestoreTimestampValueDeserializer::new(self.value)?)
         } else {

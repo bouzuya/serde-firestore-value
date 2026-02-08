@@ -1,3 +1,4 @@
+mod deserializer;
 mod firestore_array_value_deserializer;
 mod firestore_enum_deserializer;
 mod firestore_field_reference_value_deserializer;
@@ -7,7 +8,6 @@ mod firestore_map_value_deserializer;
 mod firestore_reference_value_deserializer;
 mod firestore_struct_map_value_deserializer;
 mod firestore_timestamp_value_deserializer;
-mod deserializer;
 pub(crate) mod with;
 
 use crate::Error;

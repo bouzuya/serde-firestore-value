@@ -8,14 +8,16 @@ mod firestore_map_value_deserializer;
 mod firestore_pipeline_value_deserializer;
 mod firestore_reference_value_deserializer;
 mod firestore_struct_map_value_deserializer;
-mod firestore_timestamp_value_deserializer;
 mod private;
+mod prost_types_timestamp_map_access;
 pub(crate) mod with;
 
 use crate::Error;
 use crate::google::firestore::v1::Value;
 
 pub use self::deserializer::Deserializer;
+
+pub(crate) use self::prost_types_timestamp_map_access::ProstTypesTimestampMapAccess;
 
 /// Deserialize an instance of type `T` from a Firestore Value.
 ///

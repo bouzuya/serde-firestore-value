@@ -1,4 +1,5 @@
 use crate::Error;
+use crate::de::ProstTypesTimestampMapAccess;
 use crate::google::firestore::v1::Value;
 
 /// A simple deserializer that wraps a Value and returns it directly
@@ -36,8 +37,8 @@ impl<'de> serde::Deserializer<'de> for ValueDeserializer<'de> {
                 iter: map.fields.iter(),
                 value: None,
             }),
-            Some(ValueType::TimestampValue(ts)) => {
-                visitor.visit_map(TimestampMapAccess::new(ts.seconds, ts.nanos))
+            Some(ValueType::TimestampValue(timestamp)) => {
+                visitor.visit_map(ProstTypesTimestampMapAccess::new(timestamp))
             }
             Some(ValueType::ReferenceValue(v)) => {
                 visitor.visit_map(NewtypeStructMapAccess::new(crate::Reference::NAME, v))
@@ -114,62 +115,6 @@ impl<'de> serde::de::MapAccess<'de> for ValueMapDeserializerAccess<'de> {
         match self.value.take() {
             Some(value) => seed.deserialize(ValueDeserializer(value)),
             None => unreachable!(),
-        }
-    }
-}
-
-pub(super) struct TimestampMapAccess {
-    index: usize,
-    seconds: i64,
-    nanos: i32,
-}
-
-impl TimestampMapAccess {
-    pub(super) fn new(seconds: i64, nanos: i32) -> Self {
-        Self {
-            index: 0,
-            seconds,
-            nanos,
-        }
-    }
-}
-
-impl<'de> serde::de::MapAccess<'de> for TimestampMapAccess {
-    type Error = Error;
-
-    fn next_key_seed<K>(&mut self, seed: K) -> Result<Option<K::Value>, Self::Error>
-    where
-        K: serde::de::DeserializeSeed<'de>,
-    {
-        if self.index >= 3 {
-            return Ok(None);
-        }
-        self.index += 1;
-        match self.index {
-            1 => seed
-                .deserialize(serde::de::value::StrDeserializer::new(
-                    crate::Timestamp::NAME,
-                ))
-                .map(Some),
-            2 => seed
-                .deserialize(serde::de::value::StrDeserializer::new("seconds"))
-                .map(Some),
-            3 => seed
-                .deserialize(serde::de::value::StrDeserializer::new("nanos"))
-                .map(Some),
-            _ => unreachable!(),
-        }
-    }
-
-    fn next_value_seed<V>(&mut self, seed: V) -> Result<V::Value, Self::Error>
-    where
-        V: serde::de::DeserializeSeed<'de>,
-    {
-        match self.index {
-            1 => seed.deserialize(serde::de::value::UnitDeserializer::new()),
-            2 => seed.deserialize(serde::de::value::I64Deserializer::new(self.seconds)),
-            3 => seed.deserialize(serde::de::value::I32Deserializer::new(self.nanos)),
-            _ => unreachable!(),
         }
     }
 }

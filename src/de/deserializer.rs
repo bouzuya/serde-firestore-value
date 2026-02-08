@@ -1,3 +1,4 @@
+use crate::de::ProstTypesTimestampMapAccess;
 use crate::google::firestore::v1::{Value, value::ValueType};
 use crate::{
     Error, FieldReference, Function, LatLng, Pipeline, Reference, Timestamp, error::ErrorCode,
@@ -14,7 +15,6 @@ use super::{
     firestore_pipeline_value_deserializer::FirestorePipelineValueDeserializer,
     firestore_reference_value_deserializer::FirestoreReferenceValueDeserializer,
     firestore_struct_map_value_deserializer::FirestoreStructMapValueDeserializer,
-    firestore_timestamp_value_deserializer::FirestoreTimestampValueDeserializer,
 };
 
 /// A Deserializer type which implements [`serde::Deserializer`] for [`Value`].
@@ -43,9 +43,9 @@ impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
                 ValueType::BooleanValue(v) => visitor.visit_bool(*v),
                 ValueType::IntegerValue(v) => visitor.visit_i64(*v),
                 ValueType::DoubleValue(v) => visitor.visit_f64(*v),
-                ValueType::TimestampValue(_) => {
-                    visitor.visit_map(FirestoreTimestampValueDeserializer::new(self.value)?)
-                }
+                ValueType::TimestampValue(_) => visitor.visit_map(
+                    ProstTypesTimestampMapAccess::new(self.value.as_timestamp()?),
+                ),
                 ValueType::StringValue(v) => visitor.visit_str(v),
                 ValueType::BytesValue(v) => visitor.visit_bytes(v),
                 ValueType::ReferenceValue(v) => visitor.visit_str(v),
@@ -297,7 +297,9 @@ impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
         } else if name == Pipeline::NAME {
             visitor.visit_map(FirestorePipelineValueDeserializer::new(self.value)?)
         } else if name == Timestamp::NAME {
-            visitor.visit_map(FirestoreTimestampValueDeserializer::new(self.value)?)
+            visitor.visit_map(ProstTypesTimestampMapAccess::new(
+                self.value.as_timestamp()?,
+            ))
         } else {
             visitor.visit_map(FirestoreStructMapValueDeserializer::new(
                 self.value, fields,

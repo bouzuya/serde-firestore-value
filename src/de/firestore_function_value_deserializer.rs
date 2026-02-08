@@ -144,15 +144,20 @@ impl<'de> serde::de::MapAccess<'de> for TimestampMapAccess {
     where
         K: serde::de::DeserializeSeed<'de>,
     {
-        if self.index >= 2 {
+        if self.index >= 3 {
             return Ok(None);
         }
         self.index += 1;
         match self.index {
             1 => seed
-                .deserialize(serde::de::value::StrDeserializer::new("seconds"))
+                .deserialize(serde::de::value::StrDeserializer::new(
+                    crate::Timestamp::NAME,
+                ))
                 .map(Some),
             2 => seed
+                .deserialize(serde::de::value::StrDeserializer::new("seconds"))
+                .map(Some),
+            3 => seed
                 .deserialize(serde::de::value::StrDeserializer::new("nanos"))
                 .map(Some),
             _ => unreachable!(),
@@ -164,8 +169,9 @@ impl<'de> serde::de::MapAccess<'de> for TimestampMapAccess {
         V: serde::de::DeserializeSeed<'de>,
     {
         match self.index {
-            1 => seed.deserialize(serde::de::value::I64Deserializer::new(self.seconds)),
-            2 => seed.deserialize(serde::de::value::I32Deserializer::new(self.nanos)),
+            1 => seed.deserialize(serde::de::value::UnitDeserializer::new()),
+            2 => seed.deserialize(serde::de::value::I64Deserializer::new(self.seconds)),
+            3 => seed.deserialize(serde::de::value::I32Deserializer::new(self.nanos)),
             _ => unreachable!(),
         }
     }
@@ -194,15 +200,18 @@ impl<'de> serde::de::MapAccess<'de> for GeoPointMapAccess {
     where
         K: serde::de::DeserializeSeed<'de>,
     {
-        if self.index >= 2 {
+        if self.index >= 3 {
             return Ok(None);
         }
         self.index += 1;
         match self.index {
             1 => seed
-                .deserialize(serde::de::value::StrDeserializer::new("latitude"))
+                .deserialize(serde::de::value::StrDeserializer::new(crate::LatLng::NAME))
                 .map(Some),
             2 => seed
+                .deserialize(serde::de::value::StrDeserializer::new("latitude"))
+                .map(Some),
+            3 => seed
                 .deserialize(serde::de::value::StrDeserializer::new("longitude"))
                 .map(Some),
             _ => unreachable!(),
@@ -214,8 +223,9 @@ impl<'de> serde::de::MapAccess<'de> for GeoPointMapAccess {
         V: serde::de::DeserializeSeed<'de>,
     {
         match self.index {
-            1 => seed.deserialize(serde::de::value::F64Deserializer::new(self.latitude)),
-            2 => seed.deserialize(serde::de::value::F64Deserializer::new(self.longitude)),
+            1 => seed.deserialize(serde::de::value::UnitDeserializer::new()),
+            2 => seed.deserialize(serde::de::value::F64Deserializer::new(self.latitude)),
+            3 => seed.deserialize(serde::de::value::F64Deserializer::new(self.longitude)),
             _ => unreachable!(),
         }
     }
@@ -281,18 +291,23 @@ impl<'de> serde::de::MapAccess<'de> for FunctionValueMapAccess<'de> {
     where
         K: serde::de::DeserializeSeed<'de>,
     {
-        if self.index >= 3 {
+        if self.index >= 4 {
             return Ok(None);
         }
         self.index += 1;
         match self.index {
             1 => seed
-                .deserialize(serde::de::value::StrDeserializer::new("name"))
+                .deserialize(serde::de::value::StrDeserializer::new(
+                    crate::Function::NAME,
+                ))
                 .map(Some),
             2 => seed
-                .deserialize(serde::de::value::StrDeserializer::new("args"))
+                .deserialize(serde::de::value::StrDeserializer::new("name"))
                 .map(Some),
             3 => seed
+                .deserialize(serde::de::value::StrDeserializer::new("args"))
+                .map(Some),
+            4 => seed
                 .deserialize(serde::de::value::StrDeserializer::new("options"))
                 .map(Some),
             _ => unreachable!(),
@@ -304,11 +319,12 @@ impl<'de> serde::de::MapAccess<'de> for FunctionValueMapAccess<'de> {
         V: serde::de::DeserializeSeed<'de>,
     {
         match self.index {
-            1 => seed.deserialize(serde::de::value::StrDeserializer::new(&self.function.name)),
-            2 => seed.deserialize(serde::de::value::SeqDeserializer::new(
+            1 => seed.deserialize(serde::de::value::UnitDeserializer::new()),
+            2 => seed.deserialize(serde::de::value::StrDeserializer::new(&self.function.name)),
+            3 => seed.deserialize(serde::de::value::SeqDeserializer::new(
                 self.function.args.iter().map(ValueDeserializer),
             )),
-            3 => seed.deserialize(serde::de::value::MapDeserializer::new(
+            4 => seed.deserialize(serde::de::value::MapDeserializer::new(
                 self.function
                     .options
                     .iter()

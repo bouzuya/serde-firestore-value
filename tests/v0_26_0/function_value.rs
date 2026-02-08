@@ -6,7 +6,7 @@ fn test_function() -> anyhow::Result<()> {
     use std::collections::HashMap;
 
     let o = Function {
-        name: "add".to_string(),
+        name: "add".to_owned(),
         args: vec![
             google::firestore::v1::Value {
                 value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(1)),
@@ -20,7 +20,7 @@ fn test_function() -> anyhow::Result<()> {
     let v = google::firestore::v1::Value {
         value_type: Some(google::firestore::v1::value::ValueType::FunctionValue(
             google::firestore::v1::Function {
-                name: "add".to_string(),
+                name: "add".to_owned(),
                 args: vec![
                     google::firestore::v1::Value {
                         value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(1)),
@@ -46,16 +46,16 @@ fn test_function_with_options() -> anyhow::Result<()> {
     use std::collections::HashMap;
 
     let o = Function {
-        name: "custom_func".to_string(),
+        name: "custom_func".to_owned(),
         args: vec![google::firestore::v1::Value {
             value_type: Some(google::firestore::v1::value::ValueType::StringValue(
-                "arg1".to_string(),
+                "arg1".to_owned(),
             )),
         }],
         options: {
             let mut opts = HashMap::new();
             opts.insert(
-                "timeout".to_string(),
+                "timeout".to_owned(),
                 google::firestore::v1::Value {
                     value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(30)),
                 },
@@ -66,16 +66,16 @@ fn test_function_with_options() -> anyhow::Result<()> {
     let v = google::firestore::v1::Value {
         value_type: Some(google::firestore::v1::value::ValueType::FunctionValue(
             google::firestore::v1::Function {
-                name: "custom_func".to_string(),
+                name: "custom_func".to_owned(),
                 args: vec![google::firestore::v1::Value {
                     value_type: Some(google::firestore::v1::value::ValueType::StringValue(
-                        "arg1".to_string(),
+                        "arg1".to_owned(),
                     )),
                 }],
                 options: {
                     let mut opts = HashMap::new();
                     opts.insert(
-                        "timeout".to_string(),
+                        "timeout".to_owned(),
                         google::firestore::v1::Value {
                             value_type: Some(
                                 google::firestore::v1::value::ValueType::IntegerValue(30),
@@ -100,7 +100,7 @@ fn test_function_with_nested_values() -> anyhow::Result<()> {
     use std::collections::HashMap;
 
     let o = Function {
-        name: "process".to_string(),
+        name: "process".to_owned(),
         args: vec![
             google::firestore::v1::Value {
                 value_type: Some(google::firestore::v1::value::ValueType::ArrayValue(
@@ -129,7 +129,7 @@ fn test_function_with_nested_values() -> anyhow::Result<()> {
     let v = google::firestore::v1::Value {
         value_type: Some(google::firestore::v1::value::ValueType::FunctionValue(
             google::firestore::v1::Function {
-                name: "process".to_string(),
+                name: "process".to_owned(),
                 args: vec![
                     google::firestore::v1::Value {
                         value_type: Some(google::firestore::v1::value::ValueType::ArrayValue(
@@ -205,7 +205,7 @@ fn test_function_deserialize() -> anyhow::Result<()> {
         // 6. StringValue
         google::firestore::v1::Value {
             value_type: Some(google::firestore::v1::value::ValueType::StringValue(
-                "hello".to_string(),
+                "hello".to_owned(),
             )),
         },
         // 7. BytesValue
@@ -217,7 +217,7 @@ fn test_function_deserialize() -> anyhow::Result<()> {
         // 8. ReferenceValue
         google::firestore::v1::Value {
             value_type: Some(google::firestore::v1::value::ValueType::ReferenceValue(
-                "projects/p/databases/d/documents/c/doc".to_string(),
+                "projects/p/databases/d/documents/c/doc".to_owned(),
             )),
         },
         // 9. GeoPointValue
@@ -255,11 +255,11 @@ fn test_function_deserialize() -> anyhow::Result<()> {
                     fields: {
                         let mut fields = HashMap::new();
                         fields.insert(
-                            "key".to_string(),
+                            "key".to_owned(),
                             google::firestore::v1::Value {
                                 value_type: Some(
                                     google::firestore::v1::value::ValueType::StringValue(
-                                        "value".to_string(),
+                                        "value".to_owned(),
                                     ),
                                 ),
                             },
@@ -269,11 +269,132 @@ fn test_function_deserialize() -> anyhow::Result<()> {
                 },
             )),
         },
+        // 11 (2) . MapValue (TimestampValue like)
+        google::firestore::v1::Value {
+            value_type: Some(google::firestore::v1::value::ValueType::MapValue(
+                google::firestore::v1::MapValue {
+                    fields: {
+                        let mut fields = HashMap::new();
+                        fields.insert(
+                            "seconds".to_owned(),
+                            google::firestore::v1::Value {
+                                value_type: Some(
+                                    google::firestore::v1::value::ValueType::IntegerValue(123),
+                                ),
+                            },
+                        );
+                        fields.insert(
+                            "nanos".to_owned(),
+                            google::firestore::v1::Value {
+                                value_type: Some(
+                                    google::firestore::v1::value::ValueType::IntegerValue(456),
+                                ),
+                            },
+                        );
+                        fields
+                    },
+                },
+            )),
+        },
+        // 11 (3) . MapValue (GeoPointValue like)
+        google::firestore::v1::Value {
+            value_type: Some(google::firestore::v1::value::ValueType::MapValue(
+                google::firestore::v1::MapValue {
+                    fields: {
+                        let mut fields = HashMap::new();
+                        fields.insert(
+                            "latitude".to_owned(),
+                            google::firestore::v1::Value {
+                                value_type: Some(
+                                    google::firestore::v1::value::ValueType::DoubleValue(35.6762),
+                                ),
+                            },
+                        );
+                        fields.insert(
+                            "longitude".to_owned(),
+                            google::firestore::v1::Value {
+                                value_type: Some(
+                                    google::firestore::v1::value::ValueType::DoubleValue(139.6503),
+                                ),
+                            },
+                        );
+                        fields
+                    },
+                },
+            )),
+        },
+        // 11 (3) . MapValue (FunctionValue like)
+        google::firestore::v1::Value {
+            value_type: Some(google::firestore::v1::value::ValueType::MapValue(
+                google::firestore::v1::MapValue {
+                    fields: {
+                        let mut fields = HashMap::new();
+                        fields.insert(
+                            "name".to_owned(),
+                            google::firestore::v1::Value {
+                                value_type: Some(
+                                    google::firestore::v1::value::ValueType::StringValue(
+                                        "func_name".to_owned(),
+                                    ),
+                                ),
+                            },
+                        );
+                        fields.insert(
+                            "args".to_owned(),
+                            google::firestore::v1::Value {
+                                value_type: Some(google::firestore::v1::value::ValueType::ArrayValue(
+                                    google::firestore::v1::ArrayValue {
+                                        values: vec![
+                                            google::firestore::v1::Value {
+                                                value_type: Some(
+                                                    google::firestore::v1::value::ValueType::IntegerValue(10),
+                                                ),
+                                            },
+                                            google::firestore::v1::Value {
+                                                value_type: Some(
+                                                    google::firestore::v1::value::ValueType::IntegerValue(20),
+                                                ),
+                                            },
+                                        ],
+                                    },
+                                )),
+                            },
+                        );
+                        fields.insert(
+                            "options".to_owned(),
+                            google::firestore::v1::Value {
+                                value_type: Some(google::firestore::v1::value::ValueType::MapValue(
+                                    google::firestore::v1::MapValue {
+                                        fields: {
+                                            let mut opts = HashMap::new();
+                                            opts.insert(
+                                                "opt_key".to_owned(),
+                                                google::firestore::v1::Value {
+                                                    value_type: Some(
+                                                        google::firestore::v1::value::ValueType::StringValue(
+                                                            "opt_value".to_owned(),
+                                                        ),
+                                                    ),
+                                                },
+                                            );
+                                            opts
+                                        },
+                                    },
+                                )),
+                            },
+                        );
+                        fields
+                    },
+                },
+            )),
+        },
+        // 11 (4) . MapValue (PipelineValue like)
+        // FIXME
         // 12. FieldReferenceValue
         google::firestore::v1::Value {
             value_type: Some(
                 google::firestore::v1::value::ValueType::FieldReferenceValue(
-                    "field_name".to_string(),
+                    "field_name".to_owned(),
                 ),
             ),
         },
@@ -281,7 +402,7 @@ fn test_function_deserialize() -> anyhow::Result<()> {
         google::firestore::v1::Value {
             value_type: Some(google::firestore::v1::value::ValueType::FunctionValue(
                 google::firestore::v1::Function {
-                    name: "nested_func".to_string(),
+                    name: "nested_func".to_owned(),
                     args: vec![google::firestore::v1::Value {
                         value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(99)),
                     }],
@@ -292,39 +413,9 @@ fn test_function_deserialize() -> anyhow::Result<()> {
     ];
 
     let o = Function {
-        name: "test_all_types".to_string(),
+        name: "test_all_types".to_owned(),
         args,
         options: HashMap::new(),
-    };
-
-    let s = to_value(&o)?;
-    let d = from_value::<'_, Function>(&s)?;
-    assert_eq!(d, o);
-    Ok(())
-}
-
-#[test]
-fn test_function_with_options_deserialize() -> anyhow::Result<()> {
-    use serde_firestore_value::{Function, from_value, google, to_value};
-    use std::collections::HashMap;
-
-    let o = Function {
-        name: "custom_func".to_string(),
-        args: vec![google::firestore::v1::Value {
-            value_type: Some(google::firestore::v1::value::ValueType::StringValue(
-                "arg1".to_string(),
-            )),
-        }],
-        options: {
-            let mut opts = HashMap::new();
-            opts.insert(
-                "timeout".to_string(),
-                google::firestore::v1::Value {
-                    value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(30)),
-                },
-            );
-            opts
-        },
     };
 
     let s = to_value(&o)?;

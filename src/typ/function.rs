@@ -355,7 +355,27 @@ impl<'de> serde::de::Visitor<'de> for ValueVisitor {
         #[cfg(feature = "hash-map")]
         let mut fields = HashMap::new();
 
+        // Check for marker field first
+        let mut marker: Option<&'static str> = None;
+
         while let Some(key) = map.next_key::<String>()? {
+            // Detect marker fields (unit value indicates marker)
+            if key == crate::Timestamp::NAME {
+                let _: () = map.next_value()?;
+                marker = Some(crate::Timestamp::NAME);
+                continue;
+            }
+            if key == crate::LatLng::NAME {
+                let _: () = map.next_value()?;
+                marker = Some(crate::LatLng::NAME);
+                continue;
+            }
+            if key == Function::NAME {
+                let _: () = map.next_value()?;
+                marker = Some(Function::NAME);
+                continue;
+            }
+
             if fields.contains_key(&key) {
                 return Err(serde::de::Error::custom(format_args!(
                     "duplicate field `{}`",
@@ -366,10 +386,8 @@ impl<'de> serde::de::Visitor<'de> for ValueVisitor {
             fields.insert(key, value);
         }
 
-        // FIXME: ?
-        // Check for special struct types based on field names
-        // Timestamp: { seconds, nanos }
-        if fields.len() == 2 && fields.contains_key("seconds") && fields.contains_key("nanos") {
+        // Handle marker-based special types
+        if marker == Some(crate::Timestamp::NAME) {
             let seconds = fields
                 .get("seconds")
                 .and_then(|v| match &v.value_type {
@@ -392,10 +410,7 @@ impl<'de> serde::de::Visitor<'de> for ValueVisitor {
             });
         }
 
-        // FIXME: ?
-        // GeoPoint: { latitude, longitude }
-        if fields.len() == 2 && fields.contains_key("latitude") && fields.contains_key("longitude")
-        {
+        if marker == Some(crate::LatLng::NAME) {
             let latitude = fields
                 .get("latitude")
                 .and_then(|v| match &v.value_type {
@@ -418,41 +433,7 @@ impl<'de> serde::de::Visitor<'de> for ValueVisitor {
             });
         }
 
-        // Reference: { $__serde-firestore-value_private_reference: string }
-        if fields.len() == 1 && fields.contains_key(crate::Reference::NAME) {
-            let reference = fields
-                .get(crate::Reference::NAME)
-                .and_then(|v| match &v.value_type {
-                    Some(ValueType::StringValue(s)) => Some(s.clone()),
-                    _ => None,
-                })
-                .ok_or_else(|| serde::de::Error::custom("invalid reference field"))?;
-            return Ok(Value {
-                value_type: Some(ValueType::ReferenceValue(reference)),
-            });
-        }
-
-        // FieldReference: { $__serde-firestore-value_private_field_reference: string }
-        if fields.len() == 1 && fields.contains_key(crate::FieldReference::NAME) {
-            let field_reference = fields
-                .get(crate::FieldReference::NAME)
-                .and_then(|v| match &v.value_type {
-                    Some(ValueType::StringValue(s)) => Some(s.clone()),
-                    _ => None,
-                })
-                .ok_or_else(|| serde::de::Error::custom("invalid field_reference field"))?;
-            return Ok(Value {
-                value_type: Some(ValueType::FieldReferenceValue(field_reference)),
-            });
-        }
-
-        // FIXME: ?
-        // Function: { name, args, options }
-        if fields.len() == Function::FIELDS.len()
-            && fields.contains_key("name")
-            && fields.contains_key("args")
-            && fields.contains_key("options")
-        {
+        if marker == Some(Function::NAME) {
             let name = fields
                 .get("name")
                 .and_then(|v| match &v.value_type {
@@ -485,6 +466,34 @@ impl<'de> serde::de::Visitor<'de> for ValueVisitor {
                         options,
                     },
                 )),
+            });
+        }
+
+        // Reference: { $__serde-firestore-value_private_reference: string }
+        if fields.len() == 1 && fields.contains_key(crate::Reference::NAME) {
+            let reference = fields
+                .get(crate::Reference::NAME)
+                .and_then(|v| match &v.value_type {
+                    Some(ValueType::StringValue(s)) => Some(s.clone()),
+                    _ => None,
+                })
+                .ok_or_else(|| serde::de::Error::custom("invalid reference field"))?;
+            return Ok(Value {
+                value_type: Some(ValueType::ReferenceValue(reference)),
+            });
+        }
+
+        // FieldReference: { $__serde-firestore-value_private_field_reference: string }
+        if fields.len() == 1 && fields.contains_key(crate::FieldReference::NAME) {
+            let field_reference = fields
+                .get(crate::FieldReference::NAME)
+                .and_then(|v| match &v.value_type {
+                    Some(ValueType::StringValue(s)) => Some(s.clone()),
+                    _ => None,
+                })
+                .ok_or_else(|| serde::de::Error::custom("invalid field_reference field"))?;
+            return Ok(Value {
+                value_type: Some(ValueType::FieldReferenceValue(field_reference)),
             });
         }
 

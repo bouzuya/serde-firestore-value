@@ -1,3 +1,4 @@
+use crate::de::GoogleTypeLatLngMapAccess;
 use crate::de::ProstTypesTimestampMapAccess;
 use crate::google::firestore::v1::{Value, value::ValueType};
 use crate::{
@@ -10,7 +11,6 @@ use super::{
     firestore_enum_deserializer::FirestoreEnumDeserializer,
     firestore_field_reference_value_deserializer::FirestoreFieldReferenceValueDeserializer,
     firestore_function_value_deserializer::FirestoreFunctionValueDeserializer,
-    firestore_geo_point_value_deserializer::FirestoreGeoPointValueDeserializer,
     firestore_map_value_deserializer::FirestoreMapValueDeserializer,
     firestore_pipeline_value_deserializer::FirestorePipelineValueDeserializer,
     firestore_reference_value_deserializer::FirestoreReferenceValueDeserializer,
@@ -50,7 +50,7 @@ impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
                 ValueType::BytesValue(v) => visitor.visit_bytes(v),
                 ValueType::ReferenceValue(v) => visitor.visit_str(v),
                 ValueType::GeoPointValue(_) => {
-                    visitor.visit_map(FirestoreGeoPointValueDeserializer::new(self.value)?)
+                    visitor.visit_map(GoogleTypeLatLngMapAccess::new(self.value.as_lat_lng()?))
                 }
                 ValueType::ArrayValue(_) => {
                     visitor.visit_seq(FirestoreArrayValueDeserializer::new(self.value)?)
@@ -293,7 +293,7 @@ impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
         if name == Function::NAME {
             visitor.visit_map(FirestoreFunctionValueDeserializer::new(self.value)?)
         } else if name == LatLng::NAME {
-            visitor.visit_map(FirestoreGeoPointValueDeserializer::new(self.value)?)
+            visitor.visit_map(GoogleTypeLatLngMapAccess::new(self.value.as_lat_lng()?))
         } else if name == Pipeline::NAME {
             visitor.visit_map(FirestorePipelineValueDeserializer::new(self.value)?)
         } else if name == Timestamp::NAME {

@@ -1,5 +1,5 @@
 use crate::Error;
-use crate::de::ProstTypesTimestampMapAccess;
+use crate::de::{GoogleTypeLatLngMapAccess, ProstTypesTimestampMapAccess};
 use crate::google::firestore::v1::Value;
 
 /// A simple deserializer that wraps a Value and returns it directly
@@ -43,8 +43,8 @@ impl<'de> serde::Deserializer<'de> for ValueDeserializer<'de> {
             Some(ValueType::ReferenceValue(v)) => {
                 visitor.visit_map(NewtypeStructMapAccess::new(crate::Reference::NAME, v))
             }
-            Some(ValueType::GeoPointValue(geo)) => {
-                visitor.visit_map(GeoPointMapAccess::new(geo.latitude, geo.longitude))
+            Some(ValueType::GeoPointValue(lat_lng)) => {
+                visitor.visit_map(GoogleTypeLatLngMapAccess::new(lat_lng))
             }
             Some(ValueType::FieldReferenceValue(v)) => {
                 visitor.visit_map(NewtypeStructMapAccess::new(crate::FieldReference::NAME, v))
@@ -115,60 +115,6 @@ impl<'de> serde::de::MapAccess<'de> for ValueMapDeserializerAccess<'de> {
         match self.value.take() {
             Some(value) => seed.deserialize(ValueDeserializer(value)),
             None => unreachable!(),
-        }
-    }
-}
-
-pub(super) struct GeoPointMapAccess {
-    index: usize,
-    latitude: f64,
-    longitude: f64,
-}
-
-impl GeoPointMapAccess {
-    pub(super) fn new(latitude: f64, longitude: f64) -> Self {
-        Self {
-            index: 0,
-            latitude,
-            longitude,
-        }
-    }
-}
-
-impl<'de> serde::de::MapAccess<'de> for GeoPointMapAccess {
-    type Error = Error;
-
-    fn next_key_seed<K>(&mut self, seed: K) -> Result<Option<K::Value>, Self::Error>
-    where
-        K: serde::de::DeserializeSeed<'de>,
-    {
-        if self.index >= 3 {
-            return Ok(None);
-        }
-        self.index += 1;
-        match self.index {
-            1 => seed
-                .deserialize(serde::de::value::StrDeserializer::new(crate::LatLng::NAME))
-                .map(Some),
-            2 => seed
-                .deserialize(serde::de::value::StrDeserializer::new("latitude"))
-                .map(Some),
-            3 => seed
-                .deserialize(serde::de::value::StrDeserializer::new("longitude"))
-                .map(Some),
-            _ => unreachable!(),
-        }
-    }
-
-    fn next_value_seed<V>(&mut self, seed: V) -> Result<V::Value, Self::Error>
-    where
-        V: serde::de::DeserializeSeed<'de>,
-    {
-        match self.index {
-            1 => seed.deserialize(serde::de::value::UnitDeserializer::new()),
-            2 => seed.deserialize(serde::de::value::F64Deserializer::new(self.latitude)),
-            3 => seed.deserialize(serde::de::value::F64Deserializer::new(self.longitude)),
-            _ => unreachable!(),
         }
     }
 }

@@ -3,11 +3,14 @@
 #[cfg(feature = "hash-map")]
 #[test]
 fn test() -> anyhow::Result<()> {
-    use googleapis_tonic_google_firestore_v1::google::firestore::v1::{
-        ArrayValue, MapValue, Value, value::ValueType,
-    };
-    use serde_firestore_value::{LatLng, Reference, Timestamp};
-    use std::collections::BTreeMap;
+    use serde_firestore_value::FieldReference;
+    use serde_firestore_value::Function;
+    use serde_firestore_value::LatLng;
+    use serde_firestore_value::Pipeline;
+    use serde_firestore_value::Reference;
+    use serde_firestore_value::Stage;
+    use serde_firestore_value::Timestamp;
+    use serde_firestore_value::google;
 
     #[derive(Debug, PartialEq, serde::Deserialize, serde::Serialize)]
     struct T {
@@ -19,7 +22,11 @@ fn test() -> anyhow::Result<()> {
         r: Reference,
         g: LatLng,
         a: Vec<Option<i64>>,
-        m: BTreeMap<String, bool>,
+        // You can use `btree-map` feature instead of `hash-map` feature.
+        m: std::collections::HashMap<String, bool>,
+        fr: FieldReference,
+        f: Function,
+        p: Pipeline,
     }
 
     let t = T {
@@ -38,103 +45,143 @@ fn test() -> anyhow::Result<()> {
         },
         a: vec![Some(1), Some(2), None],
         m: {
-            let mut m = BTreeMap::new();
+            let mut m = std::collections::HashMap::new();
             m.insert("a".to_string(), false);
             m.insert("b".to_string(), true);
             m
         },
+        fr: FieldReference("field_name".to_string()),
+        f: Function {
+            name: "add".to_owned(),
+            args: vec![
+                google::firestore::v1::Value {
+                    value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(1)),
+                },
+                google::firestore::v1::Value {
+                    value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(2)),
+                },
+            ],
+            options: std::collections::HashMap::new(),
+        },
+        p: Pipeline {
+            stages: vec![Stage {
+                name: "filter".to_owned(),
+                args: vec![google::firestore::v1::Value {
+                    value_type: Some(google::firestore::v1::value::ValueType::StringValue(
+                        "active = true".to_owned(),
+                    )),
+                }],
+                options: std::collections::HashMap::new(),
+            }],
+        },
     };
-    let value = Value {
-        value_type: Some(ValueType::MapValue(MapValue {
-            fields: {
-                // You can use `btree-map` feature instead of `hash-map` feature.
-                let mut fields = std::collections::HashMap::new();
-                fields.insert(
-                    "b".to_string(),
-                    Value {
-                        value_type: Some(ValueType::BooleanValue(true)),
-                    },
-                );
-                fields.insert(
-                    "i".to_string(),
-                    Value {
-                        value_type: Some(ValueType::IntegerValue(1)),
-                    },
-                );
-                fields.insert(
-                    "d".to_string(),
-                    Value {
-                        value_type: Some(ValueType::DoubleValue(2_f64)),
-                    },
-                );
-                fields.insert(
-                    "t".to_string(),
-                    Value {
-                        value_type: Some(ValueType::TimestampValue(prost_types::Timestamp {
-                            seconds: 3_i64,
-                            nanos: 4_i32,
-                        })),
-                    },
-                );
-                fields.insert(
-                    "s".to_string(),
-                    Value {
-                        value_type: Some(ValueType::StringValue("s".to_string())),
-                    },
-                );
-                fields.insert(
-                    "r".to_string(),
-                    Value {
-                        value_type: Some(ValueType::ReferenceValue(
-                            "projects/p/databases/d/documents/n".to_string(),
-                        )),
-                    },
-                );
-                fields.insert(
-                    "g".to_string(),
-                    Value {
-                        value_type: Some(ValueType::GeoPointValue(
-                            googleapis_tonic_google_firestore_v1::google::r#type::LatLng {
-                                latitude: 5_f64,
-                                longitude: 6_f64,
-                            },
-                        )),
-                    },
-                );
-                fields.insert(
+    let value = google::firestore::v1::Value {
+        value_type: Some(google::firestore::v1::value::ValueType::MapValue(
+            google::firestore::v1::MapValue {
+                fields: {
+                    let mut fields = std::collections::HashMap::new();
+                    fields.insert(
+                        "b".to_string(),
+                        google::firestore::v1::Value {
+                            value_type: Some(
+                                google::firestore::v1::value::ValueType::BooleanValue(true),
+                            ),
+                        },
+                    );
+                    fields.insert(
+                        "i".to_string(),
+                        google::firestore::v1::Value {
+                            value_type: Some(
+                                google::firestore::v1::value::ValueType::IntegerValue(1),
+                            ),
+                        },
+                    );
+                    fields.insert(
+                        "d".to_string(),
+                        google::firestore::v1::Value {
+                            value_type: Some(google::firestore::v1::value::ValueType::DoubleValue(
+                                2_f64,
+                            )),
+                        },
+                    );
+                    fields.insert(
+                        "t".to_string(),
+                        google::firestore::v1::Value {
+                            value_type: Some(
+                                google::firestore::v1::value::ValueType::TimestampValue(
+                                    prost_types::Timestamp {
+                                        seconds: 3_i64,
+                                        nanos: 4_i32,
+                                    },
+                                ),
+                            ),
+                        },
+                    );
+                    fields.insert(
+                        "s".to_string(),
+                        google::firestore::v1::Value {
+                            value_type: Some(google::firestore::v1::value::ValueType::StringValue(
+                                "s".to_string(),
+                            )),
+                        },
+                    );
+                    fields.insert(
+                        "r".to_string(),
+                        google::firestore::v1::Value {
+                            value_type: Some(
+                                google::firestore::v1::value::ValueType::ReferenceValue(
+                                    "projects/p/databases/d/documents/n".to_string(),
+                                ),
+                            ),
+                        },
+                    );
+                    fields.insert(
+                        "g".to_string(),
+                        google::firestore::v1::Value {
+                            value_type: Some(
+                                google::firestore::v1::value::ValueType::GeoPointValue(
+                                    googleapis_tonic_google_firestore_v1::google::r#type::LatLng {
+                                        latitude: 5_f64,
+                                        longitude: 6_f64,
+                                    },
+                                ),
+                            ),
+                        },
+                    );
+                    fields.insert(
                     "a".to_string(),
-                    Value {
-                        value_type: Some(ValueType::ArrayValue(ArrayValue {
+                    google::firestore::v1::Value {
+                        value_type: Some(google::firestore::v1::value::ValueType::ArrayValue(google::firestore::v1::ArrayValue {
                             values: vec![
-                                Value {
-                                    value_type: Some(ValueType::IntegerValue(1)),
+                                google::firestore::v1::Value {
+                                    value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(1)),
                                 },
-                                Value {
-                                    value_type: Some(ValueType::IntegerValue(2)),
+                                google::firestore::v1::Value {
+                                    value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(2)),
                                 },
-                                Value {
-                                    value_type: Some(ValueType::NullValue(0)),
+                                google::firestore::v1::Value {
+                                    value_type: Some(google::firestore::v1::value::ValueType::NullValue(0)),
                                 },
                             ],
                         })),
                     },
                 );
-                fields.insert(
+                    fields.insert(
                     "m".to_string(),
-                    Value {
-                        value_type: Some(ValueType::MapValue(MapValue {
+                    google::firestore::v1::Value {
+                        value_type: Some(google::firestore::v1::value::ValueType::MapValue(google::firestore::v1::MapValue {
                             fields: {
                                 let mut fields = std::collections::HashMap::new();
                                 fields.insert(
                                     "a".to_string(),
-                                    Value {
-                                        value_type: Some(ValueType::BooleanValue(false)),
+                                    google::firestore::v1::Value {
+                                        value_type: Some(google::firestore::v1::value::ValueType::BooleanValue(false)),
                                     },
                                 );
                                 fields.insert(
                                     "b".to_string(),
-                                    Value {
-                                        value_type: Some(ValueType::BooleanValue(true)),
+                                    google::firestore::v1::Value {
+                                        value_type: Some(google::firestore::v1::value::ValueType::BooleanValue(true)),
                                     },
                                 );
                                 fields
@@ -142,9 +189,55 @@ fn test() -> anyhow::Result<()> {
                         })),
                     },
                 );
-                fields
+                    fields.insert(
+                        "fr".to_string(),
+                        google::firestore::v1::Value {
+                            value_type: Some(
+                                google::firestore::v1::value::ValueType::FieldReferenceValue(
+                                    "field_name".to_string(),
+                                ),
+                            ),
+                        },
+                    );
+                    fields.insert(
+                    "f".to_string(),
+                    google::firestore::v1::Value {
+                        value_type: Some(google::firestore::v1::value::ValueType::FunctionValue(google::firestore::v1::Function {
+                            name: "add".to_owned(),
+                            args: vec![
+                                google::firestore::v1::Value {
+                                    value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(1)),
+                                },
+                                google::firestore::v1::Value {
+                                    value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(2)),
+                                },
+                            ],
+                            options: std::collections::HashMap::new(),
+                        })),
+                    },
+                );
+                    fields.insert(
+                "p".to_string(),
+                google::firestore::v1::Value {
+                    value_type: Some(google::firestore::v1::value::ValueType::PipelineValue(google::firestore::v1::Pipeline {
+                        stages: vec![
+                            google::firestore::v1::pipeline::Stage {
+                                name: "filter".to_owned(),
+                                args: vec![google::firestore::v1::Value {
+                                    value_type: Some(google::firestore::v1::value::ValueType::StringValue(
+                                        "active = true".to_owned(),
+                                    )),
+                                }],
+                                options: std::collections::HashMap::new(),
+                            },
+                        ],
+                    })),
+                },
+            );
+                    fields
+                },
             },
-        })),
+        )),
     };
 
     let serialized = serde_firestore_value::to_value(&t)?;

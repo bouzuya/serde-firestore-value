@@ -12,7 +12,6 @@ use super::{
     firestore_enum_deserializer::FirestoreEnumDeserializer,
     firestore_field_reference_value_deserializer::FirestoreFieldReferenceValueDeserializer,
     firestore_reference_value_deserializer::FirestoreReferenceValueDeserializer,
-    firestore_struct_map_value_deserializer::FirestoreStructMapValueDeserializer,
 };
 
 /// A Deserializer type which implements [`serde::Deserializer`] for [`Value`].
@@ -326,9 +325,13 @@ impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
                 self.value.as_timestamp()?,
             ))
         } else {
-            visitor.visit_map(FirestoreStructMapValueDeserializer::new(
-                self.value, fields,
-            )?)
+            visitor.visit_map(serde::de::value::MapDeserializer::new(
+                self.value
+                    .as_fields()?
+                    .iter()
+                    .filter(|(k, _)| fields.contains(&k.as_str()))
+                    .map(|(k, v)| (k.as_str(), Deserializer::new(v))),
+            ))
         }
     }
 

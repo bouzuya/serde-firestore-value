@@ -2,7 +2,6 @@ mod deserializer;
 mod firestore_enum_deserializer;
 mod firestore_field_reference_value_deserializer;
 mod firestore_reference_value_deserializer;
-mod firestore_struct_map_value_deserializer;
 mod google_firestore_function_map_access;
 mod google_firestore_pipeline_map_access;
 mod google_firestore_pipeline_stage_map_access;

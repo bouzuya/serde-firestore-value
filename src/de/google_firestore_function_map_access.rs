@@ -1,13 +1,18 @@
-use crate::Deserializer;
+crate::de::private::enum_fields!(Marker, Name, Args, Options);
 
-pub(crate) struct GoogleFirestoreFunctionMapAccess<'a> {
-    function: &'a crate::google::firestore::v1::Function,
-    index: usize,
+pub(crate) struct GoogleFirestoreFunctionMapAccess<'de> {
+    iter: std::slice::Iter<'de, Fields>,
+    next: Option<&'de Fields>,
+    value: &'de crate::google::firestore::v1::Function,
 }
 
 impl<'de> GoogleFirestoreFunctionMapAccess<'de> {
-    pub(crate) fn new(function: &'de crate::google::firestore::v1::Function) -> Self {
-        Self { function, index: 0 }
+    pub(crate) fn new(value: &'de crate::google::firestore::v1::Function) -> Self {
+        Self {
+            iter: Fields::VALUES.iter(),
+            next: None,
+            value,
+        }
     }
 }
 
@@ -18,26 +23,18 @@ impl<'de> serde::de::MapAccess<'de> for GoogleFirestoreFunctionMapAccess<'de> {
     where
         K: serde::de::DeserializeSeed<'de>,
     {
-        if self.index >= 4 {
-            return Ok(None);
-        }
-        self.index += 1;
-        match self.index {
-            1 => seed
-                .deserialize(serde::de::value::StrDeserializer::new(
-                    crate::Function::NAME,
-                ))
-                .map(Some),
-            2 => seed
-                .deserialize(serde::de::value::StrDeserializer::new("name"))
-                .map(Some),
-            3 => seed
-                .deserialize(serde::de::value::StrDeserializer::new("args"))
-                .map(Some),
-            4 => seed
-                .deserialize(serde::de::value::StrDeserializer::new("options"))
-                .map(Some),
-            _ => unreachable!(),
+        match self.iter.next() {
+            None => Ok(None),
+            Some(field) => {
+                self.next = Some(field);
+                seed.deserialize(serde::de::value::StrDeserializer::new(match field {
+                    Fields::Marker => crate::Function::NAME,
+                    Fields::Name => "name",
+                    Fields::Args => "args",
+                    Fields::Options => "options",
+                }))
+                .map(Some)
+            }
         }
     }
 
@@ -45,19 +42,23 @@ impl<'de> serde::de::MapAccess<'de> for GoogleFirestoreFunctionMapAccess<'de> {
     where
         V: serde::de::DeserializeSeed<'de>,
     {
-        match self.index {
-            1 => seed.deserialize(serde::de::value::UnitDeserializer::new()),
-            2 => seed.deserialize(serde::de::value::StrDeserializer::new(&self.function.name)),
-            3 => seed.deserialize(serde::de::value::SeqDeserializer::new(
-                self.function.args.iter().map(Deserializer::new),
-            )),
-            4 => seed.deserialize(serde::de::value::MapDeserializer::new(
-                self.function
-                    .options
-                    .iter()
-                    .map(|(k, v)| (k.as_str(), Deserializer::new(v))),
-            )),
-            _ => unreachable!(),
+        match self.next.take() {
+            None => panic!("next_value_seed called before next_key_seed"),
+            Some(field) => match field {
+                Fields::Marker => seed.deserialize(serde::de::value::UnitDeserializer::new()),
+                Fields::Name => {
+                    seed.deserialize(serde::de::value::StrDeserializer::new(&self.value.name))
+                }
+                Fields::Args => seed.deserialize(serde::de::value::SeqDeserializer::new(
+                    self.value.args.iter().map(crate::de::Deserializer::new),
+                )),
+                Fields::Options => seed.deserialize(serde::de::value::MapDeserializer::new(
+                    self.value
+                        .options
+                        .iter()
+                        .map(|(k, v)| (k.as_str(), crate::de::Deserializer::new(v))),
+                )),
+            },
         }
     }
 }

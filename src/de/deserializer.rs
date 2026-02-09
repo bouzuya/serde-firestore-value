@@ -1,3 +1,4 @@
+use crate::de::GoogleFirestorePipelineMapAccess;
 use crate::de::GoogleTypeLatLngMapAccess;
 use crate::de::ProstTypesTimestampMapAccess;
 use crate::google::firestore::v1::{Value, value::ValueType};
@@ -11,7 +12,6 @@ use super::{
     firestore_enum_deserializer::FirestoreEnumDeserializer,
     firestore_field_reference_value_deserializer::FirestoreFieldReferenceValueDeserializer,
     firestore_function_value_deserializer::FirestoreFunctionValueDeserializer,
-    firestore_pipeline_value_deserializer::FirestorePipelineValueDeserializer,
     firestore_reference_value_deserializer::FirestoreReferenceValueDeserializer,
     firestore_struct_map_value_deserializer::FirestoreStructMapValueDeserializer,
 };
@@ -63,8 +63,8 @@ impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
                 ValueType::FunctionValue(_) => {
                     visitor.visit_map(FirestoreFunctionValueDeserializer::new(self.value)?)
                 }
-                ValueType::PipelineValue(_) => {
-                    visitor.visit_map(FirestorePipelineValueDeserializer::new(self.value)?)
+                ValueType::PipelineValue(v) => {
+                    visitor.visit_map(GoogleFirestorePipelineMapAccess::new(v))
                 }
             },
             None => Err(Error::from(ErrorCode::ValueTypeMustBeSome)),
@@ -301,7 +301,9 @@ impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
         } else if name == LatLng::NAME {
             visitor.visit_map(GoogleTypeLatLngMapAccess::new(self.value.as_lat_lng()?))
         } else if name == Pipeline::NAME {
-            visitor.visit_map(FirestorePipelineValueDeserializer::new(self.value)?)
+            visitor.visit_map(GoogleFirestorePipelineMapAccess::new(
+                self.value.as_pipeline()?,
+            ))
         } else if name == Timestamp::NAME {
             visitor.visit_map(ProstTypesTimestampMapAccess::new(
                 self.value.as_timestamp()?,

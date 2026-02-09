@@ -8,7 +8,6 @@ mod google_firestore_pipeline_map_access;
 mod google_firestore_pipeline_stage_deserializer;
 mod google_firestore_pipeline_stage_map_access;
 mod google_type_lat_lng_map_access;
-mod private;
 mod prost_types_timestamp_map_access;
 pub(crate) mod with;
 

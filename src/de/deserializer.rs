@@ -2,7 +2,6 @@ use crate::de::GoogleFirestoreFunctionMapAccess;
 use crate::de::GoogleFirestorePipelineMapAccess;
 use crate::de::GoogleTypeLatLngMapAccess;
 use crate::de::ProstTypesTimestampMapAccess;
-use crate::de::private::NewtypeStructMapAccess;
 use crate::google::firestore::v1::{Value, value::ValueType};
 use crate::{
     Error, FieldReference, Function, LatLng, Pipeline, Reference, Timestamp, error::ErrorCode,
@@ -48,7 +47,10 @@ impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
                 ValueType::StringValue(v) => visitor.visit_str(v),
                 ValueType::BytesValue(v) => visitor.visit_bytes(v),
                 ValueType::ReferenceValue(v) => {
-                    visitor.visit_map(NewtypeStructMapAccess::new(crate::Reference::NAME, v))
+                    visitor.visit_map(serde::de::value::MapDeserializer::new(std::iter::once((
+                        crate::Reference::NAME,
+                        serde::de::value::StrDeserializer::new(v),
+                    ))))
                 }
                 ValueType::GeoPointValue(v) => visitor.visit_map(GoogleTypeLatLngMapAccess::new(v)),
                 ValueType::ArrayValue(v) => visitor.visit_seq(
@@ -62,7 +64,10 @@ impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
                     ))
                 }
                 ValueType::FieldReferenceValue(v) => {
-                    visitor.visit_map(NewtypeStructMapAccess::new(crate::FieldReference::NAME, v))
+                    visitor.visit_map(serde::de::value::MapDeserializer::new(std::iter::once((
+                        crate::FieldReference::NAME,
+                        serde::de::value::StrDeserializer::new(v),
+                    ))))
                 }
                 ValueType::FunctionValue(v) => {
                     visitor.visit_map(GoogleFirestoreFunctionMapAccess::new(v))

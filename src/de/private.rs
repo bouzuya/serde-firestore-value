@@ -32,9 +32,9 @@ impl<'de> serde::Deserializer<'de> for ValueDeserializer<'de> {
             Some(ValueType::DoubleValue(v)) => visitor.visit_f64(*v),
             Some(ValueType::StringValue(v)) => visitor.visit_str(v),
             Some(ValueType::BytesValue(v)) => visitor.visit_bytes(v),
-            Some(ValueType::ArrayValue(arr)) => visitor.visit_seq(ValueSeqAccess {
-                iter: arr.values.iter(),
-            }),
+            Some(ValueType::ArrayValue(v)) => visitor.visit_seq(
+                serde::de::value::SeqDeserializer::new(v.values.iter().map(ValueDeserializer)),
+            ),
             Some(ValueType::MapValue(map)) => {
                 visitor.visit_map(serde::de::value::MapDeserializer::new(
                     map.fields
@@ -65,24 +65,6 @@ impl<'de> serde::Deserializer<'de> for ValueDeserializer<'de> {
         bool i8 i16 i32 i64 i128 u8 u16 u32 u64 u128 f32 f64 char str string
         bytes byte_buf option unit unit_struct newtype_struct seq tuple
         tuple_struct map struct enum identifier ignored_any
-    }
-}
-
-pub(super) struct ValueSeqAccess<'a> {
-    pub iter: std::slice::Iter<'a, Value>,
-}
-
-impl<'de> serde::de::SeqAccess<'de> for ValueSeqAccess<'de> {
-    type Error = Error;
-
-    fn next_element_seed<T>(&mut self, seed: T) -> Result<Option<T::Value>, Self::Error>
-    where
-        T: serde::de::DeserializeSeed<'de>,
-    {
-        match self.iter.next() {
-            Some(value) => seed.deserialize(ValueDeserializer(value)).map(Some),
-            None => Ok(None),
-        }
     }
 }
 

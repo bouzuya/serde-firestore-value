@@ -1,7 +1,7 @@
 use crate::google::firestore::v1::Value;
 use crate::{Error, value_ext::ValueExt};
 
-use super::{Deserializer, firestore_array_value_deserializer::FirestoreArrayValueDeserializer};
+use super::Deserializer;
 
 pub(super) struct FirestoreEnumDeserializer<'de> {
     value: &'de Value,
@@ -63,7 +63,9 @@ impl<'de> serde::de::VariantAccess<'de> for FirestoreEnumDeserializer<'de> {
     {
         let (variant, value) = self.value.as_variant_value()?;
         if self.variants.contains(&variant.as_str()) {
-            visitor.visit_seq(FirestoreArrayValueDeserializer::new(value)?)
+            visitor.visit_seq(serde::de::value::SeqDeserializer::new(
+                value.as_values()?.iter().map(Deserializer::new),
+            ))
         } else {
             Err(<Error as serde::de::Error>::unknown_variant(
                 variant,

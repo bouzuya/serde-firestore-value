@@ -8,7 +8,6 @@ use crate::{
 };
 
 use super::{
-    firestore_array_value_deserializer::FirestoreArrayValueDeserializer,
     firestore_enum_deserializer::FirestoreEnumDeserializer,
     firestore_field_reference_value_deserializer::FirestoreFieldReferenceValueDeserializer,
     firestore_function_value_deserializer::FirestoreFunctionValueDeserializer,
@@ -49,9 +48,9 @@ impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
                 ValueType::BytesValue(v) => visitor.visit_bytes(v),
                 ValueType::ReferenceValue(v) => visitor.visit_str(v),
                 ValueType::GeoPointValue(v) => visitor.visit_map(GoogleTypeLatLngMapAccess::new(v)),
-                ValueType::ArrayValue(_) => {
-                    visitor.visit_seq(FirestoreArrayValueDeserializer::new(self.value)?)
-                }
+                ValueType::ArrayValue(v) => visitor.visit_seq(
+                    serde::de::value::SeqDeserializer::new(v.values.iter().map(Deserializer::new)),
+                ),
                 ValueType::MapValue(map) => {
                     visitor.visit_map(serde::de::value::MapDeserializer::new(
                         map.fields
@@ -253,14 +252,18 @@ impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        visitor.visit_seq(FirestoreArrayValueDeserializer::new(self.value)?)
+        visitor.visit_seq(serde::de::value::SeqDeserializer::new(
+            self.value.as_values()?.iter().map(Deserializer::new),
+        ))
     }
 
     fn deserialize_tuple<V>(self, _len: usize, visitor: V) -> Result<V::Value, Self::Error>
     where
         V: serde::de::Visitor<'a>,
     {
-        visitor.visit_seq(FirestoreArrayValueDeserializer::new(self.value)?)
+        visitor.visit_seq(serde::de::value::SeqDeserializer::new(
+            self.value.as_values()?.iter().map(Deserializer::new),
+        ))
     }
 
     fn deserialize_tuple_struct<V>(
@@ -272,7 +275,9 @@ impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        visitor.visit_seq(FirestoreArrayValueDeserializer::new(self.value)?)
+        visitor.visit_seq(serde::de::value::SeqDeserializer::new(
+            self.value.as_values()?.iter().map(Deserializer::new),
+        ))
     }
 
     fn deserialize_map<V>(self, visitor: V) -> Result<V::Value, Self::Error>

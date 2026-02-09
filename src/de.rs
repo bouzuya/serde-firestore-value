@@ -5,6 +5,8 @@ mod firestore_reference_value_deserializer;
 mod firestore_struct_map_value_deserializer;
 mod google_firestore_function_map_access;
 mod google_firestore_pipeline_map_access;
+mod google_firestore_pipeline_stage_deserializer;
+mod google_firestore_pipeline_stage_map_access;
 mod google_type_lat_lng_map_access;
 mod private;
 mod prost_types_timestamp_map_access;
@@ -17,6 +19,8 @@ pub use self::deserializer::Deserializer;
 
 pub(crate) use self::google_firestore_function_map_access::GoogleFirestoreFunctionMapAccess;
 pub(crate) use self::google_firestore_pipeline_map_access::GoogleFirestorePipelineMapAccess;
+pub(crate) use self::google_firestore_pipeline_stage_deserializer::GoogleFirestorePipelineStageDeserializer;
+pub(crate) use self::google_firestore_pipeline_stage_map_access::GoogleFirestorePipelineStageMapAccess;
 pub(crate) use self::google_type_lat_lng_map_access::GoogleTypeLatLngMapAccess;
 pub(crate) use self::prost_types_timestamp_map_access::ProstTypesTimestampMapAccess;
 

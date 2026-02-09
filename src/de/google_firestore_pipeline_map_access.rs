@@ -43,7 +43,7 @@ impl<'de> serde::de::MapAccess<'de> for GoogleFirestorePipelineMapAccess<'de> {
                 self.pipeline
                     .stages
                     .iter()
-                    .map(crate::de::private::StageDeserializer),
+                    .map(crate::de::GoogleFirestorePipelineStageDeserializer::new),
             )),
             _ => unreachable!(),
         }

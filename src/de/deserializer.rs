@@ -11,7 +11,6 @@ use super::{
     firestore_enum_deserializer::FirestoreEnumDeserializer,
     firestore_field_reference_value_deserializer::FirestoreFieldReferenceValueDeserializer,
     firestore_function_value_deserializer::FirestoreFunctionValueDeserializer,
-    firestore_map_value_deserializer::FirestoreMapValueDeserializer,
     firestore_pipeline_value_deserializer::FirestorePipelineValueDeserializer,
     firestore_reference_value_deserializer::FirestoreReferenceValueDeserializer,
     firestore_struct_map_value_deserializer::FirestoreStructMapValueDeserializer,
@@ -43,20 +42,22 @@ impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
                 ValueType::BooleanValue(v) => visitor.visit_bool(*v),
                 ValueType::IntegerValue(v) => visitor.visit_i64(*v),
                 ValueType::DoubleValue(v) => visitor.visit_f64(*v),
-                ValueType::TimestampValue(_) => visitor.visit_map(
-                    ProstTypesTimestampMapAccess::new(self.value.as_timestamp()?),
-                ),
+                ValueType::TimestampValue(v) => {
+                    visitor.visit_map(ProstTypesTimestampMapAccess::new(v))
+                }
                 ValueType::StringValue(v) => visitor.visit_str(v),
                 ValueType::BytesValue(v) => visitor.visit_bytes(v),
                 ValueType::ReferenceValue(v) => visitor.visit_str(v),
-                ValueType::GeoPointValue(_) => {
-                    visitor.visit_map(GoogleTypeLatLngMapAccess::new(self.value.as_lat_lng()?))
-                }
+                ValueType::GeoPointValue(v) => visitor.visit_map(GoogleTypeLatLngMapAccess::new(v)),
                 ValueType::ArrayValue(_) => {
                     visitor.visit_seq(FirestoreArrayValueDeserializer::new(self.value)?)
                 }
-                ValueType::MapValue(_) => {
-                    visitor.visit_map(FirestoreMapValueDeserializer::new(self.value)?)
+                ValueType::MapValue(map) => {
+                    visitor.visit_map(serde::de::value::MapDeserializer::new(
+                        map.fields
+                            .iter()
+                            .map(|(k, v)| (k.as_str(), Deserializer::new(v))),
+                    ))
                 }
                 ValueType::FieldReferenceValue(v) => visitor.visit_str(v),
                 ValueType::FunctionValue(_) => {
@@ -278,7 +279,12 @@ impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
     where
         V: serde::de::Visitor<'a>,
     {
-        visitor.visit_map(FirestoreMapValueDeserializer::new(self.value)?)
+        visitor.visit_map(serde::de::value::MapDeserializer::new(
+            self.value
+                .as_fields()?
+                .iter()
+                .map(|(k, v)| (k.as_str(), Deserializer::new(v))),
+        ))
     }
 
     fn deserialize_struct<V>(
@@ -338,5 +344,13 @@ impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
         V: serde::de::Visitor<'a>,
     {
         visitor.visit_unit()
+    }
+}
+
+impl<'de> serde::de::IntoDeserializer<'de, Error> for Deserializer<'de> {
+    type Deserializer = Self;
+
+    fn into_deserializer(self) -> Self::Deserializer {
+        self
     }
 }

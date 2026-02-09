@@ -3,7 +3,6 @@ mod firestore_array_value_deserializer;
 mod firestore_enum_deserializer;
 mod firestore_field_reference_value_deserializer;
 mod firestore_function_value_deserializer;
-mod firestore_map_value_deserializer;
 mod firestore_pipeline_value_deserializer;
 mod firestore_reference_value_deserializer;
 mod firestore_struct_map_value_deserializer;

@@ -33,10 +33,13 @@ impl<'de> serde::Deserializer<'de> for ValueDeserializer<'de> {
             Some(ValueType::ArrayValue(arr)) => visitor.visit_seq(ValueSeqAccess {
                 iter: arr.values.iter(),
             }),
-            Some(ValueType::MapValue(map)) => visitor.visit_map(ValueMapDeserializerAccess {
-                iter: map.fields.iter(),
-                value: None,
-            }),
+            Some(ValueType::MapValue(map)) => {
+                visitor.visit_map(serde::de::value::MapDeserializer::new(
+                    map.fields
+                        .iter()
+                        .map(|(k, v)| (k.as_str(), ValueDeserializer(v))),
+                ))
+            }
             Some(ValueType::TimestampValue(timestamp)) => {
                 visitor.visit_map(ProstTypesTimestampMapAccess::new(timestamp))
             }
@@ -75,46 +78,6 @@ impl<'de> serde::de::SeqAccess<'de> for ValueSeqAccess<'de> {
         match self.iter.next() {
             Some(value) => seed.deserialize(ValueDeserializer(value)).map(Some),
             None => Ok(None),
-        }
-    }
-}
-
-#[cfg(feature = "btree-map")]
-pub(super) struct ValueMapDeserializerAccess<'a> {
-    pub iter: std::collections::btree_map::Iter<'a, String, Value>,
-    pub value: Option<&'a Value>,
-}
-
-#[cfg(feature = "hash-map")]
-pub(super) struct ValueMapDeserializerAccess<'a> {
-    pub iter: std::collections::hash_map::Iter<'a, String, Value>,
-    pub value: Option<&'a Value>,
-}
-
-impl<'de> serde::de::MapAccess<'de> for ValueMapDeserializerAccess<'de> {
-    type Error = Error;
-
-    fn next_key_seed<K>(&mut self, seed: K) -> Result<Option<K::Value>, Self::Error>
-    where
-        K: serde::de::DeserializeSeed<'de>,
-    {
-        match self.iter.next() {
-            Some((key, value)) => {
-                self.value = Some(value);
-                seed.deserialize(serde::de::value::StrDeserializer::new(key.as_str()))
-                    .map(Some)
-            }
-            None => Ok(None),
-        }
-    }
-
-    fn next_value_seed<V>(&mut self, seed: V) -> Result<V::Value, Self::Error>
-    where
-        V: serde::de::DeserializeSeed<'de>,
-    {
-        match self.value.take() {
-            Some(value) => seed.deserialize(ValueDeserializer(value)),
-            None => unreachable!(),
         }
     }
 }

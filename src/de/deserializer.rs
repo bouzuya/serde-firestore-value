@@ -2,16 +2,11 @@ use crate::de::GoogleFirestoreFunctionMapAccess;
 use crate::de::GoogleFirestorePipelineMapAccess;
 use crate::de::GoogleTypeLatLngMapAccess;
 use crate::de::ProstTypesTimestampMapAccess;
+use crate::de::firestore_enum_deserializer::FirestoreEnumDeserializer;
 use crate::google::firestore::v1::{Value, value::ValueType};
 use crate::{
     Error, FieldReference, Function, LatLng, Pipeline, Reference, Timestamp, error::ErrorCode,
     value_ext::ValueExt,
-};
-
-use super::{
-    firestore_enum_deserializer::FirestoreEnumDeserializer,
-    firestore_field_reference_value_deserializer::FirestoreFieldReferenceValueDeserializer,
-    firestore_reference_value_deserializer::FirestoreReferenceValueDeserializer,
 };
 
 /// A Deserializer type which implements [`serde::Deserializer`] for [`Value`].
@@ -249,9 +244,13 @@ impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
         V: serde::de::Visitor<'a>,
     {
         if name == FieldReference::NAME {
-            visitor.visit_newtype_struct(FirestoreFieldReferenceValueDeserializer::new(self.value))
+            visitor.visit_newtype_struct(serde::de::value::StrDeserializer::new(
+                self.value.as_field_reference_value_as_string()?,
+            ))
         } else if name == Reference::NAME {
-            visitor.visit_newtype_struct(FirestoreReferenceValueDeserializer::new(self.value))
+            visitor.visit_newtype_struct(serde::de::value::StrDeserializer::new(
+                self.value.as_reference_value_as_string()?,
+            ))
         } else {
             visitor.visit_newtype_struct(self)
         }

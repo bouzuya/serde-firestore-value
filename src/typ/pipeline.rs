@@ -26,7 +26,7 @@ impl<'de> serde::Deserialize<'de> for Pipeline {
     where
         D: serde::Deserializer<'de>,
     {
-        deserializer.deserialize_struct(Self::NAME, &Self::FIELDS, PipelineVisitor)
+        deserializer.deserialize_struct(Self::NAME, Self::FIELDS, PipelineVisitor)
     }
 }
 
@@ -101,7 +101,7 @@ impl<'de> serde::Deserialize<'de> for Stage {
     where
         D: serde::Deserializer<'de>,
     {
-        deserializer.deserialize_struct(Self::NAME, &Self::FIELDS, StageVisitor)
+        deserializer.deserialize_struct(Self::NAME, Self::FIELDS, StageVisitor)
     }
 }
 

@@ -25,6 +25,7 @@ pub struct Serializer {
 
 impl Serializer {
     /// Creates a new `FirestoreValueSerializer`.
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         Self { _private: () }
     }

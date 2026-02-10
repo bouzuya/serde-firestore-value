@@ -35,7 +35,7 @@ impl<'de> serde::Deserialize<'de> for Function {
     where
         D: serde::Deserializer<'de>,
     {
-        deserializer.deserialize_struct(Self::NAME, &Self::FIELDS, FunctionVisitor)
+        deserializer.deserialize_struct(Self::NAME, Self::FIELDS, FunctionVisitor)
     }
 }
 

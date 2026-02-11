@@ -222,9 +222,14 @@ fn test_function_deserialize() -> anyhow::Result<()> {
         },
         // 7. BytesValue
         google::firestore::v1::Value {
-            value_type: Some(google::firestore::v1::value::ValueType::BytesValue(vec![
-                0x01, 0x02, 0x03,
-            ])),
+            value_type: Some(google::firestore::v1::value::ValueType::BytesValue(bytes(
+                &[0x01, 0x02, 0x03],
+            ))),
+        },
+        google::firestore::v1::Value {
+            value_type: Some(google::firestore::v1::value::ValueType::BytesValue(bytes(
+                &[0x01, 0x02, 0x03],
+            ))),
         },
         // 8. ReferenceValue
         google::firestore::v1::Value {
@@ -434,4 +439,14 @@ fn test_function_deserialize() -> anyhow::Result<()> {
     let d = from_value::<'_, Function>(&s)?;
     assert_eq!(d, o);
     Ok(())
+}
+
+#[cfg(feature = "bytes")]
+fn bytes(data: &'static [u8]) -> prost::bytes::Bytes {
+    prost::bytes::Bytes::from(data)
+}
+
+#[cfg(feature = "vec-u8")]
+fn bytes(data: &'static [u8]) -> Vec<u8> {
+    data.to_vec()
 }

@@ -3,7 +3,10 @@ use serde_firestore_value::from_value;
 #[test]
 fn test_pipeline() -> anyhow::Result<()> {
     use serde_firestore_value::{Pipeline, Stage, from_value, google, to_value};
-    use std::collections::HashMap;
+    #[cfg(feature = "btree-map")]
+    use std::collections::BTreeMap as Map;
+    #[cfg(feature = "hash-map")]
+    use std::collections::HashMap as Map;
 
     let o = Pipeline {
         stages: vec![
@@ -14,7 +17,7 @@ fn test_pipeline() -> anyhow::Result<()> {
                         "active = true".to_owned(),
                     )),
                 }],
-                options: HashMap::new(),
+                options: Map::new(),
             },
             Stage {
                 name: "sort".to_owned(),
@@ -23,7 +26,7 @@ fn test_pipeline() -> anyhow::Result<()> {
                         "created_at".to_owned(),
                     )),
                 }],
-                options: HashMap::new(),
+                options: Map::new(),
             },
         ],
     };
@@ -38,7 +41,7 @@ fn test_pipeline() -> anyhow::Result<()> {
                                 "active = true".to_owned(),
                             )),
                         }],
-                        options: HashMap::new(),
+                        options: Map::new(),
                     },
                     google::firestore::v1::pipeline::Stage {
                         name: "sort".to_owned(),
@@ -47,7 +50,7 @@ fn test_pipeline() -> anyhow::Result<()> {
                                 "created_at".to_owned(),
                             )),
                         }],
-                        options: HashMap::new(),
+                        options: Map::new(),
                     },
                 ],
             },
@@ -63,7 +66,10 @@ fn test_pipeline() -> anyhow::Result<()> {
 #[test]
 fn test_pipeline_with_options() -> anyhow::Result<()> {
     use serde_firestore_value::{Pipeline, Stage, google, to_value};
-    use std::collections::HashMap;
+    #[cfg(feature = "btree-map")]
+    use std::collections::BTreeMap as Map;
+    #[cfg(feature = "hash-map")]
+    use std::collections::HashMap as Map;
 
     let o = Pipeline {
         stages: vec![Stage {
@@ -74,7 +80,7 @@ fn test_pipeline_with_options() -> anyhow::Result<()> {
                 )),
             }],
             options: {
-                let mut opts = HashMap::new();
+                let mut opts = Map::new();
                 opts.insert(
                     "alias".to_owned(),
                     google::firestore::v1::Value {
@@ -98,7 +104,7 @@ fn test_pipeline_with_options() -> anyhow::Result<()> {
                         )),
                     }],
                     options: {
-                        let mut opts = HashMap::new();
+                        let mut opts = Map::new();
                         opts.insert(
                             "alias".to_owned(),
                             google::firestore::v1::Value {
@@ -125,7 +131,10 @@ fn test_pipeline_with_options() -> anyhow::Result<()> {
 #[test]
 fn test_pipeline_with_nested_values() -> anyhow::Result<()> {
     use serde_firestore_value::{Pipeline, Stage, google, to_value};
-    use std::collections::HashMap;
+    #[cfg(feature = "btree-map")]
+    use std::collections::BTreeMap as Map;
+    #[cfg(feature = "hash-map")]
+    use std::collections::HashMap as Map;
 
     let o = Pipeline {
         stages: vec![Stage {
@@ -148,7 +157,7 @@ fn test_pipeline_with_nested_values() -> anyhow::Result<()> {
                     },
                 )),
             }],
-            options: HashMap::new(),
+            options: Map::new(),
         }],
     };
     let v = google::firestore::v1::Value {
@@ -178,7 +187,7 @@ fn test_pipeline_with_nested_values() -> anyhow::Result<()> {
                             },
                         )),
                     }],
-                    options: HashMap::new(),
+                    options: Map::new(),
                 }],
             },
         )),
@@ -193,7 +202,10 @@ fn test_pipeline_with_nested_values() -> anyhow::Result<()> {
 #[test]
 fn test_pipeline_deserialize() -> anyhow::Result<()> {
     use serde_firestore_value::{Pipeline, Stage, google};
-    use std::collections::HashMap;
+    #[cfg(feature = "btree-map")]
+    use std::collections::BTreeMap as Map;
+    #[cfg(feature = "hash-map")]
+    use std::collections::HashMap as Map;
 
     let v = google::firestore::v1::Value {
         value_type: Some(google::firestore::v1::value::ValueType::PipelineValue(
@@ -212,7 +224,7 @@ fn test_pipeline_deserialize() -> anyhow::Result<()> {
                             )),
                         },
                     ],
-                    options: HashMap::new(),
+                    options: Map::new(),
                 }],
             },
         )),
@@ -237,7 +249,7 @@ fn test_pipeline_deserialize() -> anyhow::Result<()> {
                         )),
                     },
                 ],
-                options: HashMap::new(),
+                options: Map::new(),
             }],
         }
     );

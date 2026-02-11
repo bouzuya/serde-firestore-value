@@ -3,7 +3,10 @@ use serde_firestore_value::from_value;
 #[test]
 fn test_function() -> anyhow::Result<()> {
     use serde_firestore_value::{Function, from_value, google, to_value};
-    use std::collections::HashMap;
+    #[cfg(feature = "btree-map")]
+    use std::collections::BTreeMap as Map;
+    #[cfg(feature = "hash-map")]
+    use std::collections::HashMap as Map;
 
     let o = Function {
         name: "add".to_owned(),
@@ -15,7 +18,7 @@ fn test_function() -> anyhow::Result<()> {
                 value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(2)),
             },
         ],
-        options: HashMap::new(),
+        options: Map::new(),
     };
     let v = google::firestore::v1::Value {
         value_type: Some(google::firestore::v1::value::ValueType::FunctionValue(
@@ -29,7 +32,7 @@ fn test_function() -> anyhow::Result<()> {
                         value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(2)),
                     },
                 ],
-                options: HashMap::new(),
+                options: Map::new(),
             },
         )),
     };
@@ -43,7 +46,10 @@ fn test_function() -> anyhow::Result<()> {
 #[test]
 fn test_function_with_options() -> anyhow::Result<()> {
     use serde_firestore_value::{Function, google, to_value};
-    use std::collections::HashMap;
+    #[cfg(feature = "btree-map")]
+    use std::collections::BTreeMap as Map;
+    #[cfg(feature = "hash-map")]
+    use std::collections::HashMap as Map;
 
     let o = Function {
         name: "custom_func".to_owned(),
@@ -53,7 +59,7 @@ fn test_function_with_options() -> anyhow::Result<()> {
             )),
         }],
         options: {
-            let mut opts = HashMap::new();
+            let mut opts = Map::new();
             opts.insert(
                 "timeout".to_owned(),
                 google::firestore::v1::Value {
@@ -73,7 +79,7 @@ fn test_function_with_options() -> anyhow::Result<()> {
                     )),
                 }],
                 options: {
-                    let mut opts = HashMap::new();
+                    let mut opts = Map::new();
                     opts.insert(
                         "timeout".to_owned(),
                         google::firestore::v1::Value {
@@ -97,7 +103,10 @@ fn test_function_with_options() -> anyhow::Result<()> {
 #[test]
 fn test_function_with_nested_values() -> anyhow::Result<()> {
     use serde_firestore_value::{Function, google, to_value};
-    use std::collections::HashMap;
+    #[cfg(feature = "btree-map")]
+    use std::collections::BTreeMap as Map;
+    #[cfg(feature = "hash-map")]
+    use std::collections::HashMap as Map;
 
     let o = Function {
         name: "process".to_owned(),
@@ -124,7 +133,7 @@ fn test_function_with_nested_values() -> anyhow::Result<()> {
                 value_type: Some(google::firestore::v1::value::ValueType::BooleanValue(true)),
             },
         ],
-        options: HashMap::new(),
+        options: Map::new(),
     };
     let v = google::firestore::v1::Value {
         value_type: Some(google::firestore::v1::value::ValueType::FunctionValue(
@@ -159,7 +168,7 @@ fn test_function_with_nested_values() -> anyhow::Result<()> {
                         )),
                     },
                 ],
-                options: HashMap::new(),
+                options: Map::new(),
             },
         )),
     };
@@ -173,7 +182,10 @@ fn test_function_with_nested_values() -> anyhow::Result<()> {
 #[test]
 fn test_function_deserialize() -> anyhow::Result<()> {
     use serde_firestore_value::{Function, from_value, google, to_value};
-    use std::collections::HashMap;
+    #[cfg(feature = "btree-map")]
+    use std::collections::BTreeMap as Map;
+    #[cfg(feature = "hash-map")]
+    use std::collections::HashMap as Map;
 
     // Create args with all ValueType variants (except PipelineValue which is not supported)
     let args = vec![
@@ -253,7 +265,7 @@ fn test_function_deserialize() -> anyhow::Result<()> {
             value_type: Some(google::firestore::v1::value::ValueType::MapValue(
                 google::firestore::v1::MapValue {
                     fields: {
-                        let mut fields = HashMap::new();
+                        let mut fields = Map::new();
                         fields.insert(
                             "key".to_owned(),
                             google::firestore::v1::Value {
@@ -274,7 +286,7 @@ fn test_function_deserialize() -> anyhow::Result<()> {
             value_type: Some(google::firestore::v1::value::ValueType::MapValue(
                 google::firestore::v1::MapValue {
                     fields: {
-                        let mut fields = HashMap::new();
+                        let mut fields = Map::new();
                         fields.insert(
                             "seconds".to_owned(),
                             google::firestore::v1::Value {
@@ -301,7 +313,7 @@ fn test_function_deserialize() -> anyhow::Result<()> {
             value_type: Some(google::firestore::v1::value::ValueType::MapValue(
                 google::firestore::v1::MapValue {
                     fields: {
-                        let mut fields = HashMap::new();
+                        let mut fields = Map::new();
                         fields.insert(
                             "latitude".to_owned(),
                             google::firestore::v1::Value {
@@ -328,7 +340,7 @@ fn test_function_deserialize() -> anyhow::Result<()> {
             value_type: Some(google::firestore::v1::value::ValueType::MapValue(
                 google::firestore::v1::MapValue {
                     fields: {
-                        let mut fields = HashMap::new();
+                        let mut fields = Map::new();
                         fields.insert(
                             "name".to_owned(),
                             google::firestore::v1::Value {
@@ -366,7 +378,7 @@ fn test_function_deserialize() -> anyhow::Result<()> {
                                 value_type: Some(google::firestore::v1::value::ValueType::MapValue(
                                     google::firestore::v1::MapValue {
                                         fields: {
-                                            let mut opts = HashMap::new();
+                                            let mut opts = Map::new();
                                             opts.insert(
                                                 "opt_key".to_owned(),
                                                 google::firestore::v1::Value {
@@ -406,7 +418,7 @@ fn test_function_deserialize() -> anyhow::Result<()> {
                     args: vec![google::firestore::v1::Value {
                         value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(99)),
                     }],
-                    options: HashMap::new(),
+                    options: Map::new(),
                 },
             )),
         },
@@ -415,7 +427,7 @@ fn test_function_deserialize() -> anyhow::Result<()> {
     let o = Function {
         name: "test_all_types".to_owned(),
         args,
-        options: HashMap::new(),
+        options: Map::new(),
     };
 
     let s = to_value(&o)?;

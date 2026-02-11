@@ -28,7 +28,10 @@ fn test_field_reference_value_in_struct() -> anyhow::Result<()> {
         google::firestore::v1::{MapValue, Value, value::ValueType},
         to_value,
     };
-    use std::collections::HashMap;
+    #[cfg(feature = "btree-map")]
+    use std::collections::BTreeMap as Map;
+    #[cfg(feature = "hash-map")]
+    use std::collections::HashMap as Map;
 
     #[derive(Debug, Eq, PartialEq, serde::Deserialize, serde::Serialize)]
     struct S {
@@ -41,7 +44,7 @@ fn test_field_reference_value_in_struct() -> anyhow::Result<()> {
     let v = Value {
         value_type: Some(ValueType::MapValue(MapValue {
             fields: {
-                let mut fields = HashMap::new();
+                let mut fields = Map::new();
                 fields.insert(
                     "field_ref".to_string(),
                     Value {

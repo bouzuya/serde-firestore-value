@@ -587,7 +587,7 @@ impl serde::Serialize for ValueWrapper<'_> {
                     &v.options
                         .iter()
                         .map(|(k, v)| (k.as_str(), ValueWrapper(v)))
-                        .collect::<HashMap<_, _>>(),
+                        .collect::<std::collections::HashMap<_, _>>(),
                 )?;
                 state.end()
             }

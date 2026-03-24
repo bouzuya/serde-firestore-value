@@ -5,6 +5,7 @@ pub(crate) mod pipeline;
 mod private;
 pub(crate) mod reference;
 pub(crate) mod timestamp;
+mod variable_reference;
 
 pub use self::field_reference::FieldReference;
 pub use self::function::Function;
@@ -12,3 +13,4 @@ pub use self::lat_lng::LatLng;
 pub use self::pipeline::{Pipeline, Stage};
 pub use self::reference::Reference;
 pub use self::timestamp::Timestamp;
+pub use self::variable_reference::VariableReference;

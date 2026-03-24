@@ -8,6 +8,7 @@ mod firestore_reference_value_serializer;
 mod firestore_stage_value_serializer;
 mod firestore_timestamp_value_serializer;
 mod firestore_value_struct_serializer;
+mod firestore_variable_reference_value_serializer;
 mod name_map_value_serializer;
 mod serializer;
 pub(crate) mod with;

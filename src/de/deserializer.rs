@@ -1,3 +1,4 @@
+use crate::VariableReference;
 use crate::de::GoogleFirestoreFunctionMapAccess;
 use crate::de::GoogleFirestorePipelineMapAccess;
 use crate::de::GoogleTypeLatLngMapAccess;
@@ -60,6 +61,12 @@ impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
                 ValueType::FieldReferenceValue(v) => {
                     visitor.visit_map(serde::de::value::MapDeserializer::new(std::iter::once((
                         crate::FieldReference::NAME,
+                        serde::de::value::StrDeserializer::new(v),
+                    ))))
+                }
+                ValueType::VariableReferenceValue(v) => {
+                    visitor.visit_map(serde::de::value::MapDeserializer::new(std::iter::once((
+                        crate::VariableReference::NAME,
                         serde::de::value::StrDeserializer::new(v),
                     ))))
                 }
@@ -246,6 +253,10 @@ impl<'a> serde::Deserializer<'a> for Deserializer<'a> {
         if name == FieldReference::NAME {
             visitor.visit_newtype_struct(serde::de::value::StrDeserializer::new(
                 self.value.as_field_reference_value_as_string()?,
+            ))
+        } else if name == VariableReference::NAME {
+            visitor.visit_newtype_struct(serde::de::value::StrDeserializer::new(
+                self.value.as_variable_reference_value_as_string()?,
             ))
         } else if name == Reference::NAME {
             visitor.visit_newtype_struct(serde::de::value::StrDeserializer::new(

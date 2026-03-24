@@ -12,6 +12,7 @@ pub(super) enum ValueTypeName {
     Array,
     Map,
     FieldReference,
+    VariableReference,
     Function,
     Pipeline,
 }
@@ -31,6 +32,7 @@ impl ValueTypeName {
             ValueTypeName::Array => "array value",
             ValueTypeName::Map => "map value",
             ValueTypeName::FieldReference => "field reference value",
+            ValueTypeName::VariableReference => "variable reference value",
             ValueTypeName::Function => "function value",
             ValueTypeName::Pipeline => "pipeline value",
         }

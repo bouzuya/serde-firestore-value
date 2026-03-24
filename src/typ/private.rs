@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 #[cfg(feature = "hash-map")]
 use std::collections::HashMap;
 
-use crate::google::firestore::v1::Value;
+use crate::{VariableReference, google::firestore::v1::Value};
 
 pub(super) struct ValueVecSeed;
 
@@ -517,6 +517,20 @@ impl<'de> serde::de::Visitor<'de> for ValueVisitor {
             });
         }
 
+        // VariableReference: { $__serde-firestore-value_private_variable_reference: string }
+        if fields.len() == 1 && fields.contains_key(crate::VariableReference::NAME) {
+            let variable_reference = fields
+                .get(crate::VariableReference::NAME)
+                .and_then(|v| match &v.value_type {
+                    Some(ValueType::StringValue(s)) => Some(s.clone()),
+                    _ => None,
+                })
+                .ok_or_else(|| serde::de::Error::custom("invalid variable_reference field"))?;
+            return Ok(Value {
+                value_type: Some(ValueType::VariableReferenceValue(variable_reference)),
+            });
+        }
+
         Ok(Value {
             value_type: Some(ValueType::MapValue(MapValue { fields })),
         })
@@ -574,6 +588,9 @@ impl serde::Serialize for ValueWrapper<'_> {
             }
             Some(ValueType::FieldReferenceValue(v)) => {
                 serializer.serialize_newtype_struct(FieldReference::NAME, v)
+            }
+            Some(ValueType::VariableReferenceValue(v)) => {
+                serializer.serialize_newtype_struct(VariableReference::NAME, v)
             }
             Some(ValueType::FunctionValue(v)) => {
                 let mut state = serializer.serialize_struct(Function::NAME, 3)?;

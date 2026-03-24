@@ -30,6 +30,7 @@ pub(crate) trait ValueExt {
     fn from_string(value: String) -> Self;
     fn from_string_as_field_reference_value(value: String) -> Self;
     fn from_string_as_reference_value(value: String) -> Self;
+    fn from_string_as_variable_reference_value(value: String) -> Self;
     fn from_timestamp(timestamp: prost_types::Timestamp) -> Self;
     fn from_values(values: Vec<Value>) -> Self;
     fn null() -> Self;
@@ -51,6 +52,7 @@ pub(crate) trait ValueExt {
     fn as_string(&self) -> Result<&String, Error>;
     fn as_timestamp(&self) -> Result<&prost_types::Timestamp, Error>;
     fn as_values(&self) -> Result<&Vec<Value>, Error>;
+    fn as_variable_reference_value_as_string(&self) -> Result<&String, Error>;
     fn as_variant_value(&self) -> Result<(&String, &Value), Error>;
     fn value_type(&self) -> Result<&ValueType, Error>;
 }
@@ -159,6 +161,12 @@ impl ValueExt for Value {
     fn from_string_as_reference_value(value: String) -> Self {
         Self {
             value_type: Some(ValueType::ReferenceValue(value)),
+        }
+    }
+
+    fn from_string_as_variable_reference_value(value: String) -> Self {
+        Self {
+            value_type: Some(ValueType::VariableReferenceValue(value)),
         }
     }
 
@@ -302,6 +310,16 @@ impl ValueExt for Value {
         match self.value_type()? {
             ValueType::ArrayValue(ArrayValue { values }) => Ok(values),
             value_type => Err(Error::invalid_value_type(value_type, ValueTypeName::Array)),
+        }
+    }
+
+    fn as_variable_reference_value_as_string(&self) -> Result<&String, Error> {
+        match self.value_type()? {
+            ValueType::VariableReferenceValue(value) => Ok(value),
+            value_type => Err(Error::invalid_value_type(
+                value_type,
+                ValueTypeName::VariableReference,
+            )),
         }
     }
 

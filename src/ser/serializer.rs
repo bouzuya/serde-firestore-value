@@ -1,5 +1,6 @@
-use crate::FieldReference;
 use crate::google::firestore::v1::Value;
+use crate::ser::firestore_variable_reference_value_serializer::FirestoreVariableReferenceValueSerializer;
+use crate::{FieldReference, VariableReference};
 use crate::{
     Reference,
     error::ErrorCode,
@@ -156,6 +157,8 @@ impl serde::Serializer for Serializer {
             value.serialize(FirestoreReferenceValueSerializer)
         } else if name == FieldReference::NAME {
             value.serialize(FirestoreFieldReferenceValueSerializer)
+        } else if name == VariableReference::NAME {
+            value.serialize(FirestoreVariableReferenceValueSerializer)
         } else {
             value.serialize(Serializer::new())
         }

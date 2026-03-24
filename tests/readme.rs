@@ -10,6 +10,7 @@ fn test() -> anyhow::Result<()> {
     use serde_firestore_value::Reference;
     use serde_firestore_value::Stage;
     use serde_firestore_value::Timestamp;
+    use serde_firestore_value::VariableReference;
     use serde_firestore_value::google;
 
     #[derive(Debug, PartialEq, serde::Deserialize, serde::Serialize)]
@@ -25,6 +26,7 @@ fn test() -> anyhow::Result<()> {
         // You can use `btree-map` feature instead of `hash-map` feature.
         m: std::collections::HashMap<String, bool>,
         fr: FieldReference,
+        vr: VariableReference,
         f: Function,
         p: Pipeline,
     }
@@ -51,6 +53,7 @@ fn test() -> anyhow::Result<()> {
             m
         },
         fr: FieldReference("field_name".to_string()),
+        vr: VariableReference("variable_name".to_string()),
         f: Function {
             name: "add".to_owned(),
             args: vec![
@@ -149,46 +152,46 @@ fn test() -> anyhow::Result<()> {
                         },
                     );
                     fields.insert(
-                    "a".to_string(),
-                    google::firestore::v1::Value {
-                        value_type: Some(google::firestore::v1::value::ValueType::ArrayValue(google::firestore::v1::ArrayValue {
-                            values: vec![
-                                google::firestore::v1::Value {
-                                    value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(1)),
-                                },
-                                google::firestore::v1::Value {
-                                    value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(2)),
-                                },
-                                google::firestore::v1::Value {
-                                    value_type: Some(google::firestore::v1::value::ValueType::NullValue(0)),
-                                },
-                            ],
-                        })),
-                    },
-                );
+                        "a".to_string(),
+                        google::firestore::v1::Value {
+                            value_type: Some(google::firestore::v1::value::ValueType::ArrayValue(google::firestore::v1::ArrayValue {
+                                values: vec![
+                                    google::firestore::v1::Value {
+                                        value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(1)),
+                                    },
+                                    google::firestore::v1::Value {
+                                        value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(2)),
+                                    },
+                                    google::firestore::v1::Value {
+                                        value_type: Some(google::firestore::v1::value::ValueType::NullValue(0)),
+                                    },
+                                ],
+                            })),
+                        },
+                    );
                     fields.insert(
-                    "m".to_string(),
-                    google::firestore::v1::Value {
-                        value_type: Some(google::firestore::v1::value::ValueType::MapValue(google::firestore::v1::MapValue {
-                            fields: {
-                                let mut fields = std::collections::HashMap::new();
-                                fields.insert(
-                                    "a".to_string(),
-                                    google::firestore::v1::Value {
-                                        value_type: Some(google::firestore::v1::value::ValueType::BooleanValue(false)),
-                                    },
-                                );
-                                fields.insert(
-                                    "b".to_string(),
-                                    google::firestore::v1::Value {
-                                        value_type: Some(google::firestore::v1::value::ValueType::BooleanValue(true)),
-                                    },
-                                );
-                                fields
-                            },
-                        })),
-                    },
-                );
+                        "m".to_string(),
+                        google::firestore::v1::Value {
+                            value_type: Some(google::firestore::v1::value::ValueType::MapValue(google::firestore::v1::MapValue {
+                                fields: {
+                                    let mut fields = std::collections::HashMap::new();
+                                    fields.insert(
+                                        "a".to_string(),
+                                        google::firestore::v1::Value {
+                                            value_type: Some(google::firestore::v1::value::ValueType::BooleanValue(false)),
+                                        },
+                                    );
+                                    fields.insert(
+                                        "b".to_string(),
+                                        google::firestore::v1::Value {
+                                            value_type: Some(google::firestore::v1::value::ValueType::BooleanValue(true)),
+                                        },
+                                    );
+                                    fields
+                                },
+                            })),
+                        },
+                    );
                     fields.insert(
                         "fr".to_string(),
                         google::firestore::v1::Value {
@@ -200,40 +203,50 @@ fn test() -> anyhow::Result<()> {
                         },
                     );
                     fields.insert(
-                    "f".to_string(),
-                    google::firestore::v1::Value {
-                        value_type: Some(google::firestore::v1::value::ValueType::FunctionValue(google::firestore::v1::Function {
-                            name: "add".to_owned(),
-                            args: vec![
-                                google::firestore::v1::Value {
-                                    value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(1)),
-                                },
-                                google::firestore::v1::Value {
-                                    value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(2)),
-                                },
-                            ],
-                            options: std::collections::HashMap::new(),
-                        })),
-                    },
-                );
+                        "vr".to_string(),
+                        google::firestore::v1::Value {
+                            value_type: Some(
+                                google::firestore::v1::value::ValueType::VariableReferenceValue(
+                                    "variable_name".to_string(),
+                                ),
+                            ),
+                        },
+                    );
                     fields.insert(
-                "p".to_string(),
-                google::firestore::v1::Value {
-                    value_type: Some(google::firestore::v1::value::ValueType::PipelineValue(google::firestore::v1::Pipeline {
-                        stages: vec![
-                            google::firestore::v1::pipeline::Stage {
-                                name: "filter".to_owned(),
-                                args: vec![google::firestore::v1::Value {
-                                    value_type: Some(google::firestore::v1::value::ValueType::StringValue(
-                                        "active = true".to_owned(),
-                                    )),
-                                }],
+                        "f".to_string(),
+                        google::firestore::v1::Value {
+                            value_type: Some(google::firestore::v1::value::ValueType::FunctionValue(google::firestore::v1::Function {
+                                name: "add".to_owned(),
+                                args: vec![
+                                    google::firestore::v1::Value {
+                                        value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(1)),
+                                    },
+                                    google::firestore::v1::Value {
+                                        value_type: Some(google::firestore::v1::value::ValueType::IntegerValue(2)),
+                                    },
+                                ],
                                 options: std::collections::HashMap::new(),
-                            },
-                        ],
-                    })),
-                },
-            );
+                            })),
+                        },
+                    );
+                    fields.insert(
+                        "p".to_string(),
+                        google::firestore::v1::Value {
+                            value_type: Some(google::firestore::v1::value::ValueType::PipelineValue(google::firestore::v1::Pipeline {
+                                stages: vec![
+                                    google::firestore::v1::pipeline::Stage {
+                                        name: "filter".to_owned(),
+                                        args: vec![google::firestore::v1::Value {
+                                            value_type: Some(google::firestore::v1::value::ValueType::StringValue(
+                                                "active = true".to_owned(),
+                                            )),
+                                        }],
+                                        options: std::collections::HashMap::new(),
+                                    },
+                                ],
+                            })),
+                        },
+                    );
                     fields
                 },
             },

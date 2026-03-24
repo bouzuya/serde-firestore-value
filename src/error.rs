@@ -66,4 +66,6 @@ pub(crate) enum ErrorCode {
     U8OutOfRange,
     #[error("value type must be some")]
     ValueTypeMustBeSome,
+    #[error("variable reference value must be a string")]
+    VariableReferenceValueMustBeAString,
 }

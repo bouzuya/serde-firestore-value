@@ -21,6 +21,7 @@ impl ValueTypeExt for ValueType {
             ValueType::ArrayValue(_) => ValueTypeName::Array,
             ValueType::MapValue(_) => ValueTypeName::Map,
             ValueType::FieldReferenceValue(_) => ValueTypeName::FieldReference,
+            ValueType::VariableReferenceValue(_) => ValueTypeName::VariableReference,
             ValueType::FunctionValue(_) => ValueTypeName::Function,
             ValueType::PipelineValue(_) => ValueTypeName::Pipeline,
         }
